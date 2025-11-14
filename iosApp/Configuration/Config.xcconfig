@@ -1,7 +1,7 @@
 TEAM_ID=
 
-PRODUCT_NAME=CMPSkeleton
-PRODUCT_BUNDLE_IDENTIFIER=com.abdulmateen.cmpskeleton.CMPSkeleton$(TEAM_ID)
+PRODUCT_NAME=POS-Offline
+PRODUCT_BUNDLE_IDENTIFIER=com.abdulmateen.pos_offline.pos_offline$(TEAM_ID)
 
 CURRENT_PROJECT_VERSION=1
 MARKETING_VERSION=1.0

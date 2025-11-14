@@ -110,11 +110,11 @@ dependencies {
 }
 
 android {
-    namespace = "com.abdulmateen.cmpskeleton"
+    namespace = "com.abdulmateen.pos_offline"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.abdulmateen.cmpsekeleton"
+        applicationId = "com.abdulmateen.pos_offline"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

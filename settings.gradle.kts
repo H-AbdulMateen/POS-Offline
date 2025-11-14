@@ -1,4 +1,4 @@
-rootProject.name = "CMPSkeleton"
+rootProject.name = "pos_offline"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
