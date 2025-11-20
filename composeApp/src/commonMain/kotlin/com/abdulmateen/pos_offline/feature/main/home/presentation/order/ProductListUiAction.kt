@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.home.presentation.product_list
+package com.abdulmateen.pos_offline.feature.main.home.presentation.order
 
 sealed class ProductListUiAction {
     data class MarkAsFavourite(val productId: Int): ProductListUiAction()

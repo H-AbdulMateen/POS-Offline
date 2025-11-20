@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.home.presentation.product_list
+package com.abdulmateen.pos_offline.feature.main.home.presentation.order
 
 import androidx.compose.runtime.Immutable
 import com.abdulmateen.pos_offline.core.designsystem.UiText

@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.home.presentation.product_list.components
+package com.abdulmateen.pos_offline.feature.main.home.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

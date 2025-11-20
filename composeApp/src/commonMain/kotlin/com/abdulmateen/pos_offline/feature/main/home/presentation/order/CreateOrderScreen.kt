@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.home.presentation.product_list
+package com.abdulmateen.pos_offline.feature.main.home.presentation.order
 
 
 import androidx.compose.foundation.Image
@@ -8,33 +8,24 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.captionBar
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.unit.dp
@@ -44,12 +35,11 @@ import pos_offline.composeapp.generated.resources.compose_multiplatform
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.main.home.domain.Product
 import com.abdulmateen.pos_offline.feature.main.home.domain.Rating
-import com.abdulmateen.pos_offline.feature.main.home.presentation.product_list.components.CartSummarySection
-import com.abdulmateen.pos_offline.feature.main.home.presentation.product_list.components.CustomerSection
-import com.abdulmateen.pos_offline.feature.main.home.presentation.product_list.components.ProductListSection
-import com.abdulmateen.pos_offline.feature.main.home.presentation.product_list.components.ProductSearchSection
+import com.abdulmateen.pos_offline.feature.main.home.presentation.components.CartSummarySection
+import com.abdulmateen.pos_offline.feature.main.home.presentation.components.CustomerSection
+import com.abdulmateen.pos_offline.feature.main.home.presentation.components.ProductListSection
+import com.abdulmateen.pos_offline.feature.main.home.presentation.components.ProductSearchSection
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview

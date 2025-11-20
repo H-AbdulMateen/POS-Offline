@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.home.presentation.product_list.components
+package com.abdulmateen.pos_offline.feature.main.home.presentation.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -15,11 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,9 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.DarkGray
-import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -49,14 +43,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.book_error
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import com.abdulmateen.pos_offline.feature.main.home.domain.Product
-import com.abdulmateen.pos_offline.feature.main.home.presentation.product_list.ProductListUiAction
+import com.abdulmateen.pos_offline.feature.main.home.domain.Rating
+import com.abdulmateen.pos_offline.feature.main.home.presentation.order.ProductListUiAction
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -196,7 +190,7 @@ private fun ProductListItemPreview() {
             description = "Description 1",
             category = "Category 1",
             image = "",
-            rating = com.abdulmateen.pos_offline.feature.main.home.domain.Rating(
+            rating = Rating(
                 rate = 4.5,
                 count = 100
             )

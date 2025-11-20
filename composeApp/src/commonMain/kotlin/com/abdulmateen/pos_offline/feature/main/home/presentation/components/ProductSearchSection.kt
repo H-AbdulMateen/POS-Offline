@@ -1,6 +1,5 @@
-package com.abdulmateen.pos_offline.feature.main.home.presentation.product_list.components
+package com.abdulmateen.pos_offline.feature.main.home.presentation.components
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
