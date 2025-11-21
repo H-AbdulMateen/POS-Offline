@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
@@ -47,9 +46,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.main.components.DrawerContentSheet
-import com.abdulmateen.pos_offline.feature.main.home.presentation.order.CreateOrderScreenRoot
+import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderScreenRoot
 import com.abdulmateen.pos_offline.feature.main.profile.presentation.ProfileScreenRoot
 import com.abdulmateen.pos_offline.feature.main.settings.presentation.SettingsScreenRoot
 import kotlinx.coroutines.launch
@@ -61,13 +61,13 @@ import pos_offline.composeapp.generated.resources.app_name
 
 @Composable
 fun MainScreenRoot(
-    navigateToProductDetail: (Int) -> Unit,
+    navigateToCart: () -> Unit,
     onLogoutClick: () -> Unit,
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean
 ) {
     MainScreen(
-        navigateToProductDetail = navigateToProductDetail,
+        navigateToCart = navigateToCart,
         onLogoutClick = onLogoutClick,
         toggleDarkTheme = toggleDarkTheme,
         isDarkTheme = isDarkTheme
@@ -76,7 +76,7 @@ fun MainScreenRoot(
 
 @Composable
 fun MainScreen(
-    navigateToProductDetail: (Int) -> Unit,
+    navigateToCart: () -> Unit,
     onLogoutClick: () -> Unit,
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean
@@ -88,7 +88,7 @@ fun MainScreen(
         DeviceConfiguration.MOBILE_PORTRAIT -> {
             MainScreenScaffold(
                 navController = navController,
-                navigateToProductDetail = navigateToProductDetail,
+                navigateToCart = navigateToCart,
                 onLogoutClick = onLogoutClick,
                 toggleDarkTheme = toggleDarkTheme,
                 isDarkTheme = isDarkTheme
@@ -98,7 +98,7 @@ fun MainScreen(
              -> {
             MainScreenScaffoldWithDrawer(
                 navController = navController,
-                navigateToProductDetail = navigateToProductDetail,
+                navigateToCart = navigateToCart,
                 onLogoutClick = onLogoutClick,
                 toggleDarkTheme = toggleDarkTheme,
                 isDarkTheme = isDarkTheme
@@ -107,7 +107,7 @@ fun MainScreen(
         DeviceConfiguration.TABLET_PORTRAIT -> {
             MainScreenScaffold(
                 navController = navController,
-                navigateToProductDetail = navigateToProductDetail,
+                navigateToCart = navigateToCart,
                 onLogoutClick = onLogoutClick,
                 toggleDarkTheme = toggleDarkTheme,
                 isDarkTheme = isDarkTheme
@@ -126,7 +126,7 @@ fun MainScreen(
                     modifier = Modifier.fillMaxWidth().weight(.1f)
                 ){
                     NavHostPane(
-                        navigateToProductDetail = navigateToProductDetail,
+                        navigateToCart = navigateToCart,
                         onLogoutClick = onLogoutClick,
                         navController = navController,
                         toggleDarkTheme = toggleDarkTheme,
@@ -142,7 +142,7 @@ fun MainScreen(
 @Composable
 fun MainScreenScaffold(
     navController: NavHostController,
-    navigateToProductDetail: (Int) -> Unit,
+    navigateToCart: () -> Unit,
     onLogoutClick: () -> Unit,
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean
@@ -161,7 +161,7 @@ fun MainScreenScaffold(
                 .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
             NavHostPane(
-                navigateToProductDetail = navigateToProductDetail,
+                navigateToCart = navigateToCart,
                 onLogoutClick = onLogoutClick,
                 navController = navController,
                 toggleDarkTheme = toggleDarkTheme,
@@ -174,7 +174,7 @@ fun MainScreenScaffold(
 @Composable
 fun MainScreenScaffoldWithDrawer(
     navController: NavHostController,
-    navigateToProductDetail: (Int) -> Unit,
+    navigateToCart: () -> Unit,
     onLogoutClick: () -> Unit,
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean
@@ -209,10 +209,9 @@ fun MainScreenScaffoldWithDrawer(
                     },
                     actions = {
                         Row {
-                            Icon(
-                                imageVector = Icons.Default.Notifications,
-                                contentDescription = "Notification",
-                                modifier = Modifier.size(24.dp)
+                            CartBadgeBox(
+                                itemCount = 5,
+                                onCartClick = navigateToCart
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
@@ -235,7 +234,7 @@ fun MainScreenScaffoldWithDrawer(
                     .padding(paddingValues)
             ) {
                 NavHostPane(
-                    navigateToProductDetail = navigateToProductDetail,
+                    navigateToCart = navigateToCart,
                     onLogoutClick = onLogoutClick,
                     navController = navController,
                     toggleDarkTheme = toggleDarkTheme,
@@ -251,7 +250,7 @@ fun MainScreenScaffoldWithDrawer(
 
 @Composable
 fun NavHostPane(
-    navigateToProductDetail: (Int) -> Unit,
+    navigateToCart: () -> Unit,
     onLogoutClick: () -> Unit,
     navController: NavHostController,
     toggleDarkTheme: () -> Unit,
@@ -263,8 +262,8 @@ fun NavHostPane(
         startDestination = MainScreenRoutes.Home,
         ) {
         composable<MainScreenRoutes.Home>() {
-            CreateOrderScreenRoot(
-                navigateToProductDetail = navigateToProductDetail,
+            OrderScreenRoot(
+                navigateToCart = navigateToCart,
                 toggleDarkTheme = toggleDarkTheme,
                 isDarkTheme = isDarkTheme
             )
@@ -345,7 +344,7 @@ sealed interface MainScreenRoutes {
 @Composable
 fun MainScreenPreview() {
     MainScreen(
-        navigateToProductDetail = {},
+        navigateToCart = {},
         onLogoutClick = {},
         toggleDarkTheme = {},
         isDarkTheme = false

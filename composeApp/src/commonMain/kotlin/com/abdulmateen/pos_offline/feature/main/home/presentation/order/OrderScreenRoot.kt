@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.compose_multiplatform
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
@@ -47,15 +47,15 @@ import org.koin.compose.viewmodel.koinViewModel
 import pos_offline.composeapp.generated.resources.app_name
 
 @Composable
-fun CreateOrderScreenRoot(
-    navigateToProductDetail: (Int) -> Unit,
+fun OrderScreenRoot(
+    navigateToCart: () -> Unit,
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean
 ) {
     val viewModel: ProductListViewModel = koinViewModel()
-    CreateOrderScreen(
+    OrderScreen(
         uiState = viewModel.uiState.collectAsStateWithLifecycle().value,
-        navigateToProductDetail = navigateToProductDetail,
+        navigateToCart = navigateToCart,
         uiAction = viewModel::uiAction,
         toggleDarkTheme = toggleDarkTheme,
         isDarkTheme = isDarkTheme
@@ -64,9 +64,9 @@ fun CreateOrderScreenRoot(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateOrderScreen(
+fun OrderScreen(
     uiState: ProductListUiState,
-    navigateToProductDetail: (Int) -> Unit,
+    navigateToCart: () -> Unit,
     uiAction: (ProductListUiAction) -> Unit,
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean
@@ -77,9 +77,11 @@ fun CreateOrderScreen(
     Scaffold(
         topBar = {
             if (deviceConfiguration != DeviceConfiguration.MOBILE_LANDSCAPE) {
-                TopBarCentered(
+                TopAppBarOrder(
                     toggleDarkTheme = toggleDarkTheme,
-                    isDarkTheme = isDarkTheme
+                    isDarkTheme = isDarkTheme,
+                    deviceConfiguration = deviceConfiguration,
+                    navigateToCart = navigateToCart
                 )
             }
         },
@@ -199,9 +201,11 @@ fun CreateOrderScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopBarCentered(
+private fun TopAppBarOrder(
     toggleDarkTheme: () -> Unit,
-    isDarkTheme: Boolean
+    isDarkTheme: Boolean,
+    deviceConfiguration: DeviceConfiguration,
+    navigateToCart: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
@@ -222,11 +226,9 @@ private fun TopBarCentered(
         },
         actions = {
             Row {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notification",
-                    modifier = Modifier.size(24.dp)
-                )
+                if (deviceConfiguration != DeviceConfiguration.DESKTOP){
+                    CartBadgeBox(itemCount = 5, onCartClick = navigateToCart)
+                }
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = if(isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
@@ -272,9 +274,9 @@ fun ProductListScreenPreview() {
     POSOfflineTheme(
         darkTheme = false,
         content = {
-            CreateOrderScreen(
+            OrderScreen(
                 uiState = uiState,
-                navigateToProductDetail = {},
+                navigateToCart = {},
                 uiAction = {},
                 toggleDarkTheme = {},
                 isDarkTheme = false
@@ -314,9 +316,9 @@ fun CreateOrderScreenPreviewDark() {
     POSOfflineTheme(
         darkTheme = true,
         content = {
-            CreateOrderScreen(
+            OrderScreen(
                 uiState = uiState,
-                navigateToProductDetail = {},
+                navigateToCart = {},
                 uiAction = {},
                 toggleDarkTheme = {},
                 isDarkTheme = false

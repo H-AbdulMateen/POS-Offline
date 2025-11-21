@@ -23,15 +23,25 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import pos_offline.composeapp.generated.resources.Res
+import pos_offline.composeapp.generated.resources.cart_summary
+import pos_offline.composeapp.generated.resources.proceed_to_checkout
 
 @Composable
 fun CartSummarySection(modifier: Modifier = Modifier) {
+    var showCheckoutDialog by rememberSaveable{ mutableStateOf(false) }
+
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
@@ -39,7 +49,7 @@ fun CartSummarySection(modifier: Modifier = Modifier) {
     ) {
         Column(Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("Cart Summary", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(Res.string.cart_summary), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -57,10 +67,21 @@ fun CartSummarySection(modifier: Modifier = Modifier) {
             Text("Total: Rs 600", fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(12.dp))
             Button(
-                onClick = {},
+                onClick = {
+                    showCheckoutDialog = true
+                },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Proceed to Payment") }
+            ) { Text(stringResource(Res.string.proceed_to_checkout)) }
         }
+    }
+    if (showCheckoutDialog){
+        PaymentDialog(
+            onDismiss = { showCheckoutDialog = false },
+            onConfirm = {
+                showCheckoutDialog = false
+            },
+            totalAmount = 1000.0
+        )
     }
 }
 

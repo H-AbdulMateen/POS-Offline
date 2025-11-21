@@ -10,4 +10,8 @@ sealed interface RootScreenRoutes{
     @Serializable
     data class ProductDetail(val productId: Int): RootScreenRoutes
 
+    @Serializable
+    data object Cart: RootScreenRoutes
+
+
 }

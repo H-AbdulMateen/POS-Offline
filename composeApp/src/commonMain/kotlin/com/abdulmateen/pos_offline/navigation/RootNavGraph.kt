@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.abdulmateen.pos_offline.feature.auth.navigation.AuthNavGraph
 import com.abdulmateen.pos_offline.feature.main.MainScreenRoot
+import com.abdulmateen.pos_offline.feature.main.home.presentation.CartScreen
 import com.abdulmateen.pos_offline.feature.main.home.presentation.product_detail.ProductDetailScreenRoot
 
 @Composable
@@ -38,8 +39,8 @@ fun AppNavGraph(
             popEnterTransition = { slideInHorizontally() }
         ){
             MainScreenRoot(
-                navigateToProductDetail = {
-                    navController.navigate(RootScreenRoutes.ProductDetail(productId = it))
+                navigateToCart = {
+                    navController.navigate(RootScreenRoutes.Cart)
                 },
                 onLogoutClick = { navController.navigate(RootScreenRoutes.AuthGraph){
                     popUpTo(0) {
@@ -64,6 +65,22 @@ fun AppNavGraph(
             }
         ) {
             ProductDetailScreenRoot(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable<RootScreenRoutes.Cart>(
+            enterTransition = {
+                slideInHorizontally { initialOffset ->
+                    initialOffset
+                }
+            },
+            exitTransition = {
+                slideOutHorizontally { initialOffset ->
+                    initialOffset
+                }
+            }
+        ) {
+            CartScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }

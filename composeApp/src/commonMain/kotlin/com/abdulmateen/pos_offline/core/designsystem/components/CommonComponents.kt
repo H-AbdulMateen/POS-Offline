@@ -162,8 +162,7 @@ fun SimpleBtnPreview(){
 @Composable
 fun BackIconButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    tint: Color = White
+    modifier: Modifier = Modifier
 ){
     IconButton(
         onClick = onClick,
@@ -171,8 +170,7 @@ fun BackIconButton(
     ){
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
-            contentDescription = "BackArrowIcon",
-            tint = tint
+            contentDescription = "BackArrowIcon"
         )
     }
 }
@@ -199,12 +197,7 @@ fun CenteredTopBarNavTitle(
         },
         navigationIcon = {
             BackIconButton(onClick = onBackClick)
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = containerColor,
-            navigationIconContentColor = contentColor,
-            titleContentColor = contentColor
-        )
+        }
     )
 }
 
