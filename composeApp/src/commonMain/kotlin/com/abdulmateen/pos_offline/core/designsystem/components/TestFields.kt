@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -26,7 +27,9 @@ import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.ic_visibility
 import pos_offline.composeapp.generated.resources.ic_visibility_off
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import pos_offline.composeapp.generated.resources.search
 
 
 @Composable
@@ -60,6 +63,45 @@ fun OutlinedTF(
 @Composable
 fun OutlinedTFPreview() {
     OutlinedTF(
+        value = "",
+        onValueChange = {},
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+@Composable
+fun SearchField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = stringResource(Res.string.search),
+    hasError: Boolean = false,
+    errorMessage: String = "",
+    keyboardType: KeyboardType = KeyboardType.Text,
+    singleLine: Boolean = true
+){
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        placeholder = { Text(text = placeholder) },
+        isError = hasError,
+        supportingText = {
+            if (hasError) {
+                Text(text = errorMessage)
+            }
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        singleLine = singleLine,
+        leadingIcon = {
+            Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+        }
+    )
+}
+
+@Preview
+@Composable
+fun SearchFieldPreview() {
+    SearchField(
         value = "",
         onValueChange = {},
         modifier = Modifier.fillMaxWidth()

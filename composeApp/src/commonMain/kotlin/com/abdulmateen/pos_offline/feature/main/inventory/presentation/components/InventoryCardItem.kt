@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.inventory.components
+package com.abdulmateen.pos_offline.feature.main.inventory.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,7 +29,7 @@ fun InventoryCardItem(item: InventoryItem) {
 
             Text("SKU: ${item.sku}")
             Text("Qty: ${item.quantity}")
-            Text("Location: ${item.location}")
+            Text("Location: ${item.salesPrice}")
         }
     }
 }

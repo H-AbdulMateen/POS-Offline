@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.inventory.components
+package com.abdulmateen.pos_offline.feature.main.inventory.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
