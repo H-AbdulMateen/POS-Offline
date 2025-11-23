@@ -42,5 +42,17 @@
     <string name="total">Total</string>
     <string name="checkout">Checkout</string>
     <string name="proceed_to_checkout">Proceed to Checkout</string>
+    <string name="product_name">Product Name</string>
+    <string name="product_price">Product Price</string>
+    <string name="product_quantity">Product Quantity</string>
+    <string name="product_total">Product Total</string>
+    <string name="product_subtotal">Product Subtotal</string>
+    <string name="product_discount">Product Discount</string>
+    <string name="product_tax">Product Tax</string>
+    <string name="product_grand_total">Product Grand Total</string>
+    <string name="inventory">Inventory</string>
+    <string name="product_list">Product List</string>
+    <string name="add_product">Add Product</string>
+    <string name="add_item">Add Item</string>
 
 </resources>
