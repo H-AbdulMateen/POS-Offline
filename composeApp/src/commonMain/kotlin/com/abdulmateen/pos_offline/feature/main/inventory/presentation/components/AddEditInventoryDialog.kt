@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,7 +32,14 @@ import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pos_offline.composeapp.generated.resources.Res
+import pos_offline.composeapp.generated.resources.add
+import pos_offline.composeapp.generated.resources.add_new_product
+import pos_offline.composeapp.generated.resources.cancel
+import pos_offline.composeapp.generated.resources.edit_product
+import pos_offline.composeapp.generated.resources.product_name
 import pos_offline.composeapp.generated.resources.sales_price
+import pos_offline.composeapp.generated.resources.sku
+import pos_offline.composeapp.generated.resources.update
 
 @Composable
 fun AddEditInventoryDialog(
@@ -52,12 +58,12 @@ fun AddEditInventoryDialog(
         Card(
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(4.dp),
-            modifier = Modifier.fillMaxWidth(0.90f)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(Modifier.padding(20.dp)) {
 
                 Text(
-                    text = if (isEditing) "Edit Item" else "Add New Item",
+                    text = if (isEditing) stringResource(Res.string.edit_product) else stringResource(Res.string.add_new_product),
                     style = MaterialTheme.typography.headlineSmall
                 )
 
@@ -66,20 +72,20 @@ fun AddEditInventoryDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Product Name") },
+                    label = { Text(stringResource(Res.string.product_name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = sku,
                     onValueChange = { sku = it },
-                    label = { Text("SKU") },
+                    label = { Text(stringResource(Res.string.sku)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = quantity,
@@ -91,7 +97,7 @@ fun AddEditInventoryDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(8.dp))
 
                 OutlinedTF(
                     value = salesPrice.toString(),
@@ -108,7 +114,7 @@ fun AddEditInventoryDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel")
+                        Text(stringResource(Res.string.cancel))
                     }
 
                     Spacer(Modifier.width(8.dp))
@@ -129,7 +135,7 @@ fun AddEditInventoryDialog(
                             }
                         }
                     ) {
-                        Text(if (isEditing) "Update" else "Add")
+                        Text(if (isEditing) stringResource(Res.string.update) else stringResource(Res.string.add))
                     }
                 }
             }

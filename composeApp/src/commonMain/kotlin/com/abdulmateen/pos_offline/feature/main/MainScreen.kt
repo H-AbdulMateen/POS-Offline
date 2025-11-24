@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
@@ -50,6 +51,7 @@ import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.main.components.DrawerContentSheet
 import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderScreenRoot
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryScreen
 import com.abdulmateen.pos_offline.feature.main.profile.presentation.ProfileScreenRoot
 import com.abdulmateen.pos_offline.feature.main.settings.presentation.SettingsScreenRoot
 import kotlinx.coroutines.launch
@@ -254,8 +256,7 @@ fun NavHostPane(
     onLogoutClick: () -> Unit,
     navController: NavHostController,
     toggleDarkTheme: () -> Unit,
-    isDarkTheme: Boolean,
-    drawerToggle: () -> Unit = {}
+    isDarkTheme: Boolean
 ){
     NavHost(
         navController = navController,
@@ -267,6 +268,9 @@ fun NavHostPane(
                 toggleDarkTheme = toggleDarkTheme,
                 isDarkTheme = isDarkTheme
             )
+        }
+        composable<MainScreenRoutes.Inventory> {
+            InventoryScreen()
         }
         composable<MainScreenRoutes.Profile>() {
             ProfileScreenRoot()
@@ -288,9 +292,18 @@ fun BottomNavBar(
     NavigationBar {
         NavigationBarItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Home::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.Home, "emails") },
+            icon = { Icon(imageVector = Icons.Default.Home, "home") },
             onClick = { navController.navigate(MainScreenRoutes.Home) }
         )
+
+        NavigationBarItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.Inventory, "inventory") },
+            onClick = { navController.navigate(MainScreenRoutes.Inventory) }
+        )
+
+
+
         NavigationBarItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Person, "profile") },
@@ -311,9 +324,16 @@ fun SideNavBar(
     NavigationRail {
         NavigationRailItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Home::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.Home, "emails") },
+            icon = { Icon(imageVector = Icons.Default.Home, "home") },
             onClick = { navController.navigate(MainScreenRoutes.Home) }
         )
+
+        NavigationRailItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.Inventory, contentDescription = "inventory") },
+            onClick = { navController.navigate(MainScreenRoutes.Inventory) }
+        )
+
         NavigationRailItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Person, "profile") },
@@ -332,6 +352,9 @@ fun SideNavBar(
 sealed interface MainScreenRoutes {
     @Serializable
     data object Home : MainScreenRoutes
+
+    @Serializable
+    data object Inventory: MainScreenRoutes
 
     @Serializable
     data object Profile : MainScreenRoutes

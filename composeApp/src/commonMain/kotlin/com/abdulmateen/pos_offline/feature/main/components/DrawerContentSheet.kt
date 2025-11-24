@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
@@ -33,6 +34,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.home
+import pos_offline.composeapp.generated.resources.inventory
 import pos_offline.composeapp.generated.resources.logout
 import pos_offline.composeapp.generated.resources.profile
 import pos_offline.composeapp.generated.resources.settings
@@ -55,6 +57,14 @@ fun DrawerContentSheet(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Home::class) } == true
         ) {
             navController.navigate(MainScreenRoutes.Home) { launchSingleTop = true }
+            closeDrawer()
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        DrawerItem(stringResource(Res.string.inventory),
+            icon = Icons.Default.Inventory,
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true
+        ) {
+            navController.navigate(MainScreenRoutes.Inventory) { launchSingleTop = true }
             closeDrawer()
         }
         Spacer(modifier = Modifier.height(16.dp))
