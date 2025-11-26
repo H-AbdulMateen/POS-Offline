@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,6 +24,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,50 +35,89 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.cart_summary
 import pos_offline.composeapp.generated.resources.proceed_to_checkout
+import pos_offline.composeapp.generated.resources.total
 
 @Composable
 fun CartSummarySection(modifier: Modifier = Modifier) {
-    var showCheckoutDialog by rememberSaveable{ mutableStateOf(false) }
+    var showCheckoutDialog by rememberSaveable { mutableStateOf(false) }
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Column(Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(text = stringResource(Res.string.cart_summary), style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(8.dp))
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.weight(.1f)
-            ){
-                items(10){
-                    CartItem(item = it)
+        when(deviceConfiguration){
+            DeviceConfiguration.MOBILE_LANDSCAPE,
+            DeviceConfiguration.TABLET_LANDSCAPE-> {
+                Row(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.weight(.1f)
+                    ) {
+                        items(10) {
+                            CartItem(item = it)
+                        }
+                    }
+                    VerticalDivider(
+                        Modifier.padding(vertical = 8.dp),
+                        DividerDefaults.Thickness,
+                        DividerDefaults.color
+                    )
+                    TotalCheckoutSection(
+                        onProceedToCheckout = {
+                            showCheckoutDialog = true
+                        },
+                        modifier = Modifier.fillMaxHeight()
+                    )
                 }
+            }else -> {
+            Column(
+                Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+
+                Text(
+                    text = stringResource(Res.string.cart_summary),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(Modifier.height(8.dp))
+
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.weight(.1f)
+                ) {
+                    items(10) {
+                        CartItem(item = it)
+                    }
+                }
+                HorizontalDivider(
+                    Modifier.padding(vertical = 8.dp),
+                    DividerDefaults.Thickness,
+                    DividerDefaults.color
+                )
+                TotalCheckoutSection(
+                    onProceedToCheckout = {
+                        showCheckoutDialog = true
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
-            HorizontalDivider(
-                Modifier.padding(vertical = 8.dp),
-                DividerDefaults.Thickness,
-                DividerDefaults.color
-            )
-            Text("Total: Rs 600", fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(12.dp))
-            Button(
-                onClick = {
-                    showCheckoutDialog = true
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) { Text(stringResource(Res.string.proceed_to_checkout)) }
+            }
         }
     }
-    if (showCheckoutDialog){
+    if (showCheckoutDialog) {
         PaymentDialog(
             onDismiss = { showCheckoutDialog = false },
             onConfirm = {
@@ -89,7 +132,7 @@ fun CartSummarySection(modifier: Modifier = Modifier) {
 fun CartItem(item: Int) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ){
+    ) {
         Column(
             modifier = Modifier.padding(8.dp),
         ) {
@@ -99,7 +142,8 @@ fun CartItem(item: Int) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Item #$item (1)",
+                Text(
+                    "Item #$item (1)",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -126,7 +170,8 @@ fun CartItem(item: Int) {
                         contentDescription = null,
                         modifier = Modifier.clickable(onClick = {})
                     )
-                    Text("1",
+                    Text(
+                        "1",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -151,6 +196,7 @@ fun CartSummarySectionPreview() {
         }
     )
 }
+
 @Preview(name = "Cart Dark Mode")
 @Composable
 fun CartSummarySectionPreviewDark() {
