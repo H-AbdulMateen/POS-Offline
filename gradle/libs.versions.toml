@@ -34,6 +34,7 @@ room = "2.8.3"
 cmpImagePickNCrop = "1.1.2"
 kmpDateTimePicker = "1.1.1"
 adaptive = "1.2.0"
+country-picker = "1.0.4"
 
 [libraries]
 
@@ -96,6 +97,8 @@ cmp-image-pick-n-crop = { module = "network.chaintech:cmp-image-pick-n-crop", ve
 kmp-date-time-picker = { module = "network.chaintech:kmp-date-time-picker", version.ref = "kmpDateTimePicker" }
 #Adaptive
 material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
+#Country-Code-Picker
+country-picker-kmp = { module = "com.stevdza-san:countrypicker", version.ref = "country-picker" }
 
 
 #Mocking Library

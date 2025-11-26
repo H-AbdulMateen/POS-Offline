@@ -77,6 +77,9 @@ kotlin {
             implementation(libs.material3.adaptive)
             //Logging
             implementation(libs.kermit)
+            //Country-Code-Picker
+            implementation(libs.country.picker.kmp)
+
 
 
         }

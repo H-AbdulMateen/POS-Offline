@@ -20,6 +20,7 @@ import com.abdulmateen.pos_offline.feature.main.home.domain.ProductRepository
 import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.KtorProductsDataSource
 import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.RemoteProductsDataSource
 import com.abdulmateen.pos_offline.feature.main.home.presentation.order.ProductListViewModel
+import com.abdulmateen.pos_offline.feature.main.profile.presentation.ProfileViewModel
 import com.abdulmateen.pos_offline.feature.main.settings.presentation.SettingsViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
@@ -49,5 +50,6 @@ val sharedModule = module {
     viewModelOf(::SignUpViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::ProductListViewModel)
+    viewModelOf(::ProfileViewModel)
 
 }

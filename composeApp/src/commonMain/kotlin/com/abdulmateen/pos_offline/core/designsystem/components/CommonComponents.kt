@@ -3,6 +3,7 @@ package com.abdulmateen.pos_offline.core.designsystem.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -180,32 +181,5 @@ fun BackIconButton(
 fun BackIconButtonPreview(){
     BackIconButton(
         onClick = {}
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CenteredTopBarNavTitle(
-    onBackClick: () -> Unit,
-    title: String,
-    containerColor: Color = MaterialTheme.colorScheme.primary,
-    contentColor: Color = White
-){
-    CenterAlignedTopAppBar(
-        title = {
-            Text(text = title)
-        },
-        navigationIcon = {
-            BackIconButton(onClick = onBackClick)
-        }
-    )
-}
-
-@Preview
-@Composable
-fun CenteredTopBarNavTitlePreview(){
-    CenteredTopBarNavTitle(
-        onBackClick = {},
-        title = "Title"
     )
 }
