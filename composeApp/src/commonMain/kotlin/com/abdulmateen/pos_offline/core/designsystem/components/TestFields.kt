@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -214,6 +215,8 @@ fun OutlinedPhoneTF(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = "+${selectedCountry.dialCode}")
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "ArrowDropDown")
             }
         }
 
@@ -223,6 +226,7 @@ fun OutlinedPhoneTF(
             onValueChange = onPhoneNumberChange,
             modifier = Modifier.weight(.1f),
             placeholder = placeholder,
+            keyboardType = KeyboardType.Phone
         )
     }
 }

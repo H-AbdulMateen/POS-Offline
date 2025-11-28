@@ -44,6 +44,7 @@ fun InventoryScreen(){
         val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
         Column(
             modifier = Modifier.fillMaxSize()
+                .padding(innerPadding)
                 .padding(16.dp)
         ) {
             when(deviceConfiguration){

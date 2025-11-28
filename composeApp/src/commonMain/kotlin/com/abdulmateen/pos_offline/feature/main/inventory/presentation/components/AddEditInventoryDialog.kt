@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
+import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTFDate
 import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.InventoryItem
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
@@ -36,7 +39,9 @@ import pos_offline.composeapp.generated.resources.add
 import pos_offline.composeapp.generated.resources.add_new_product
 import pos_offline.composeapp.generated.resources.cancel
 import pos_offline.composeapp.generated.resources.edit_product
+import pos_offline.composeapp.generated.resources.expiry_date
 import pos_offline.composeapp.generated.resources.product_name
+import pos_offline.composeapp.generated.resources.purchase_price
 import pos_offline.composeapp.generated.resources.sales_price
 import pos_offline.composeapp.generated.resources.sku
 import pos_offline.composeapp.generated.resources.update
@@ -58,16 +63,22 @@ fun AddEditInventoryDialog(
         Card(
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(4.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
         ) {
-            Column(Modifier.padding(20.dp)) {
+            Column(
+                modifier =  Modifier.padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+                ) {
 
                 Text(
                     text = if (isEditing) stringResource(Res.string.edit_product) else stringResource(Res.string.add_new_product),
                     style = MaterialTheme.typography.headlineSmall
                 )
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(4.dp))
 
                 OutlinedTextField(
                     value = name,
@@ -76,7 +87,6 @@ fun AddEditInventoryDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = sku,
@@ -85,7 +95,6 @@ fun AddEditInventoryDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = quantity,
@@ -106,8 +115,23 @@ fun AddEditInventoryDialog(
                     keyboardType = KeyboardType.Decimal,
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(Modifier.height(8.dp))
 
-                Spacer(Modifier.height(20.dp))
+                OutlinedTF(
+                    value = salesPrice.toString(),
+                    onValueChange = { salesPrice = it },
+                    placeholder = stringResource(Res.string.purchase_price),
+                    keyboardType = KeyboardType.Decimal,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTFDate(
+                    value = "",
+                    onClick = {},
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = stringResource(Res.string.expiry_date)
+                )
+
+                Spacer(Modifier.height(8.dp))
 
                 Row(
                     Modifier.fillMaxWidth(),
