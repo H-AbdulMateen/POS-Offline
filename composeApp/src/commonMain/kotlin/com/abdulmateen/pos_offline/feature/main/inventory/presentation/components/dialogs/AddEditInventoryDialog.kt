@@ -1,11 +1,10 @@
-package com.abdulmateen.pos_offline.feature.main.inventory.presentation.components
+package com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -30,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTFDate
+import com.abdulmateen.pos_offline.core.designsystem.components.WheelDateTimePickerDialog
 import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.InventoryItem
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
@@ -42,10 +42,13 @@ import pos_offline.composeapp.generated.resources.edit_product
 import pos_offline.composeapp.generated.resources.expiry_date
 import pos_offline.composeapp.generated.resources.product_name
 import pos_offline.composeapp.generated.resources.purchase_price
+import pos_offline.composeapp.generated.resources.quantity_in_stock
 import pos_offline.composeapp.generated.resources.sales_price
 import pos_offline.composeapp.generated.resources.sku
 import pos_offline.composeapp.generated.resources.update
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun AddEditInventoryDialog(
     item: InventoryItem?,                   // null = Add, not-null = Edit
@@ -58,6 +61,10 @@ fun AddEditInventoryDialog(
     var sku by remember { mutableStateOf(item?.sku ?: "") }
     var quantity by remember { mutableStateOf(item?.quantity?.toString() ?: "") }
     var salesPrice by remember { mutableStateOf(item?.salesPrice ?: "") }
+    var datePickerDialog by remember { mutableStateOf(false) }
+    var selectedDate by remember { mutableStateOf("") }
+
+
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
@@ -71,6 +78,7 @@ fun AddEditInventoryDialog(
             Column(
                 modifier =  Modifier.padding(16.dp)
                     .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
 
                 Text(
@@ -78,7 +86,6 @@ fun AddEditInventoryDialog(
                     style = MaterialTheme.typography.headlineSmall
                 )
 
-                Spacer(Modifier.height(4.dp))
 
                 OutlinedTextField(
                     value = name,
@@ -102,11 +109,9 @@ fun AddEditInventoryDialog(
                         if (it.all { c -> c.isDigit() }) quantity = it 
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    label = { Text("Quantity") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text(stringResource(Res.string.quantity_in_stock)) },
+                    modifier = Modifier.fillMaxWidth(),
                 )
-
-                Spacer(Modifier.height(8.dp))
 
                 OutlinedTF(
                     value = salesPrice.toString(),
@@ -115,7 +120,6 @@ fun AddEditInventoryDialog(
                     keyboardType = KeyboardType.Decimal,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(Modifier.height(8.dp))
 
                 OutlinedTF(
                     value = salesPrice.toString(),
@@ -125,14 +129,11 @@ fun AddEditInventoryDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTFDate(
-                    value = "",
-                    onClick = {},
+                    value = selectedDate,
+                    onClick = { datePickerDialog = true },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = stringResource(Res.string.expiry_date)
                 )
-
-                Spacer(Modifier.height(8.dp))
-
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -164,6 +165,19 @@ fun AddEditInventoryDialog(
                 }
             }
         }
+    }
+    if (datePickerDialog) {
+        WheelDateTimePickerDialog(
+            showDatePicker = datePickerDialog,
+            toggleDatePicker = {
+                datePickerDialog = false
+                               },
+            onDateSelection = {
+                selectedDate = it.toString()
+//                uiAction(SignUpUiAction.UpdateDateOfBirth(it))
+                datePickerDialog = false
+            }
+        )
     }
 }
 

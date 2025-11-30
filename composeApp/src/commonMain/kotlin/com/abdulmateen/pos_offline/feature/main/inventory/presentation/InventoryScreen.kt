@@ -25,7 +25,7 @@ import com.abdulmateen.pos_offline.core.designsystem.components.SearchField
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.InventoryItem
 import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.dummyInventory
-import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.AddEditInventoryDialog
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.dialogs.AddEditInventoryDialog
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryHeaderRow
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryTable
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
