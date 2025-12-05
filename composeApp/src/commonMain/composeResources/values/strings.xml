@@ -80,6 +80,8 @@
     <string name="edit_sub_category">Edit Sub Category</string>
     <string name="sub_category">Sub Category</string>
     <string name="select_category">Select Category</string>
+    <string name="select_parent_category">Select Parent Category</string>
+    <string name="pick_parent_category">Pick Parent Category</string>
     <string name="select_sub_category">Select Sub Category</string>
 
 </resources>

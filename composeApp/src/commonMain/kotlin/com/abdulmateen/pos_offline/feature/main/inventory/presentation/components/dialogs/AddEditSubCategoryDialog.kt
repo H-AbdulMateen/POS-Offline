@@ -1,6 +1,8 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.dialogs
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,12 +13,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +34,7 @@ import androidx.compose.ui.window.Dialog
 import com.abdulmateen.pos_offline.core.designsystem.components.LabelMedium
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
+import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.Category
 import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.SubCategory
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
@@ -40,7 +44,9 @@ import pos_offline.composeapp.generated.resources.add_sub_category
 import pos_offline.composeapp.generated.resources.cancel
 import pos_offline.composeapp.generated.resources.category_name
 import pos_offline.composeapp.generated.resources.edit_sub_category
+import pos_offline.composeapp.generated.resources.pick_parent_category
 import pos_offline.composeapp.generated.resources.save
+import pos_offline.composeapp.generated.resources.select_parent_category
 import pos_offline.composeapp.generated.resources.sub_category
 
 
@@ -52,6 +58,10 @@ fun AddEditSubCategoryDialog(
 ) {
     val isEditing = category != null
     var isDropdownExpanded by remember { mutableStateOf(false) }
+    var isParentCategoryExpanded by remember { mutableStateOf(false) }
+    var selectedParentCategory by remember { mutableStateOf<Category?>(null) }
+
+
 
     Dialog(
         onDismissRequest = onDismiss
@@ -80,30 +90,23 @@ fun AddEditSubCategoryDialog(
                 Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-
-                    LabelMedium(label = stringResource(Res.string.sub_category))
                     Spacer(modifier = Modifier.height(2.dp))
-                    DropdownMenu(
-                        expanded = isDropdownExpanded,
-                        onDismissRequest = {
-                            isDropdownExpanded = false
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ){
-                        DropdownMenuItem(
-                            text = { Text("Option 1") },
-                            onClick = { /* Do something... */ }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Option 2") },
-                            onClick = { /* Do something... */ }
-                        )
-                    }
+                    Text(text = stringResource(Res.string.pick_parent_category), style = MaterialTheme.typography.labelSmall)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    ParentCategory(
+                        modifier = Modifier.fillMaxWidth(),
+                        toggleCategoryMenu = { isParentCategoryExpanded = !isParentCategoryExpanded },
+                        selectedCategory = selectedParentCategory,
+                        parentCategoryMenuExpanded = isParentCategoryExpanded,
+                        selectedParentCategoryChange = { selectedParentCategory = it },
+                    )
                 }
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTF(
                     value = "",
                     onValueChange = {},
                     placeholder = stringResource(Res.string.category_name),
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -133,7 +136,47 @@ fun AddEditSubCategoryDialog(
         }
     }
 }
-
+@Composable
+fun ParentCategory(
+    modifier: Modifier,
+    toggleCategoryMenu: () -> Unit = {},
+    selectedCategory: Category? = null,
+    parentCategoryMenuExpanded: Boolean = false,
+    selectedParentCategoryChange: (Category) -> Unit,
+) {
+    Box(
+        modifier = modifier
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth()
+                .clickable(
+                    onClick = toggleCategoryMenu
+                ),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = selectedCategory?.name ?: stringResource(Res.string.select_parent_category))
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "ArrowDropdown"
+                )
+            }
+        }
+        CategoryDropdown(
+            categoryMenuExpanded = parentCategoryMenuExpanded,
+            categoryMenuExpandedChange = toggleCategoryMenu,
+            selectedCategoryChange = {
+                selectedParentCategoryChange(it)
+                toggleCategoryMenu()
+            }
+        )
+    }
+}
 @Preview(name = "LightMode")
 @Composable
 fun SubCategoryDialogPreview(){
