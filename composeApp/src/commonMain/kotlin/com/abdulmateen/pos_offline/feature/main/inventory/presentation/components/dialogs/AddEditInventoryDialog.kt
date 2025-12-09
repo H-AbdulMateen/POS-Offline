@@ -1,5 +1,6 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.dialogs
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,15 +9,20 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AdfScanner
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Scanner
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,9 +41,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color.Companion.LightGray
+import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.abdulmateen.pos_offline.core.designsystem.components.LocalImageWidget
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTFDate
 import com.abdulmateen.pos_offline.core.designsystem.components.WheelDateTimePickerDialog
@@ -47,11 +58,15 @@ import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.SubCateg
 import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.dummyCategories
 import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.dummySubCategories
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
+import network.chaintech.cmpimagepickncrop.CMPImagePickNCropDialog
+import network.chaintech.cmpimagepickncrop.imagecropper.rememberImageCropper
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.add
 import pos_offline.composeapp.generated.resources.add_new_product
+import pos_offline.composeapp.generated.resources.barcode_reader
 import pos_offline.composeapp.generated.resources.cancel
 import pos_offline.composeapp.generated.resources.edit_product
 import pos_offline.composeapp.generated.resources.expiry_date
@@ -59,6 +74,7 @@ import pos_offline.composeapp.generated.resources.product_name
 import pos_offline.composeapp.generated.resources.purchase_price
 import pos_offline.composeapp.generated.resources.quantity_in_stock
 import pos_offline.composeapp.generated.resources.sales_price
+import pos_offline.composeapp.generated.resources.scan_barcode
 import pos_offline.composeapp.generated.resources.select_category
 import pos_offline.composeapp.generated.resources.select_sub_category
 import pos_offline.composeapp.generated.resources.sku
@@ -87,6 +103,21 @@ fun AddEditInventoryDialog(
     var categoryAddEditDialogPopup by remember { mutableStateOf(false) }
     var subCategoryAddEditDialogPopup by remember { mutableStateOf(false) }
 
+    val imageCropper = rememberImageCropper()
+    var selectedImage by remember { mutableStateOf<ImageBitmap?>(null) }
+    var openImagePicker by remember { mutableStateOf(value = false) }
+
+    CMPImagePickNCropDialog(
+        imageCropper = imageCropper,
+        openImagePicker = openImagePicker,
+        imagePickerDialogHandler = {
+            openImagePicker = it
+        },
+        selectedImageCallback = {
+            selectedImage = it
+        },
+        selectedImageFileCallback = {}
+    )
 
 
 
@@ -110,6 +141,18 @@ fun AddEditInventoryDialog(
                     style = MaterialTheme.typography.headlineSmall
                 )
 
+                //User Profile Image
+                LocalImageWidget(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .align(Alignment.CenterHorizontally)
+                        .clickable { openImagePicker = true }
+                        .background(LightGray.takeIf { selectedImage == null } ?: Transparent),
+                    selectedImage = selectedImage
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
 
                 OutlinedTextField(
                     value = name,
@@ -118,22 +161,30 @@ fun AddEditInventoryDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-
-                OutlinedTextField(
+                OutlinedTF(
                     value = sku,
                     onValueChange = { sku = it },
-                    label = { Text(stringResource(Res.string.sku)) },
+                    placeholder = stringResource(Res.string.scan_barcode),
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = { Icon(painter = painterResource(Res.drawable.barcode_reader), contentDescription = "Barcode Reader") }
+                )
+
+
+                OutlinedTF(
+                    value = sku,
+                    onValueChange = { sku = it },
+                    placeholder = stringResource(Res.string.sku),
                     modifier = Modifier.fillMaxWidth()
                 )
 
 
-                OutlinedTextField(
+                OutlinedTF(
                     value = quantity,
                     onValueChange = { 
                         if (it.all { c -> c.isDigit() }) quantity = it 
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    label = { Text(stringResource(Res.string.quantity_in_stock)) },
+                    keyboardType = KeyboardType.Decimal,
+                    placeholder = stringResource(Res.string.quantity_in_stock),
                     modifier = Modifier.fillMaxWidth(),
                 )
 

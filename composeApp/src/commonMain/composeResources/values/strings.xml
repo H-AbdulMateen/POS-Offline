@@ -83,5 +83,5 @@
     <string name="select_parent_category">Select Parent Category</string>
     <string name="pick_parent_category">Pick Parent Category</string>
     <string name="select_sub_category">Select Sub Category</string>
-
+    <string name="scan_barcode">Scan Barcode</string>
 </resources>

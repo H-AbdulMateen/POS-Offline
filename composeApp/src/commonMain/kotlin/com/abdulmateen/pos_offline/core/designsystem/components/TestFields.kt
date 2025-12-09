@@ -57,7 +57,9 @@ fun OutlinedTF(
     hasError: Boolean = false,
     errorMessage: String = "",
     keyboardType: KeyboardType = KeyboardType.Text,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null
 ){
     OutlinedTextField(
         value = value,
@@ -71,7 +73,9 @@ fun OutlinedTF(
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        singleLine = singleLine
+        singleLine = singleLine,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon
     )
 }
 
