@@ -99,6 +99,7 @@ kotlin {
             implementation(libs.kotlinx.coroutinesSwing)
 //          Ktor
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.pdfbox)
 
         }
     }
