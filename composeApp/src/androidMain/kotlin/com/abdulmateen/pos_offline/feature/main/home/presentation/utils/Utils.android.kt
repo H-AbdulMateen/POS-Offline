@@ -1,17 +1,10 @@
 package com.abdulmateen.pos_offline.feature.main.home.presentation.utils
 
-import com.abdulmateen.pos_offline.MyApplication
-import android.app.Application
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import org.koin.android.ext.koin.androidContext
-
+import com.abdulmateen.pos_offline.MyApplication
+import com.abdulmateen.pos_offline.feature.main.home.presentation.PdfViewerActivity
 import java.io.File
+
 actual fun generateInvoiceInPdf(): ByteArray {
     val pdfDocument = android.graphics.pdf.PdfDocument()
     val pageInfo =
@@ -63,10 +56,16 @@ actual fun saveInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
         "${context.packageName}.provider",
         file
     )
-    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
-        setDataAndType(uri, "application/pdf")
-        addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
-    context.startActivity(intent)
+//    val intent = Intent(Intent.ACTION_VIEW).apply {
+//        setDataAndType(uri, "application/pdf")
+//        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//    }
+//    context.startActivity(intent)
+    context.startActivity(
+        Intent(context, PdfViewerActivity::class.java)
+            .putExtra("pdf_uri", uri)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    )
+
 }

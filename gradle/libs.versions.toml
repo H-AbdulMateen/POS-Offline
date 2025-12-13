@@ -35,8 +35,7 @@ cmpImagePickNCrop = "1.1.2"
 kmpDateTimePicker = "1.1.1"
 adaptive = "1.2.0"
 country-picker = "1.0.4"
-pdfbox = "2.0.24"
-
+pdfbox = "3.0.6"
 
 [libraries]
 
@@ -103,7 +102,6 @@ material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adapti
 country-picker-kmp = { module = "com.stevdza-san:countrypicker", version.ref = "country-picker" }
 #Desktop Pdf
 pdfbox = { module = "org.apache.pdfbox:pdfbox", version.ref = "pdfbox" }
-
 
 
 #Mocking Library

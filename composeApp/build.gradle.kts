@@ -46,6 +46,7 @@ kotlin {
             implementation(libs.core.splashscreen)
             implementation(libs.bundles.koin.android)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.bundles.coil)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -79,7 +80,6 @@ kotlin {
             implementation(libs.kermit)
             //Country-Code-Picker
             implementation(libs.country.picker.kmp)
-
 
 
         }
