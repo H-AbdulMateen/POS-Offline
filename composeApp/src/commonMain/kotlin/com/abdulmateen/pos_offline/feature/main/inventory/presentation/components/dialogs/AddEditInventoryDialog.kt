@@ -16,13 +16,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AdfScanner
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Scanner
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -52,11 +49,12 @@ import com.abdulmateen.pos_offline.core.designsystem.components.LocalImageWidget
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTFDate
 import com.abdulmateen.pos_offline.core.designsystem.components.WheelDateTimePickerDialog
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.Category
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.InventoryItem
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.SubCategory
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.dummyCategories
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.dummySubCategories
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.Unit
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.SubCategory
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummySubCategories
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyUnits
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import network.chaintech.cmpimagepickncrop.CMPImagePickNCropDialog
 import network.chaintech.cmpimagepickncrop.imagecropper.rememberImageCropper
@@ -76,6 +74,7 @@ import pos_offline.composeapp.generated.resources.quantity_in_stock
 import pos_offline.composeapp.generated.resources.sales_price
 import pos_offline.composeapp.generated.resources.scan_barcode
 import pos_offline.composeapp.generated.resources.select_category
+import pos_offline.composeapp.generated.resources.select_item_unit
 import pos_offline.composeapp.generated.resources.select_sub_category
 import pos_offline.composeapp.generated.resources.sku
 import pos_offline.composeapp.generated.resources.update
@@ -84,9 +83,9 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 @Composable
 fun AddEditInventoryDialog(
-    item: InventoryItem?,                   // null = Add, not-null = Edit
-    onDismiss: () -> Unit,
-    onSave: (InventoryItem) -> Unit
+    item: Product?,                   // null = Add, not-null = Edit
+    onDismiss: () -> kotlin.Unit,
+    onSave: (Product) -> kotlin.Unit
 ) {
     val isEditing = item != null
 
@@ -102,6 +101,11 @@ fun AddEditInventoryDialog(
     var selectedSubCategory by remember { mutableStateOf<SubCategory?>(null)}
     var categoryAddEditDialogPopup by remember { mutableStateOf(false) }
     var subCategoryAddEditDialogPopup by remember { mutableStateOf(false) }
+    var selectedUnit by remember { mutableStateOf<Unit?>(null) }
+    var unitAddEditDialogPopup by remember { mutableStateOf(false) }
+    var unitMenuExpanded by remember { mutableStateOf(false) }
+
+
 
     val imageCropper = rememberImageCropper()
     var selectedImage by remember { mutableStateOf<ImageBitmap?>(null) }
@@ -209,6 +213,16 @@ fun AddEditInventoryDialog(
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = stringResource(Res.string.expiry_date)
                 )
+
+                ItemUnitRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    selectedUnit = selectedUnit,
+                    unitMenuExpanded = unitMenuExpanded,
+                    toggleUnitMenu = { unitMenuExpanded = !unitMenuExpanded },
+                    selectedUnitChange = { selectedUnit = it },
+                    addEditUnit = { unitAddEditDialogPopup = true }
+                )
+
                 CategoryRow(
                     modifier = Modifier.fillMaxWidth(),
                     selectedCategory = selectedCategory,
@@ -240,7 +254,7 @@ fun AddEditInventoryDialog(
                         onClick = {
                             if (name.isNotBlank() && sku.isNotBlank() && quantity.isNotBlank()) {
                                 onSave(
-                                    InventoryItem(
+                                    Product(
                                         name = name,
                                         sku = sku,
                                         quantity = quantity.toInt(),
@@ -255,6 +269,13 @@ fun AddEditInventoryDialog(
                         Text(if (isEditing) stringResource(Res.string.update) else stringResource(Res.string.add))
                     }
                 }
+            }
+            if (unitAddEditDialogPopup){
+                AddEditItemUnitDialog(
+                    unit = null,
+                    onDismiss = { unitAddEditDialogPopup = false },
+                    onConfirm = { unitAddEditDialogPopup = false }
+                )
             }
             if (categoryAddEditDialogPopup){
                 AddEditCategoryDialog(
@@ -290,11 +311,11 @@ fun AddEditInventoryDialog(
 @Composable
 fun CategoryRow(
     modifier: Modifier,
-    toggleCategoryMenu: () -> Unit = {},
+    toggleCategoryMenu: () -> kotlin.Unit = {},
     selectedCategory: Category? = null,
     categoryMenuExpanded: Boolean = false,
-    selectedCategoryChange: (Category) -> Unit,
-    addEditCategory: () -> Unit
+    selectedCategoryChange: (Category) -> kotlin.Unit,
+    addEditCategory: () -> kotlin.Unit
 ) {
     Row(
         modifier = modifier,
@@ -335,14 +356,63 @@ fun CategoryRow(
         }
     }
 }
+
+@Composable
+fun ItemUnitRow(
+    modifier: Modifier,
+    toggleUnitMenu: () -> kotlin.Unit = {},
+    selectedUnit: Unit? = null,
+    unitMenuExpanded: Boolean = false,
+    selectedUnitChange: (Unit) -> kotlin.Unit,
+    addEditUnit: () -> kotlin.Unit
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ){
+        Box(
+            modifier = Modifier.weight(1f)
+        ){
+            Card(modifier = Modifier.fillMaxWidth()
+                .clickable(
+                    onClick = toggleUnitMenu
+                ),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = selectedUnit?.name ?: stringResource(Res.string.select_item_unit))
+                    Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "ArrowDropdown")
+                }
+            }
+            ItemUnitDropdown(
+                itemUnitMenuExpanded = unitMenuExpanded,
+                unitMenuExpandedChange = toggleUnitMenu,
+                selectedUnitChange = {
+                    selectedUnitChange(it)
+                    toggleUnitMenu()
+                }
+            )
+        }
+        IconButton(
+            onClick = addEditUnit
+        ){
+            Icon(imageVector = Icons.Default.Add, contentDescription = "AddIcon")
+        }
+    }
+}
 @Composable
 fun SubCategoryRow(
     modifier: Modifier,
-    toggleCategoryMenu: () -> Unit = {},
+    toggleCategoryMenu: () -> kotlin.Unit = {},
     selectedCategory: SubCategory? = null,
     subCategoryMenuExpanded: Boolean = false,
-    selectedCategoryChange: (SubCategory) -> Unit,
-    addEditCategory: () -> Unit
+    selectedCategoryChange: (SubCategory) -> kotlin.Unit,
+    addEditCategory: () -> kotlin.Unit
 ) {
     Row(
         modifier = modifier,
@@ -370,7 +440,6 @@ fun SubCategoryRow(
             SubCategoryDropdown(
                 isSubCategoryMenuVisible = subCategoryMenuExpanded,
                 subCategoryMenuExpandedChange = toggleCategoryMenu,
-                selectedSubCategory = selectedCategory,
                 selectedSubCategoryChange = {
                     selectedCategoryChange(it)
                     toggleCategoryMenu()
@@ -388,9 +457,8 @@ fun SubCategoryRow(
 @Composable
 fun SubCategoryDropdown(
     isSubCategoryMenuVisible: Boolean,
-    subCategoryMenuExpandedChange: () -> Unit,
-    selectedSubCategoryChange: (SubCategory) -> Unit,
-    selectedSubCategory: SubCategory?
+    subCategoryMenuExpandedChange: () -> kotlin.Unit,
+    selectedSubCategoryChange: (SubCategory) -> kotlin.Unit,
 ){
     DropdownMenu(
         expanded = isSubCategoryMenuVisible,
@@ -406,6 +474,25 @@ fun SubCategoryDropdown(
     }
 }
 
+@Composable
+fun ItemUnitDropdown(
+    itemUnitMenuExpanded: Boolean,
+    unitMenuExpandedChange: () -> kotlin.Unit,
+    selectedUnitChange: (Unit) -> kotlin.Unit
+){
+    DropdownMenu(
+        expanded = itemUnitMenuExpanded,
+        onDismissRequest = unitMenuExpandedChange,
+        modifier = Modifier.width(IntrinsicSize.Max)
+    ) {
+        dummyUnits.forEach { itemUnits ->
+            DropdownMenuItem(
+                text = { Text(text = itemUnits.name) },
+                onClick = { selectedUnitChange(itemUnits) }
+            )
+        }
+    }
+}
 
 @Preview(name = "Light Mode")
 @Composable

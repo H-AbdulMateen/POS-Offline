@@ -1,18 +1,13 @@
 package com.abdulmateen.pos_offline.feature.main.home.domain
 
-import com.abdulmateen.pos_offline.core.domain.DataError
-import com.abdulmateen.pos_offline.core.domain.EmptyResult
-import com.abdulmateen.pos_offline.core.domain.Result
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
 import kotlinx.coroutines.flow.Flow
 
-
 interface ProductRepository {
-    suspend fun fetchProducts(): Result<List<Product>, DataError.Remote>
-    fun loadAllProductsFromCache(): Flow<List<Product>>
-    suspend fun markAsFavourite(productId: Int): EmptyResult<DataError.Local>
-    fun getFavouriteProducts(): Flow<List<Product>>
-    fun isProductFavourite(id: Int): Flow<Boolean>
-    suspend fun deleteFromFavourite(id: Int)
-    suspend fun removeFromFavourite(id: Int)
-
+    suspend fun insertProduct(product: Product)
+    suspend fun updateProduct(product: Product)
+    suspend fun deleteProduct(product: Product)
+    fun getAllProducts(): Flow<List<Product>>
+    fun getProductById(productId: Long): Flow<Product?>
+    suspend fun clearProducts()
 }

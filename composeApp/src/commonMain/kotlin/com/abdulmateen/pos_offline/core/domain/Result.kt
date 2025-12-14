@@ -1,8 +1,5 @@
 package com.abdulmateen.pos_offline.core.domain
 
-import com.abdulmateen.pos_offline.core.domain.Result
-import com.abdulmateen.pos_offline.core.domain.Error
-
 sealed interface Result<out D, out E: Error> {
     data class Success<out D>(val data: D): Result<D, Nothing>
     data class Error<out E: com.abdulmateen.pos_offline.core.domain.Error>(val error: E):

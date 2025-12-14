@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.inventory.domain.models
+package com.abdulmateen.pos_offline.feature.main.home.domain.models
 
 data class SubCategory(
     val id: Int,

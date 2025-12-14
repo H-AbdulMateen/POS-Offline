@@ -48,8 +48,6 @@ import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.book_error
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
-import com.abdulmateen.pos_offline.feature.main.home.domain.Product
-import com.abdulmateen.pos_offline.feature.main.home.domain.Rating
 import com.abdulmateen.pos_offline.feature.main.home.presentation.order.ProductListUiAction
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview

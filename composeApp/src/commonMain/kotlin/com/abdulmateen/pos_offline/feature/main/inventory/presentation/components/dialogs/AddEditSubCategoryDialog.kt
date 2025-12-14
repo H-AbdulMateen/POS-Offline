@@ -31,11 +31,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.abdulmateen.pos_offline.core.designsystem.components.LabelMedium
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.Category
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.SubCategory
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.SubCategory
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -47,7 +46,6 @@ import pos_offline.composeapp.generated.resources.edit_sub_category
 import pos_offline.composeapp.generated.resources.pick_parent_category
 import pos_offline.composeapp.generated.resources.save
 import pos_offline.composeapp.generated.resources.select_parent_category
-import pos_offline.composeapp.generated.resources.sub_category
 
 
 @Composable

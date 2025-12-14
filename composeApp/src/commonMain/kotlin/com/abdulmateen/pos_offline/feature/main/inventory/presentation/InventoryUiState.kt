@@ -1,10 +1,10 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation
 
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.InventoryItem
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
 
 data class InventoryUiState(
     val isLoading: Boolean = false,
-    val items: List<InventoryItem> = emptyList(),
+    val items: List<Product> = emptyList(),
     val error: String = "",
     val showDialog: Boolean = false,
 

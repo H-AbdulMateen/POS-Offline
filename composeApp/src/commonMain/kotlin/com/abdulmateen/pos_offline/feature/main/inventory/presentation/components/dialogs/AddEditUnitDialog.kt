@@ -24,25 +24,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.Unit
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pos_offline.composeapp.generated.resources.Res
-import pos_offline.composeapp.generated.resources.add_category
+import pos_offline.composeapp.generated.resources.add_unit
 import pos_offline.composeapp.generated.resources.cancel
-import pos_offline.composeapp.generated.resources.category_name
-import pos_offline.composeapp.generated.resources.edit_category
+import pos_offline.composeapp.generated.resources.edit_unit
 import pos_offline.composeapp.generated.resources.save
+import pos_offline.composeapp.generated.resources.unit_name
 
 
 @Composable
-fun AddEditCategoryDialog(
-    category: Category?,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
+fun AddEditItemUnitDialog(
+    unit: Unit?,
+    onDismiss: () -> kotlin.Unit,
+    onConfirm: () -> kotlin.Unit,
 ) {
-    val isEditing = category != null
+    val isEditing = unit != null
 
     Dialog(
         onDismissRequest = onDismiss
@@ -63,15 +63,15 @@ fun AddEditCategoryDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (isEditing){
-                    TitleLargeText(title = stringResource(Res.string.edit_category))
+                    TitleLargeText(title = stringResource(Res.string.edit_unit))
                 }else{
-                    TitleLargeText(title = stringResource(Res.string.add_category))
+                    TitleLargeText(title = stringResource(Res.string.add_unit))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTF(
                     value = "",
                     onValueChange = {},
-                    placeholder = stringResource(Res.string.category_name),
+                    placeholder = stringResource(Res.string.unit_name),
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -104,28 +104,28 @@ fun AddEditCategoryDialog(
 
 @Preview(name = "LightMode")
 @Composable
-fun CategoryDialogPreview(){
+fun ItemUnitDialogPreview(){
     POSOfflineTheme(
         darkTheme = false,
         content = {
-            AddEditCategoryDialog(
+            AddEditItemUnitDialog(
                 onDismiss = {},
                 onConfirm = {},
-                category = null
+                unit = null
             )
         }
     )
 }
 @Preview(name = "DarkMode")
 @Composable
-fun CategoryDialogDarkPreview(){
+fun ItemUnitDialogDarkPreview(){
     POSOfflineTheme(
         darkTheme = true,
         content = {
-            AddEditCategoryDialog(
+            AddEditItemUnitDialog(
                 onDismiss = {},
                 onConfirm = {},
-                category = null
+                unit = null
             )
         }
     )

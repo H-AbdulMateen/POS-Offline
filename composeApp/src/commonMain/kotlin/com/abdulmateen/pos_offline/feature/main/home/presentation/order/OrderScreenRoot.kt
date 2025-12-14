@@ -33,8 +33,6 @@ import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.compose_multiplatform
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
-import com.abdulmateen.pos_offline.feature.main.home.domain.Product
-import com.abdulmateen.pos_offline.feature.main.home.domain.Rating
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.CartSummarySection
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.CustomerSection
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.ProductListSection

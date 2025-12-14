@@ -15,8 +15,6 @@ import com.abdulmateen.pos_offline.feature.auth.domain.LoginRepository
 import com.abdulmateen.pos_offline.feature.auth.presentation.login.LoginViewModel
 import com.abdulmateen.pos_offline.feature.auth.presentation.register.SignUpViewModel
 import com.abdulmateen.pos_offline.feature.auth.data.LoginRepositoryImpl
-import com.abdulmateen.pos_offline.feature.main.home.data.ProductRepositoryImpl
-import com.abdulmateen.pos_offline.feature.main.home.domain.ProductRepository
 import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.KtorProductsDataSource
 import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.RemoteProductsDataSource
 import com.abdulmateen.pos_offline.feature.main.home.presentation.order.ProductListViewModel

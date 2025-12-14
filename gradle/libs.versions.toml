@@ -36,6 +36,7 @@ kmpDateTimePicker = "1.1.1"
 adaptive = "1.2.0"
 country-picker = "1.0.4"
 pdfbox = "3.0.6"
+kotlinx-datetime = "0.7.1"
 
 [libraries]
 
@@ -96,6 +97,8 @@ androidx-room-sqlite-wrapper = { module = "androidx.room:room-sqlite-wrapper", v
 cmp-image-pick-n-crop = { module = "network.chaintech:cmp-image-pick-n-crop", version.ref = "cmpImagePickNCrop" }
 #Date Picker
 kmp-date-time-picker = { module = "network.chaintech:kmp-date-time-picker", version.ref = "kmpDateTimePicker" }
+#DateTime
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 #Adaptive
 material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
 #Country-Code-Picker

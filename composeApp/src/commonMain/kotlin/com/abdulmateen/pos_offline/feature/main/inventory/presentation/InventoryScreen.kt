@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.core.designsystem.components.SearchField
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.InventoryItem
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
 import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.dummyInventory
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.dialogs.AddEditInventoryDialog
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryHeaderRow
@@ -39,7 +39,7 @@ fun InventoryScreen(){
     Scaffold(
     ) { innerPadding ->
         var addEditDialogVisible by remember { mutableStateOf(false) }
-        var dialogItem by remember { mutableStateOf<InventoryItem?>(null) }
+        var dialogItem by remember { mutableStateOf<Product?>(null) }
         val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
         val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
         Column(

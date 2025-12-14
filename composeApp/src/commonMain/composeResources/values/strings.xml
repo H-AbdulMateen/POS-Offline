@@ -84,4 +84,12 @@
     <string name="pick_parent_category">Pick Parent Category</string>
     <string name="select_sub_category">Select Sub Category</string>
     <string name="scan_barcode">Scan Barcode</string>
+    <string name="add_unit">Add Unit</string>
+    <string name="edit_unit">Edit Unit</string>
+    <string name="unit_name">Unit Name</string>
+    <string name="unit_display_name">Unit Display Name</string>
+    <string name="item_unit">Item Unit</string>
+    <string name="select_item_unit">Select Item Unit</string>
+
+
 </resources>

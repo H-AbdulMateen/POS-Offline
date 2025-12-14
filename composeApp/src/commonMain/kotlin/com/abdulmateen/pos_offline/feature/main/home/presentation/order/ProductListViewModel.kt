@@ -6,8 +6,6 @@ import com.abdulmateen.pos_offline.core.domain.DataError
 import com.abdulmateen.pos_offline.core.domain.onError
 import com.abdulmateen.pos_offline.core.domain.onSuccess
 import com.abdulmateen.pos_offline.core.designsystem.toUiText
-import com.abdulmateen.pos_offline.feature.main.home.domain.Product
-import com.abdulmateen.pos_offline.feature.main.home.domain.ProductRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
