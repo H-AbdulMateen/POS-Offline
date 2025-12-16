@@ -9,6 +9,6 @@ interface OrderRepository {
     suspend fun insertOrderItems(orderItems: List<OrderItem>)
     suspend fun updateOrder(order: Order, orderItems: List<OrderItem>)
     suspend fun deleteOrder(orderId: Long)
-    suspend fun getOrderById(orderId: Long): Flow<Order?>
+    suspend fun getOrderById(orderId: Long): Order?
     suspend fun getAllOrders(): Flow<List<Order>>
 }

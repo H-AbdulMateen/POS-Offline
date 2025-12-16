@@ -3,8 +3,10 @@ package com.abdulmateen.pos_offline.common.data.database
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.CategoryDao
 import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.OrderDao
 import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.ProductDao
+import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.UnitDao
 import com.abdulmateen.pos_offline.feature.main.home.data.database.models.CategoryEntity
 import com.abdulmateen.pos_offline.feature.main.home.data.database.models.OrderEntity
 import com.abdulmateen.pos_offline.feature.main.home.data.database.models.OrderItemEntity
@@ -25,6 +27,9 @@ import com.abdulmateen.pos_offline.feature.main.home.data.database.models.UnitEn
 abstract class MyAppDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
     abstract fun orderDao(): OrderDao
+    abstract fun categoryDao(): CategoryDao
+    abstract fun unitDao(): UnitDao
+
 
     companion object Companion {
         const val DB_NAME = "my_app.db"
