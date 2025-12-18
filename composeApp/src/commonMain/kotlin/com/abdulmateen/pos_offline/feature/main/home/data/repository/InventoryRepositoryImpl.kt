@@ -3,86 +3,111 @@ package com.abdulmateen.pos_offline.feature.main.home.data.repository
 import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.CategoryDao
 import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.ProductDao
 import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.UnitDao
+import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toCategory
+import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toCategoryEntity
+import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toProduct
+import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toProductEntity
+import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toUnit
+import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toUnitEntity
 import com.abdulmateen.pos_offline.feature.main.home.domain.InventoryRepository
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class InventoryRepositoryImpl(
     private val productDao: ProductDao,
     private val categoryDao: CategoryDao,
     private val unitDao: UnitDao
-): InventoryRepository {
+) : InventoryRepository {
     override suspend fun insertProduct(product: Product) {
-        TODO("Not yet implemented")
+        productDao.insertOrUpdate(product.toProductEntity())
     }
 
     override suspend fun updateProduct(product: Product) {
-        TODO("Not yet implemented")
+        productDao.insertOrUpdate(product.toProductEntity())
     }
 
     override suspend fun deleteProduct(product: Product) {
-        TODO("Not yet implemented")
+        productDao.delete(product.toProductEntity())
     }
 
-    override fun getAllProducts(): Flow<List<Product>> {
-        TODO("Not yet implemented")
+    override fun getAllProducts(): Flow<List<Product>> =
+        productDao.getAllProducts()
+            .map { productEntities ->
+                productEntities.map { productEntity ->
+                    productEntity.toProduct()
+                }
+            }
+
+    override fun searchProductsByName(name: String): Flow<List<Product>> {
+        return productDao.filterProductsByQuery(name = name).map { productEntities ->
+            productEntities.map { productEntity ->
+                productEntity.toProduct()
+            }
+        }
     }
 
-    override fun getProductById(productId: Long): Flow<Product?> {
-        TODO("Not yet implemented")
+    override suspend fun getProductById(productId: Long): Product? {
+        return productDao.getProductById(productId)?.toProduct()
     }
 
     override suspend fun clearProducts() {
-        TODO("Not yet implemented")
+        productDao.clearProducts()
     }
 
     override suspend fun insertCategory(category: Category) {
-        TODO("Not yet implemented")
+        categoryDao.insertOrUpdate(category = category.toCategoryEntity())
     }
 
     override suspend fun updateCategory(category: Category) {
-        TODO("Not yet implemented")
+        categoryDao.insertOrUpdate(category = category.toCategoryEntity())
     }
 
     override suspend fun deleteCategory(category: Category) {
-        TODO("Not yet implemented")
+        categoryDao.deleteCategory(category = category.toCategoryEntity())
     }
 
     override fun getAllCategories(): Flow<List<Category>> {
-        TODO("Not yet implemented")
+        return categoryDao.getAllCategories()
+            .map { categoryEntities -> categoryEntities.map { it.toCategory() } }
     }
 
     override fun getCategoryById(categoryId: Long): Flow<Category?> {
-        TODO("Not yet implemented")
+        return categoryDao.getCategoryById(categoryId)
+            .map { it?.toCategory() }
     }
 
     override suspend fun clearCategories() {
-        TODO("Not yet implemented")
+        categoryDao.clearCategories()
     }
 
-    override suspend fun insertUnit(unit: Unit) {
-        TODO("Not yet implemented")
+    override suspend fun insertUnit(unit: ItemUnit) {
+        unitDao.insertOrUpdate(unit.toUnitEntity())
     }
 
-    override suspend fun updateUnit(unit: Unit) {
-        TODO("Not yet implemented")
+    override suspend fun updateUnit(unit: ItemUnit) {
+        unitDao.insertOrUpdate(unit.toUnitEntity())
     }
 
-    override suspend fun deleteUnit(unit: Unit) {
-        TODO("Not yet implemented")
+    override suspend fun deleteUnit(unit: ItemUnit) {
+        unitDao.deleteUnit(unit.toUnitEntity())
     }
 
-    override fun getAllUnits(): Flow<List<Unit>> {
-        TODO("Not yet implemented")
+    override fun getAllUnits(): Flow<List<ItemUnit>> {
+        return unitDao.getAllUnits()
+            .map { unitEntities -> unitEntities.map { it.toUnit() } }
     }
 
-    override fun getUnitById(unitId: Long): Flow<Unit?> {
-        TODO("Not yet implemented")
+    override fun getUnitById(unitId: Long): Flow<ItemUnit?> {
+        return unitDao.getUnitById(unitId)
+            .map { it?.toUnit() }
     }
 
     override suspend fun clearUnits() {
-        TODO("Not yet implemented")
+        unitDao.clearUnits()
+
     }
 
 }

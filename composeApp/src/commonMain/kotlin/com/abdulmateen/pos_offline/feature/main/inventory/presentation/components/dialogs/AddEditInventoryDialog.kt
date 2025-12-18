@@ -51,10 +51,10 @@ import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTFDate
 import com.abdulmateen.pos_offline.core.designsystem.components.WheelDateTimePickerDialog
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Unit
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.SubCategory
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummySubCategories
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyUnits
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyItemUnits
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import network.chaintech.cmpimagepickncrop.CMPImagePickNCropDialog
 import network.chaintech.cmpimagepickncrop.imagecropper.rememberImageCropper
@@ -101,7 +101,7 @@ fun AddEditInventoryDialog(
     var selectedSubCategory by remember { mutableStateOf<SubCategory?>(null)}
     var categoryAddEditDialogPopup by remember { mutableStateOf(false) }
     var subCategoryAddEditDialogPopup by remember { mutableStateOf(false) }
-    var selectedUnit by remember { mutableStateOf<Unit?>(null) }
+    var selectedItemUnit by remember { mutableStateOf<ItemUnit?>(null) }
     var unitAddEditDialogPopup by remember { mutableStateOf(false) }
     var unitMenuExpanded by remember { mutableStateOf(false) }
 
@@ -216,10 +216,10 @@ fun AddEditInventoryDialog(
 
                 ItemUnitRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedUnit = selectedUnit,
+                    selectedItemUnit = selectedItemUnit,
                     unitMenuExpanded = unitMenuExpanded,
                     toggleUnitMenu = { unitMenuExpanded = !unitMenuExpanded },
-                    selectedUnitChange = { selectedUnit = it },
+                    selectedUnitChange = { selectedItemUnit = it },
                     addEditUnit = { unitAddEditDialogPopup = true }
                 )
 
@@ -272,7 +272,7 @@ fun AddEditInventoryDialog(
             }
             if (unitAddEditDialogPopup){
                 AddEditItemUnitDialog(
-                    unit = null,
+                    itemUnit = null,
                     onDismiss = { unitAddEditDialogPopup = false },
                     onConfirm = { unitAddEditDialogPopup = false }
                 )
@@ -361,9 +361,9 @@ fun CategoryRow(
 fun ItemUnitRow(
     modifier: Modifier,
     toggleUnitMenu: () -> kotlin.Unit = {},
-    selectedUnit: Unit? = null,
+    selectedItemUnit: ItemUnit? = null,
     unitMenuExpanded: Boolean = false,
-    selectedUnitChange: (Unit) -> kotlin.Unit,
+    selectedUnitChange: (ItemUnit) -> kotlin.Unit,
     addEditUnit: () -> kotlin.Unit
 ) {
     Row(
@@ -385,7 +385,7 @@ fun ItemUnitRow(
                     modifier = Modifier.fillMaxWidth().padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = selectedUnit?.name ?: stringResource(Res.string.select_item_unit))
+                    Text(text = selectedItemUnit?.name ?: stringResource(Res.string.select_item_unit))
                     Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "ArrowDropdown")
                 }
             }
@@ -478,14 +478,14 @@ fun SubCategoryDropdown(
 fun ItemUnitDropdown(
     itemUnitMenuExpanded: Boolean,
     unitMenuExpandedChange: () -> kotlin.Unit,
-    selectedUnitChange: (Unit) -> kotlin.Unit
+    selectedUnitChange: (ItemUnit) -> kotlin.Unit
 ){
     DropdownMenu(
         expanded = itemUnitMenuExpanded,
         onDismissRequest = unitMenuExpandedChange,
         modifier = Modifier.width(IntrinsicSize.Max)
     ) {
-        dummyUnits.forEach { itemUnits ->
+        dummyItemUnits.forEach { itemUnits ->
             DropdownMenuItem(
                 text = { Text(text = itemUnits.name) },
                 onClick = { selectedUnitChange(itemUnits) }

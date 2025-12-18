@@ -10,13 +10,16 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UnitDao {
     @Upsert
-    suspend fun insertUnit(unit: UnitEntity)
+    suspend fun insertOrUpdate(unit: UnitEntity)
     @Delete
     suspend fun deleteUnit(unit: UnitEntity)
     @Query("SELECT * FROM units")
     fun getAllUnits(): Flow<List<UnitEntity>>
     @Query("SELECT * FROM units WHERE unitId = :unitId")
     fun getUnitById(unitId: Long): Flow<UnitEntity?>
+    @Query("DELETE FROM units")
+    suspend fun clearUnits()
+
 
 
 

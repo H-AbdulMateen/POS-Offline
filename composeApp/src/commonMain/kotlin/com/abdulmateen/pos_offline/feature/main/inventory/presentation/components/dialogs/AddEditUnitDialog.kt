@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Unit
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -38,11 +38,11 @@ import pos_offline.composeapp.generated.resources.unit_name
 
 @Composable
 fun AddEditItemUnitDialog(
-    unit: Unit?,
+    itemUnit: ItemUnit?,
     onDismiss: () -> kotlin.Unit,
     onConfirm: () -> kotlin.Unit,
 ) {
-    val isEditing = unit != null
+    val isEditing = itemUnit != null
 
     Dialog(
         onDismissRequest = onDismiss
@@ -111,7 +111,7 @@ fun ItemUnitDialogPreview(){
             AddEditItemUnitDialog(
                 onDismiss = {},
                 onConfirm = {},
-                unit = null
+                itemUnit = null
             )
         }
     )
@@ -125,7 +125,7 @@ fun ItemUnitDialogDarkPreview(){
             AddEditItemUnitDialog(
                 onDismiss = {},
                 onConfirm = {},
-                unit = null
+                itemUnit = null
             )
         }
     )

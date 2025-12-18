@@ -17,6 +17,10 @@ import com.abdulmateen.pos_offline.feature.auth.presentation.register.SignUpView
 import com.abdulmateen.pos_offline.feature.auth.data.LoginRepositoryImpl
 import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.KtorProductsDataSource
 import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.RemoteProductsDataSource
+import com.abdulmateen.pos_offline.feature.main.home.data.repository.InventoryRepositoryImpl
+import com.abdulmateen.pos_offline.feature.main.home.data.repository.OrderRepositoryImpl
+import com.abdulmateen.pos_offline.feature.main.home.domain.InventoryRepository
+import com.abdulmateen.pos_offline.feature.main.home.domain.OrderRepository
 import com.abdulmateen.pos_offline.feature.main.home.presentation.order.ProductListViewModel
 import com.abdulmateen.pos_offline.feature.main.profile.presentation.ProfileViewModel
 import com.abdulmateen.pos_offline.feature.main.settings.presentation.SettingsViewModel
@@ -37,17 +41,23 @@ val sharedModule = module {
             .setDriver(BundledSQLiteDriver())
             .build()
     }
-    single { get<MyAppDatabase>().productDao }
+    single { get<MyAppDatabase>().productDao() }
+    single { get<MyAppDatabase>().orderDao() }
+    single { get<MyAppDatabase>().categoryDao() }
+    single { get<MyAppDatabase>().unitDao() }
 
     singleOf(::KtorUserDataSource).bind<RemoteUserDataSource>()
     singleOf(::DataStoreManagerImpl).bind<DataStoreManager>()
     singleOf(::LoginRepositoryImpl).bind<LoginRepository>()
     singleOf(::KtorProductsDataSource).bind<RemoteProductsDataSource>()
-    singleOf(::ProductRepositoryImpl).bind<ProductRepository>()
+    singleOf(::InventoryRepositoryImpl).bind<InventoryRepository>()
+    singleOf(::OrderRepositoryImpl).bind<OrderRepository>()
+
+    viewModelOf(::StartupViewModel)
+
     viewModelOf(::LoginViewModel)
     viewModelOf(::SignUpViewModel)
     viewModelOf(::SettingsViewModel)
-    viewModelOf(::ProductListViewModel)
     viewModelOf(::ProfileViewModel)
 
 }
