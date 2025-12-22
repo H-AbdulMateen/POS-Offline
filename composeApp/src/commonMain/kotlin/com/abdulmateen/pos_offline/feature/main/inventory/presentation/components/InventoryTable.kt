@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.dummyInventory
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyProducts
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -58,7 +58,7 @@ fun InventoryTable(
                         TableCell(item.name, 0.25f)
                         TableCell(item.sku, 0.15f)
                         TableCell(item.quantity.toString(), 0.15f)
-                        TableCell(item.salesPrice.toString(), 0.15f)
+                        TableCell(item.salePrice.toString(), 0.15f)
                     }
                 }
             }
@@ -91,7 +91,7 @@ fun InventoryTablePreview() {
         darkTheme = false,
         content = {
             InventoryTable(
-                items = dummyInventory
+                items = dummyProducts
             )
         }
     )
@@ -104,7 +104,7 @@ fun InventoryTablePreviewDark() {
         darkTheme = true,
         content = {
             InventoryTable(
-                items = dummyInventory
+                items = dummyProducts
             )
         }
     )

@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
 
 @Entity(
     tableName = "products",
@@ -24,7 +25,9 @@ import androidx.room.PrimaryKey
     indices = [
         Index("categoryId"),
         Index("unitId"),
-        Index(value = ["sku"], unique = true)
+        Index(value = ["sku"], unique = true),
+        Index(value = ["barcode"], unique = true),
+        Index(value = ["name"])
     ]
 )
 data class ProductEntity(
@@ -37,7 +40,7 @@ data class ProductEntity(
     val purchasePrice: Double,
     val salePrice: Double,
     val quantity: Double,
-    val imageUrl: String? = null,
-    val categoryId: Long?,
-    val unitId: Long,
+    val imagePath: String? = null,
+    val categoryId: Long? = null,
+    val unit: Long? = null,
 )

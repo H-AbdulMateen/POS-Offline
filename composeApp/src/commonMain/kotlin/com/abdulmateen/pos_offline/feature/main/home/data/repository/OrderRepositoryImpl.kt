@@ -17,7 +17,7 @@ class OrderRepositoryImpl(
         order: Order,
         orderItems: List<OrderItem>
     ) {
-        orderDao.insertOrder(order.toOrderEntity())
+        orderDao.insertOrUpdateOrder(order.toOrderEntity())
         orderDao.insertOrderItems(orderItems.map { it.toOrderItemEntity() })
     }
 
@@ -29,7 +29,7 @@ class OrderRepositoryImpl(
         order: Order,
         orderItems: List<OrderItem>
     ) {
-        orderDao.insertOrder(order.toOrderEntity())
+        orderDao.insertOrUpdateOrder(order.toOrderEntity())
         orderDao.insertOrderItems(orderItems.map { it.toOrderItemEntity() })
     }
 

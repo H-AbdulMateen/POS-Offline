@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.dialogs
+package com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,7 +28,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -41,7 +40,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Transparent
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -49,15 +47,20 @@ import com.abdulmateen.pos_offline.core.designsystem.components.LocalImageWidget
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTFDate
 import com.abdulmateen.pos_offline.core.designsystem.components.WheelDateTimePickerDialog
+import com.abdulmateen.pos_offline.core.utils.formatDatePlatform
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.SubCategory
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummySubCategories
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyItemUnits
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiAction
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiState
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import network.chaintech.cmpimagepickncrop.CMPImagePickNCropDialog
 import network.chaintech.cmpimagepickncrop.imagecropper.rememberImageCropper
+import network.chaintech.cmpimagepickncrop.utils.ImageFileFormat
+import network.chaintech.cmpimagepickncrop.utils.toByteArray
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -83,18 +86,15 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 @Composable
 fun AddEditInventoryDialog(
+    uiState: InventoryUiState,
+    uiAction: (InventoryUiAction) -> Unit,
     item: Product?,                   // null = Add, not-null = Edit
-    onDismiss: () -> kotlin.Unit,
-    onSave: (Product) -> kotlin.Unit
+    onDismiss: () -> Unit,
+    onSave: (Product) -> Unit
 ) {
     val isEditing = item != null
 
-    var name by remember { mutableStateOf(item?.name ?: "") }
-    var sku by remember { mutableStateOf(item?.sku ?: "") }
-    var quantity by remember { mutableStateOf(item?.quantity?.toString() ?: "") }
-    var salesPrice by remember { mutableStateOf(item?.salesPrice ?: "") }
     var datePickerDialog by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf("") }
     var categoryMenuExpanded by remember { mutableStateOf(false) }
     var subCategoryMenuExpanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf<Category?>(null)}
@@ -108,7 +108,6 @@ fun AddEditInventoryDialog(
 
 
     val imageCropper = rememberImageCropper()
-    var selectedImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var openImagePicker by remember { mutableStateOf(value = false) }
 
     CMPImagePickNCropDialog(
@@ -118,7 +117,7 @@ fun AddEditInventoryDialog(
             openImagePicker = it
         },
         selectedImageCallback = {
-            selectedImage = it
+            uiAction(InventoryUiAction.OnImageUrlChange(it.toByteArray(format = ImageFileFormat.PNG, quality = 1.0f)))
         },
         selectedImageFileCallback = {}
     )
@@ -152,63 +151,64 @@ fun AddEditInventoryDialog(
                         .clip(CircleShape)
                         .align(Alignment.CenterHorizontally)
                         .clickable { openImagePicker = true }
-                        .background(LightGray.takeIf { selectedImage == null } ?: Transparent),
-                    selectedImage = selectedImage
+                        .background(LightGray.takeIf { uiState.imageBitmap == null } ?: Transparent),
+                    selectedImage = uiState.imageBitmap
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(stringResource(Res.string.product_name)) },
-                    modifier = Modifier.fillMaxWidth()
+                OutlinedTF(
+                    value = uiState.name,
+                    onValueChange = { uiAction(InventoryUiAction.OnNameChange(it)) },
+                    placeholder = stringResource(Res.string.product_name),
+                    modifier = Modifier.fillMaxWidth(),
+                    hasError = uiState.hasNameError,
+                    errorMessage = uiState.nameErrorText
                 )
 
                 OutlinedTF(
-                    value = sku,
-                    onValueChange = { sku = it },
+                    value = uiState.sku,
+                    onValueChange = { uiAction(InventoryUiAction.OnSkuChange(it)) },
                     placeholder = stringResource(Res.string.scan_barcode),
                     modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = { Icon(painter = painterResource(Res.drawable.barcode_reader), contentDescription = "Barcode Reader") }
+                    trailingIcon = { Icon(painter = painterResource(Res.drawable.barcode_reader), contentDescription = "Barcode Reader", modifier = Modifier.size(24.dp)) },
+                    hasError = uiState.hasSkuError,
+                    errorMessage = uiState.skuErrorText
                 )
 
 
                 OutlinedTF(
-                    value = sku,
-                    onValueChange = { sku = it },
-                    placeholder = stringResource(Res.string.sku),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-
-                OutlinedTF(
-                    value = quantity,
+                    value = uiState.quantity,
                     onValueChange = { 
-                        if (it.all { c -> c.isDigit() }) quantity = it 
+                        if (it.all { c -> c.isDigit() }) { uiAction(InventoryUiAction.OnQuantityChange(it)) }
                     },
                     keyboardType = KeyboardType.Decimal,
                     placeholder = stringResource(Res.string.quantity_in_stock),
                     modifier = Modifier.fillMaxWidth(),
+                    hasError = uiState.hasQuantityError,
+                    errorMessage = uiState.quantityErrorText
                 )
 
                 OutlinedTF(
-                    value = salesPrice.toString(),
-                    onValueChange = { salesPrice = it },
+                    value = uiState.salesPrice,
+                    onValueChange = { uiAction(InventoryUiAction.OnSalesPriceChange(it)) },
                     placeholder = stringResource(Res.string.sales_price),
                     keyboardType = KeyboardType.Decimal,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    hasError = uiState.hasSalesPriceError,
+                    errorMessage = uiState.salesPriceErrorText
                 )
 
                 OutlinedTF(
-                    value = salesPrice.toString(),
-                    onValueChange = { salesPrice = it },
+                    value = uiState.purchasePrice,
+                    onValueChange = { uiAction(InventoryUiAction.OnPurchasePriceChange(it)) },
                     placeholder = stringResource(Res.string.purchase_price),
                     keyboardType = KeyboardType.Decimal,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    hasError = uiState.hasPurchasePriceError,
+                    errorMessage = uiState.purchasePriceErrorText
                 )
                 OutlinedTFDate(
-                    value = selectedDate,
+                    value = uiState.itemExpiryDate,
                     onClick = { datePickerDialog = true },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = stringResource(Res.string.expiry_date)
@@ -244,7 +244,7 @@ fun AddEditInventoryDialog(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = onDismiss) {
+                    TextButton(onClick = { onDismiss() }) {
                         Text(stringResource(Res.string.cancel))
                     }
 
@@ -252,18 +252,7 @@ fun AddEditInventoryDialog(
 
                     Button(
                         onClick = {
-                            if (name.isNotBlank() && sku.isNotBlank() && quantity.isNotBlank()) {
-                                onSave(
-                                    Product(
-                                        name = name,
-                                        sku = sku,
-                                        quantity = quantity.toInt(),
-                                        salesPrice = 0.0,
-                                        purchasePrice = 0.0
-                                    )
-                                )
-                                onDismiss()
-                            }
+                            uiAction(InventoryUiAction.OnAddItemClick)
                         }
                     ) {
                         Text(if (isEditing) stringResource(Res.string.update) else stringResource(Res.string.add))
@@ -300,8 +289,7 @@ fun AddEditInventoryDialog(
                 datePickerDialog = false
                                },
             onDateSelection = {
-                selectedDate = it.toString()
-//                uiAction(SignUpUiAction.UpdateDateOfBirth(it))
+                uiAction(InventoryUiAction.OnExpiryDateChange(formatDatePlatform(it, "dd/MM/yyyy")))
                 datePickerDialog = false
             }
         )
@@ -311,11 +299,11 @@ fun AddEditInventoryDialog(
 @Composable
 fun CategoryRow(
     modifier: Modifier,
-    toggleCategoryMenu: () -> kotlin.Unit = {},
+    toggleCategoryMenu: () -> Unit = {},
     selectedCategory: Category? = null,
     categoryMenuExpanded: Boolean = false,
-    selectedCategoryChange: (Category) -> kotlin.Unit,
-    addEditCategory: () -> kotlin.Unit
+    selectedCategoryChange: (Category) -> Unit,
+    addEditCategory: () -> Unit
 ) {
     Row(
         modifier = modifier,
@@ -360,11 +348,11 @@ fun CategoryRow(
 @Composable
 fun ItemUnitRow(
     modifier: Modifier,
-    toggleUnitMenu: () -> kotlin.Unit = {},
+    toggleUnitMenu: () -> Unit = {},
     selectedItemUnit: ItemUnit? = null,
     unitMenuExpanded: Boolean = false,
-    selectedUnitChange: (ItemUnit) -> kotlin.Unit,
-    addEditUnit: () -> kotlin.Unit
+    selectedUnitChange: (ItemUnit) -> Unit,
+    addEditUnit: () -> Unit
 ) {
     Row(
         modifier = modifier,
@@ -408,11 +396,11 @@ fun ItemUnitRow(
 @Composable
 fun SubCategoryRow(
     modifier: Modifier,
-    toggleCategoryMenu: () -> kotlin.Unit = {},
+    toggleCategoryMenu: () -> Unit = {},
     selectedCategory: SubCategory? = null,
     subCategoryMenuExpanded: Boolean = false,
-    selectedCategoryChange: (SubCategory) -> kotlin.Unit,
-    addEditCategory: () -> kotlin.Unit
+    selectedCategoryChange: (SubCategory) -> Unit,
+    addEditCategory: () -> Unit
 ) {
     Row(
         modifier = modifier,
@@ -457,8 +445,8 @@ fun SubCategoryRow(
 @Composable
 fun SubCategoryDropdown(
     isSubCategoryMenuVisible: Boolean,
-    subCategoryMenuExpandedChange: () -> kotlin.Unit,
-    selectedSubCategoryChange: (SubCategory) -> kotlin.Unit,
+    subCategoryMenuExpandedChange: () -> Unit,
+    selectedSubCategoryChange: (SubCategory) -> Unit,
 ){
     DropdownMenu(
         expanded = isSubCategoryMenuVisible,
@@ -477,8 +465,8 @@ fun SubCategoryDropdown(
 @Composable
 fun ItemUnitDropdown(
     itemUnitMenuExpanded: Boolean,
-    unitMenuExpandedChange: () -> kotlin.Unit,
-    selectedUnitChange: (ItemUnit) -> kotlin.Unit
+    unitMenuExpandedChange: () -> Unit,
+    selectedUnitChange: (ItemUnit) -> Unit
 ){
     DropdownMenu(
         expanded = itemUnitMenuExpanded,
@@ -503,7 +491,9 @@ fun AddEditInventoryDialogPreview(){
             AddEditInventoryDialog(
                 item = null,
                 onDismiss = {},
-                onSave = {}
+                onSave = {},
+                uiAction = {},
+                uiState = InventoryUiState()
             )
         }
     )
@@ -518,7 +508,9 @@ fun AddEditInventoryDialogPreviewDark(){
             AddEditInventoryDialog(
                 item = null,
                 onDismiss = {},
-                onSave = {}
+                onSave = {},
+                uiAction = {},
+                uiState = InventoryUiState()
             )
         }
     )

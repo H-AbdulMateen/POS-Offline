@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.dialogs
+package com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,8 +39,8 @@ import pos_offline.composeapp.generated.resources.unit_name
 @Composable
 fun AddEditItemUnitDialog(
     itemUnit: ItemUnit?,
-    onDismiss: () -> kotlin.Unit,
-    onConfirm: () -> kotlin.Unit,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
 ) {
     val isEditing = itemUnit != null
 

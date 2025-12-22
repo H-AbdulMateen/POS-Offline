@@ -52,6 +52,7 @@ import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.main.components.DrawerContentSheet
 import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderScreenRoot
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryScreen
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryScreenRoot
 import com.abdulmateen.pos_offline.feature.main.profile.presentation.ProfileScreenRoot
 import com.abdulmateen.pos_offline.feature.main.settings.presentation.SettingsScreenRoot
 import kotlinx.coroutines.launch
@@ -270,7 +271,7 @@ fun NavHostPane(
             )
         }
         composable<MainScreenRoutes.Inventory> {
-            InventoryScreen()
+            InventoryScreenRoot()
         }
         composable<MainScreenRoutes.Profile>() {
             ProfileScreenRoot()

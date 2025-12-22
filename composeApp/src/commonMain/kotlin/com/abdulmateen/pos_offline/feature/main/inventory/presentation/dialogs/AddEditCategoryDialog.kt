@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.dialogs
+package com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

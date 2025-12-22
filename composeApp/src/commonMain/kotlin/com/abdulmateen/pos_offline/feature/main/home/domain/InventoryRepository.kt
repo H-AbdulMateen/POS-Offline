@@ -7,7 +7,7 @@ import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
 interface InventoryRepository {
     suspend fun insertProduct(product: Product)
     suspend fun updateProduct(product: Product)
-    suspend fun deleteProduct(product: Product)
+    suspend fun deleteProduct(productId: Long)
     fun getAllProducts(): Flow<List<Product>>
     suspend fun getProductById(productId: Long): Product?
     fun searchProductsByName(name: String): Flow<List<Product>>

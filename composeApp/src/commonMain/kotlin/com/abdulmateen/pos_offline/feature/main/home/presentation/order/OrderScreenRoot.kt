@@ -33,6 +33,7 @@ import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.compose_multiplatform
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.CartSummarySection
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.CustomerSection
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.ProductListSection
@@ -50,7 +51,7 @@ fun OrderScreenRoot(
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean
 ) {
-    val viewModel: ProductListViewModel = koinViewModel()
+    val viewModel: OrderViewModel = koinViewModel()
     OrderScreen(
         uiState = viewModel.uiState.collectAsStateWithLifecycle().value,
         navigateToCart = navigateToCart,
@@ -247,25 +248,33 @@ fun ProductListScreenPreview() {
     val uiState = ProductListUiState(
         productList = listOf(
             Product(
-                id = 1,
-                title = "Product 1",
-                price = 10.0,
-                description = "Description 1",
-                category = "Category 1",
-                image = "",
-                rating = Rating(
-                    rate = 4.5,
-                    count = 100
-                )
+                productId = 123,
+                name = "Product Name",
+                description = "Description",
+                sku = "as12",
+                barcode = "12345678",
+                purchasePrice = 1000.0,
+                salePrice = 1200.0,
+                quantity = 1200.0,
+                imageUrl = "",
+                category = 0,
+                unit = 0
+
             ),
             Product(
-                id = 2,
-                title = "Product 2",
-                price = 20.0,
-                description = "Description 2",
-                category = "Category 2",
-                image = "",
-                rating = Rating(rate = 4.0, count = 200)
+                productId = 123,
+                name = "Product Name",
+                description = "Description",
+                sku = "as12",
+                barcode = "12345678",
+                purchasePrice = 1000.0,
+                salePrice = 1200.0,
+                quantity = 1200.0,
+                imageUrl = "",
+                category = 0,
+                unit = 0
+
+
             )
         )
     )
@@ -289,25 +298,30 @@ fun CreateOrderScreenPreviewDark() {
     val uiState = ProductListUiState(
         productList = listOf(
             Product(
-                id = 1,
-                title = "Product 1",
-                price = 10.0,
-                description = "Description 1",
-                category = "Category 1",
-                image = "",
-                rating = Rating(
-                    rate = 4.5,
-                    count = 100
-                )
+                productId = 123,
+                name = "Product Name",
+                description = "Description",
+                sku = "as12",
+                barcode = "12345678",
+                purchasePrice = 1000.0,
+                salePrice = 1200.0,
+                quantity = 1200.0,
+                imageUrl = "",
+                category = 0,
+                unit = 0
             ),
             Product(
-                id = 2,
-                title = "Product 2",
-                price = 20.0,
-                description = "Description 2",
-                category = "Category 2",
-                image = "",
-                rating = Rating(rate = 4.0, count = 200)
+                productId = 123,
+                name = "Product Name",
+                description = "Description",
+                sku = "as12",
+                barcode = "12345678",
+                purchasePrice = 1000.0,
+                salePrice = 1200.0,
+                quantity = 1200.0,
+                imageUrl = "",
+                category = 0,
+                unit = 0
             )
         )
     )

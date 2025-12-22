@@ -21,21 +21,37 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abdulmateen.pos_offline.core.designsystem.components.SearchField
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.dummyInventory
-import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.dialogs.AddEditInventoryDialog
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyProducts
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryHeaderRow
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryTable
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs.AddEditInventoryDialog
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.add_item
 
 @Composable
-fun InventoryScreen(){
+fun InventoryScreenRoot(){
+    val viewModel = koinViewModel<InventoryViewModel>()
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+    InventoryScreen(
+        uiState = uiState,
+        uiAction = viewModel::uiAction
+    )
+}
+
+
+@Composable
+fun InventoryScreen(
+    uiState: InventoryUiState = InventoryUiState(),
+    uiAction: (InventoryUiAction) -> Unit
+){
     Scaffold(
     ) { innerPadding ->
         var addEditDialogVisible by remember { mutableStateOf(false) }
@@ -60,12 +76,12 @@ fun InventoryScreen(){
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     SearchField(
-                        value = "",
-                        onValueChange = {},
+                        value = uiState.searchProduct,
+                        onValueChange = { uiAction(InventoryUiAction.OnSearchProductChange(it)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    InventoryTable(items = dummyInventory)
+                    InventoryTable(items = uiState.productList)
                 }
                 DeviceConfiguration.MOBILE_LANDSCAPE, DeviceConfiguration.TABLET_LANDSCAPE -> {
                     Row(
@@ -74,8 +90,8 @@ fun InventoryScreen(){
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         SearchField(
-                            value = "",
-                            onValueChange = {},
+                            value = uiState.searchProduct,
+                            onValueChange = { uiAction(InventoryUiAction.OnSearchProductChange(it)) },
                             modifier = Modifier.weight(.1f)
                         )
                         Button(
@@ -89,7 +105,7 @@ fun InventoryScreen(){
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    InventoryTable(items = dummyInventory)
+                    InventoryTable(items = dummyProducts)
                 }
             }
         }
@@ -104,7 +120,9 @@ fun InventoryScreen(){
                     } else {
                         println("Updating item: $newItem")
                     }
-                }
+                },
+                uiAction = uiAction,
+                uiState = uiState
             )
         }
     }
@@ -116,7 +134,10 @@ fun InventoryScreenPreview(){
     POSOfflineTheme(
         darkTheme = false,
         content = {
-            InventoryScreen()
+            InventoryScreen(
+                uiState = InventoryUiState(),
+                uiAction = {}
+            )
         }
     )
 }
@@ -126,7 +147,10 @@ fun InventoryScreenPreviewDark(){
     POSOfflineTheme(
         darkTheme = true,
         content = {
-            InventoryScreen()
+            InventoryScreen(
+                uiState = InventoryUiState(),
+                uiAction = {}
+            )
         }
     )
 }

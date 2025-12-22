@@ -17,5 +17,5 @@ data class ProductWithCategoryAndUnit(
         parentColumn = "unitId",
         entityColumn = "unitId"
     )
-    val unit: UnitEntity
+    val unit: UnitEntity?
 )

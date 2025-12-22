@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
-import com.abdulmateen.pos_offline.feature.main.inventory.domain.models.dummyInventory
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyProducts
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -29,7 +29,7 @@ fun InventoryCardItem(item: Product) {
 
             Text("SKU: ${item.sku}")
             Text("Qty: ${item.quantity}")
-            Text("Location: ${item.salesPrice}")
+            Text("Location: ${item.salePrice}")
         }
     }
 }
@@ -42,7 +42,7 @@ fun InventoryCardItemPreview() {
         darkTheme = false,
         content = {
             InventoryCardItem(
-                item = dummyInventory[0]
+                item = dummyProducts[0]
             )
         }
     )
@@ -54,7 +54,7 @@ fun InventoryCardItemPreviewDark() {
         darkTheme = true,
         content = {
             InventoryCardItem(
-                item = dummyInventory[0]
+                item = dummyProducts[0]
             )
         }
     )

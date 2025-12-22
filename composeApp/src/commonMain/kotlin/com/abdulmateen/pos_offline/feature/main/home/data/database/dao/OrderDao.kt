@@ -1,7 +1,6 @@
 package com.abdulmateen.pos_offline.feature.main.home.data.database.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
@@ -13,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface OrderDao {
 
     @Upsert
-    suspend fun insertOrder(order: OrderEntity): Long
+    suspend fun insertOrUpdateOrder(order: OrderEntity): Long
 
     @Upsert
     suspend fun insertOrderItems(items: List<OrderItemEntity>)
@@ -23,7 +22,7 @@ interface OrderDao {
         order: OrderEntity,
         items: List<OrderItemEntity>
     ) {
-        val orderId = insertOrder(order)
+        val orderId = insertOrUpdateOrder(order)
         insertOrderItems(items.map { it.copy(orderId = orderId) })
     }
 
@@ -39,7 +38,7 @@ interface OrderDao {
         order: OrderEntity,
         items: List<OrderItemEntity>
     ) {
-        insertOrder(order)
+        insertOrUpdateOrder(order)
         insertOrderItems(items)
     }
 
