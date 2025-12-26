@@ -4,7 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @Entity(
     tableName = "products",
@@ -30,7 +31,7 @@ import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
         Index(value = ["name"])
     ]
 )
-data class ProductEntity(
+data class ProductEntity @OptIn(ExperimentalTime::class) constructor(
     @PrimaryKey(autoGenerate = true)
     val productId: Long = 0,
     val name: String,
@@ -42,5 +43,6 @@ data class ProductEntity(
     val quantity: Double,
     val imagePath: String? = null,
     val categoryId: Long? = null,
-    val unit: Long? = null,
+    val unitId: Long? = null,
+    val createdAt: Long = Clock.System.now().toEpochMilliseconds()
 )

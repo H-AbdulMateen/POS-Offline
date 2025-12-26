@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abdulmateen.pos_offline.core.designsystem.components.SearchField
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.ProductDetail
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyProducts
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryHeaderRow
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryTable
@@ -40,9 +41,11 @@ import pos_offline.composeapp.generated.resources.add_item
 fun InventoryScreenRoot(){
     val viewModel = koinViewModel<InventoryViewModel>()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+    val productFields = viewModel.newProduct.collectAsStateWithLifecycle().value
     InventoryScreen(
         uiState = uiState,
-        uiAction = viewModel::uiAction
+        uiAction = viewModel::uiAction,
+        productFieldValues = productFields
     )
 }
 
@@ -50,7 +53,8 @@ fun InventoryScreenRoot(){
 @Composable
 fun InventoryScreen(
     uiState: InventoryUiState = InventoryUiState(),
-    uiAction: (InventoryUiAction) -> Unit
+    uiAction: (InventoryUiAction) -> Unit,
+    productFieldValues: ProductDetail
 ){
     Scaffold(
     ) { innerPadding ->
@@ -122,7 +126,8 @@ fun InventoryScreen(
                     }
                 },
                 uiAction = uiAction,
-                uiState = uiState
+                uiState = uiState,
+                productFieldValues = productFieldValues
             )
         }
     }
@@ -136,7 +141,8 @@ fun InventoryScreenPreview(){
         content = {
             InventoryScreen(
                 uiState = InventoryUiState(),
-                uiAction = {}
+                uiAction = {},
+                productFieldValues = ProductDetail.empty()
             )
         }
     )
@@ -149,7 +155,8 @@ fun InventoryScreenPreviewDark(){
         content = {
             InventoryScreen(
                 uiState = InventoryUiState(),
-                uiAction = {}
+                uiAction = {},
+                productFieldValues = ProductDetail.empty()
             )
         }
     )

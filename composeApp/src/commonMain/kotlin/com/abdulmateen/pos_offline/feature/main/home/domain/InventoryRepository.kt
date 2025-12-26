@@ -4,12 +4,14 @@ import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
 import kotlinx.coroutines.flow.Flow
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.ProductDetail
+
 interface InventoryRepository {
-    suspend fun insertProduct(product: Product)
-    suspend fun updateProduct(product: Product)
+    suspend fun insertProduct(product: ProductDetail)
+    suspend fun updateProduct(product: ProductDetail)
     suspend fun deleteProduct(productId: Long)
     fun getAllProducts(): Flow<List<Product>>
-    suspend fun getProductById(productId: Long): Product?
+    suspend fun getProductById(productId: Long): ProductDetail?
     fun searchProductsByName(name: String): Flow<List<Product>>
 
     suspend fun clearProducts()

@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.abdulmateen.pos_offline.common.data.database.DatabaseFactory
 import com.abdulmateen.pos_offline.core.data.datastore.createDataStore
+import com.abdulmateen.pos_offline.core.data.filestorage.ImageStorage
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.android.ext.koin.androidApplication
@@ -15,5 +16,6 @@ actual val platformModule: Module = module {
     single<DataStore<Preferences>> { createDataStore(androidContext()) }
     single<HttpClientEngine> { OkHttp.create() }
     single { DatabaseFactory(androidApplication()) }
+    single { ImageStorage(context = androidContext()) }
 
 }

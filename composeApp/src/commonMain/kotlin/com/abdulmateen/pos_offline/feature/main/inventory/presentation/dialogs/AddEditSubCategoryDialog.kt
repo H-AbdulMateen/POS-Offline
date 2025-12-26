@@ -35,6 +35,7 @@ import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.SubCategory
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyCategories
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -171,7 +172,8 @@ fun ParentCategory(
             selectedCategoryChange = {
                 selectedParentCategoryChange(it)
                 toggleCategoryMenu()
-            }
+            },
+            list = dummyCategories
         )
     }
 }

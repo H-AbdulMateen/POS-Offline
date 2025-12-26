@@ -29,7 +29,7 @@ fun InventoryCardItem(item: Product) {
 
             Text("SKU: ${item.sku}")
             Text("Qty: ${item.quantity}")
-            Text("Location: ${item.salePrice}")
+            Text("Location: ${item.price}")
         }
     }
 }

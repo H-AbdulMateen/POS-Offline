@@ -33,6 +33,7 @@ import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.compose_multiplatform
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.CartSummarySection
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.CustomerSection
@@ -250,31 +251,19 @@ fun ProductListScreenPreview() {
             Product(
                 productId = 123,
                 name = "Product Name",
-                description = "Description",
-                sku = "as12",
-                barcode = "12345678",
-                purchasePrice = 1000.0,
-                salePrice = 1200.0,
+                sku = "sku123",
+                price = 1200.0,
                 quantity = 1200.0,
-                imageUrl = "",
-                category = 0,
-                unit = 0
+                photoBytes = byteArrayOf(),
 
             ),
             Product(
                 productId = 123,
                 name = "Product Name",
-                description = "Description",
-                sku = "as12",
-                barcode = "12345678",
-                purchasePrice = 1000.0,
-                salePrice = 1200.0,
+                sku = "sku456",
+                price = 1200.0,
                 quantity = 1200.0,
-                imageUrl = "",
-                category = 0,
-                unit = 0
-
-
+                photoBytes = byteArrayOf()
             )
         )
     )
@@ -300,28 +289,26 @@ fun CreateOrderScreenPreviewDark() {
             Product(
                 productId = 123,
                 name = "Product Name",
-                description = "Description",
                 sku = "as12",
-                barcode = "12345678",
-                purchasePrice = 1000.0,
-                salePrice = 1200.0,
+                price = 1200.0,
                 quantity = 1200.0,
-                imageUrl = "",
-                category = 0,
-                unit = 0
+                unit = ItemUnit(
+                    unitId = 1,
+                    name = "Kilogram",
+                    symbol = "kg"
+                )
             ),
             Product(
                 productId = 123,
                 name = "Product Name",
-                description = "Description",
                 sku = "as12",
-                barcode = "12345678",
-                purchasePrice = 1000.0,
-                salePrice = 1200.0,
+                price = 1200.0,
                 quantity = 1200.0,
-                imageUrl = "",
-                category = 0,
-                unit = 0
+                unit = ItemUnit(
+                    unitId = 1,
+                    name = "Kilogram",
+                    symbol = "kg"
+                )
             )
         )
     )

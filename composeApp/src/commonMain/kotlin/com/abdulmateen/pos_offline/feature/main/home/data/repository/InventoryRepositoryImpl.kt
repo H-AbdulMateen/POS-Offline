@@ -14,8 +14,12 @@ import com.abdulmateen.pos_offline.feature.main.home.domain.InventoryRepository
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.ProductDetail
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.supervisorScope
 
 class InventoryRepositoryImpl(
     private val productDao: ProductDao,
@@ -23,7 +27,7 @@ class InventoryRepositoryImpl(
     private val unitDao: UnitDao,
     private val imageStorage: ImageStorage
 ) : InventoryRepository {
-    override suspend fun insertProduct(product: Product) {
+    override suspend fun insertProduct(product: ProductDetail) {
         val imagePath = product.photoBytes?.let { imageBytes ->
             imageStorage.saveImage(imageBytes)
         }
@@ -35,16 +39,16 @@ class InventoryRepositoryImpl(
                 sku = product.sku,
                 barcode = product.barcode,
                 purchasePrice = product.purchasePrice,
-                salePrice = product.salePrice,
+                salePrice = product.price,
                 quantity = product.quantity,
                 imagePath = imagePath,
                 categoryId = product.category?.categoryId,
-                unit = product.unit?.unitId
+                unitId = product.unit?.unitId
             )
         )
     }
 
-    override suspend fun updateProduct(product: Product) {
+    override suspend fun updateProduct(product: ProductDetail) {
         val oldProduct = productDao.getProductById(product.productId)
         if (oldProduct != null) {
             val imagePath = product.photoBytes?.let { imageBytes ->
@@ -59,11 +63,11 @@ class InventoryRepositoryImpl(
                     sku = product.sku,
                     barcode = product.barcode,
                     purchasePrice = product.purchasePrice,
-                    salePrice = product.salePrice,
+                    salePrice = product.price,
                     quantity = product.quantity,
                     imagePath = imagePath ?: oldProduct.product.imagePath,
                     categoryId = product.category?.categoryId,
-                    unit = product.unit?.unitId
+                    unitId = product.unit?.unitId
                 )
             )
         }
@@ -76,6 +80,11 @@ class InventoryRepositoryImpl(
     override fun getAllProducts(): Flow<List<Product>> =
         productDao.getAllProducts()
             .map { productEntities ->
+                supervisorScope {
+                    productEntities.map { productEntity ->
+                        async { productEntity.toProduct(imageStorage = imageStorage) }
+                    }.awaitAll()
+                }
                 productEntities.map { productEntity ->
                     productEntity.toProduct(imageStorage = imageStorage)
                 }
@@ -89,7 +98,7 @@ class InventoryRepositoryImpl(
         }
     }
 
-    override suspend fun getProductById(productId: Long): Product? {
+    override suspend fun getProductById(productId: Long): ProductDetail? {
         return productDao.getProductById(productId)?.toProduct(imageStorage = imageStorage)
     }
 

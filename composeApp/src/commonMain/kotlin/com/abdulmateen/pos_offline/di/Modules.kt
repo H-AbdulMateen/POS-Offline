@@ -21,6 +21,8 @@ import com.abdulmateen.pos_offline.feature.main.home.data.repository.InventoryRe
 import com.abdulmateen.pos_offline.feature.main.home.data.repository.OrderRepositoryImpl
 import com.abdulmateen.pos_offline.feature.main.home.domain.InventoryRepository
 import com.abdulmateen.pos_offline.feature.main.home.domain.OrderRepository
+import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderViewModel
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryViewModel
 import com.abdulmateen.pos_offline.feature.main.profile.presentation.ProfileViewModel
 import com.abdulmateen.pos_offline.feature.main.settings.presentation.SettingsViewModel
 import org.koin.core.module.Module
@@ -56,6 +58,8 @@ val sharedModule = module {
 
     viewModelOf(::LoginViewModel)
     viewModelOf(::SignUpViewModel)
+    viewModelOf(::InventoryViewModel)
+    viewModelOf(::OrderViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::ProfileViewModel)
 

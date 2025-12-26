@@ -15,7 +15,7 @@ interface ProductDao {
     suspend fun insertOrUpdate(product: ProductEntity)
 
     @Query("SELECT * FROM products")
-    fun getAllProducts(): Flow<List<ProductWithCategoryAndUnit>>
+    fun getAllProducts(): Flow<List<ProductEntity>>
 
     @Query("DELETE FROM products WHERE productId = :productId")
     suspend fun delete(productId: Long)
@@ -41,7 +41,7 @@ interface ProductDao {
 
 
     @Query("SELECT * FROM products WHERE name LIKE '%' || :name || '%'")
-    fun filterProductsByQuery(name: String): Flow<List<ProductWithCategoryAndUnit>>
+    fun filterProductsByQuery(name: String): Flow<List<ProductEntity>>
 
     @Query("DELETE FROM products")
     suspend fun clearProducts()

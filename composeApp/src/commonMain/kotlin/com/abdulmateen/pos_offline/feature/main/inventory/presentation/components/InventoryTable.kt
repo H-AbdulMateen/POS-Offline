@@ -58,7 +58,7 @@ fun InventoryTable(
                         TableCell(item.name, 0.25f)
                         TableCell(item.sku, 0.15f)
                         TableCell(item.quantity.toString(), 0.15f)
-                        TableCell(item.salePrice.toString(), 0.15f)
+                        TableCell(item.price.toString(), 0.15f)
                     }
                 }
             }

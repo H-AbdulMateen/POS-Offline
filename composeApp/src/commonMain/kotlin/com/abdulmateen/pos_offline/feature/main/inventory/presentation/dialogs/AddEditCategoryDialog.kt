@@ -25,6 +25,8 @@ import androidx.compose.ui.window.Dialog
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiAction
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiState
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -39,6 +41,8 @@ import pos_offline.composeapp.generated.resources.save
 @Composable
 fun AddEditCategoryDialog(
     category: Category?,
+    uiState: InventoryUiState,
+    uiAction: (InventoryUiAction) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
@@ -69,8 +73,8 @@ fun AddEditCategoryDialog(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTF(
-                    value = "",
-                    onValueChange = {},
+                    value = uiState.categoryName,
+                    onValueChange = { uiAction(InventoryUiAction.OnCategoryNameChange(it)) },
                     placeholder = stringResource(Res.string.category_name),
                 )
                 Row(
@@ -111,7 +115,9 @@ fun CategoryDialogPreview(){
             AddEditCategoryDialog(
                 onDismiss = {},
                 onConfirm = {},
-                category = null
+                category = null,
+                uiAction = {},
+                uiState = InventoryUiState()
             )
         }
     )
@@ -125,7 +131,9 @@ fun CategoryDialogDarkPreview(){
             AddEditCategoryDialog(
                 onDismiss = {},
                 onConfirm = {},
-                category = null
+                category = null,
+                uiState = InventoryUiState(),
+                uiAction = {}
             )
         }
     )

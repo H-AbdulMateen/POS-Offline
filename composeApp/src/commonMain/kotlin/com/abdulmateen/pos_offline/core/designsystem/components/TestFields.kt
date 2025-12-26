@@ -63,6 +63,7 @@ fun OutlinedTF(
         onValueChange = onValueChange,
         modifier = modifier,
         placeholder = { Text(text = placeholder) },
+        label = { Text(text = placeholder) },
         isError = hasError,
         supportingText = {
             if (hasError) {
@@ -101,6 +102,7 @@ fun SearchField(
         onValueChange = onValueChange,
         modifier = modifier,
         placeholder = { Text(text = placeholder) },
+        label = { Text(text = placeholder) },
         isError = hasError,
         supportingText = {
             if (hasError) {
@@ -141,6 +143,7 @@ fun OutlinedTFPassword(
         onValueChange = onValueChange,
         modifier = modifier,
         placeholder = { Text(text = placeholder) },
+        label = { Text(text = placeholder) },
         isError = hasError,
         supportingText = {
             if (hasError) {
@@ -255,6 +258,7 @@ fun OutlinedTFDate(
             onClick = onClick
         ),
         placeholder = { Text(text = placeholder) },
+        label = { Text(text = placeholder) },
         enabled = false,
         trailingIcon = {
             Icon(imageVector = Icons.Default.DateRange, contentDescription = "Calendar",

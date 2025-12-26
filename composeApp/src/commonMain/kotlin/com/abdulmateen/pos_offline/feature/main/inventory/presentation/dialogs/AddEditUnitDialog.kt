@@ -25,6 +25,8 @@ import androidx.compose.ui.window.Dialog
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiAction
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiState
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -41,6 +43,8 @@ fun AddEditItemUnitDialog(
     itemUnit: ItemUnit?,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
+    uiState: InventoryUiState,
+    uiAction: (InventoryUiAction) -> Unit
 ) {
     val isEditing = itemUnit != null
 
@@ -69,8 +73,8 @@ fun AddEditItemUnitDialog(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTF(
-                    value = "",
-                    onValueChange = {},
+                    value = uiState.itemUnitName,
+                    onValueChange = { uiAction(InventoryUiAction.OnUnitNameChange(it)) },
                     placeholder = stringResource(Res.string.unit_name),
                 )
                 Row(
@@ -111,7 +115,9 @@ fun ItemUnitDialogPreview(){
             AddEditItemUnitDialog(
                 onDismiss = {},
                 onConfirm = {},
-                itemUnit = null
+                itemUnit = null,
+                uiState = InventoryUiState(),
+                uiAction = {}
             )
         }
     )
@@ -125,7 +131,9 @@ fun ItemUnitDialogDarkPreview(){
             AddEditItemUnitDialog(
                 onDismiss = {},
                 onConfirm = {},
-                itemUnit = null
+                itemUnit = null,
+                uiState = InventoryUiState(),
+                uiAction = {}
             )
         }
     )

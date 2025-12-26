@@ -14,14 +14,15 @@ import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyCategori
 fun CategoryDropdown(
     categoryMenuExpanded: Boolean,
     categoryMenuExpandedChange: () -> Unit,
-    selectedCategoryChange: (Category) -> Unit
+    selectedCategoryChange: (Category) -> Unit,
+    list: List<Category>
 ){
     DropdownMenu(
         expanded = categoryMenuExpanded,
         onDismissRequest = categoryMenuExpandedChange,
         modifier = Modifier.width(IntrinsicSize.Max)
     ) {
-        dummyCategories.forEach { category ->
+        list.forEach { category ->
             DropdownMenuItem(
                 text = { Text(text = category.name) },
                 onClick = { selectedCategoryChange(category) }

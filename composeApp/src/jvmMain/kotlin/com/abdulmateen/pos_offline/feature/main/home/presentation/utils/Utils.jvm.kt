@@ -6,7 +6,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream
 import org.apache.pdfbox.pdmodel.font.PDType1Font
 import java.io.ByteArrayOutputStream
 import java.io.File
-
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts
 actual fun generateInvoiceInPdf(): ByteArray {
     val document = PDDocument()
     val page = PDPage()
@@ -14,7 +14,7 @@ actual fun generateInvoiceInPdf(): ByteArray {
 
     val contentStream = PDPageContentStream(document, page)
     contentStream.beginText()
-    contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12f)
+    contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD),12f)
     contentStream.newLineAtOffset(100f, 750f)
     contentStream.showText("Invoice")
     contentStream.newLineAtOffset(0f, -20f)

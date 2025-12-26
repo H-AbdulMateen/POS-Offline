@@ -51,6 +51,7 @@ import com.abdulmateen.pos_offline.core.utils.formatDatePlatform
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.ProductDetail
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.SubCategory
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummySubCategories
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyItemUnits
@@ -89,6 +90,7 @@ fun AddEditInventoryDialog(
     uiState: InventoryUiState,
     uiAction: (InventoryUiAction) -> Unit,
     item: Product?,                   // null = Add, not-null = Edit
+    productFieldValues: ProductDetail,
     onDismiss: () -> Unit,
     onSave: (Product) -> Unit
 ) {
@@ -117,7 +119,7 @@ fun AddEditInventoryDialog(
             openImagePicker = it
         },
         selectedImageCallback = {
-            uiAction(InventoryUiAction.OnImageUrlChange(it.toByteArray(format = ImageFileFormat.PNG, quality = 1.0f)))
+            uiAction(InventoryUiAction.OnImageSelection(imageBitmap = it, bytes = it.toByteArray(format = ImageFileFormat.PNG, quality = 1.0f)))
         },
         selectedImageFileCallback = {}
     )
@@ -157,27 +159,35 @@ fun AddEditInventoryDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTF(
-                    value = uiState.name,
+                    value = productFieldValues.name,
                     onValueChange = { uiAction(InventoryUiAction.OnNameChange(it)) },
                     placeholder = stringResource(Res.string.product_name),
                     modifier = Modifier.fillMaxWidth(),
                     hasError = uiState.hasNameError,
                     errorMessage = uiState.nameErrorText
                 )
-
                 OutlinedTF(
-                    value = uiState.sku,
+                    value = productFieldValues.sku,
                     onValueChange = { uiAction(InventoryUiAction.OnSkuChange(it)) },
-                    placeholder = stringResource(Res.string.scan_barcode),
+                    placeholder = stringResource(Res.string.sku),
                     modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = { Icon(painter = painterResource(Res.drawable.barcode_reader), contentDescription = "Barcode Reader", modifier = Modifier.size(24.dp)) },
                     hasError = uiState.hasSkuError,
                     errorMessage = uiState.skuErrorText
                 )
 
+                OutlinedTF(
+                    value = productFieldValues.barcode,
+                    onValueChange = { uiAction(InventoryUiAction.OnBarcodeChange(it)) },
+                    placeholder = stringResource(Res.string.scan_barcode),
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = { Icon(painter = painterResource(Res.drawable.barcode_reader), contentDescription = "Barcode Reader", modifier = Modifier.size(24.dp)) },
+                    hasError = uiState.hasBarcodeError,
+                    errorMessage = uiState.barcodeErrorText
+                )
+
 
                 OutlinedTF(
-                    value = uiState.quantity,
+                    value = if (productFieldValues.quantity != 0.0) productFieldValues.quantity.toString() else "",
                     onValueChange = { 
                         if (it.all { c -> c.isDigit() }) { uiAction(InventoryUiAction.OnQuantityChange(it)) }
                     },
@@ -189,7 +199,7 @@ fun AddEditInventoryDialog(
                 )
 
                 OutlinedTF(
-                    value = uiState.salesPrice,
+                    value = if (productFieldValues.price != 0.0) productFieldValues.price.toString() else "",
                     onValueChange = { uiAction(InventoryUiAction.OnSalesPriceChange(it)) },
                     placeholder = stringResource(Res.string.sales_price),
                     keyboardType = KeyboardType.Decimal,
@@ -199,7 +209,7 @@ fun AddEditInventoryDialog(
                 )
 
                 OutlinedTF(
-                    value = uiState.purchasePrice,
+                    value = if (productFieldValues.purchasePrice != 0.0) productFieldValues.purchasePrice.toString() else "",
                     onValueChange = { uiAction(InventoryUiAction.OnPurchasePriceChange(it)) },
                     placeholder = stringResource(Res.string.purchase_price),
                     keyboardType = KeyboardType.Decimal,
@@ -207,38 +217,40 @@ fun AddEditInventoryDialog(
                     hasError = uiState.hasPurchasePriceError,
                     errorMessage = uiState.purchasePriceErrorText
                 )
-                OutlinedTFDate(
-                    value = uiState.itemExpiryDate,
-                    onClick = { datePickerDialog = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = stringResource(Res.string.expiry_date)
-                )
+//                OutlinedTFDate(
+//                    value = uiState.itemExpiryDate,
+//                    onClick = { datePickerDialog = true },
+//                    modifier = Modifier.fillMaxWidth(),
+//                    placeholder = stringResource(Res.string.expiry_date)
+//                )
 
                 ItemUnitRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedItemUnit = selectedItemUnit,
+                    selectedItemUnit = productFieldValues.unit,
                     unitMenuExpanded = unitMenuExpanded,
                     toggleUnitMenu = { unitMenuExpanded = !unitMenuExpanded },
-                    selectedUnitChange = { selectedItemUnit = it },
-                    addEditUnit = { unitAddEditDialogPopup = true }
+                    selectedUnitChange = { uiAction(InventoryUiAction.OnItemUnitChange(it)) },
+                    addEditUnit = { unitAddEditDialogPopup = true },
+                    list = uiState.unitList
                 )
 
                 CategoryRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedCategory = selectedCategory,
+                    selectedCategory = productFieldValues.category,
                     categoryMenuExpanded = categoryMenuExpanded,
                     toggleCategoryMenu = { categoryMenuExpanded = !categoryMenuExpanded },
-                    selectedCategoryChange = { selectedCategory = it },
-                    addEditCategory = { categoryAddEditDialogPopup = true }
+                    selectedCategoryChange = { uiAction(InventoryUiAction.OnCategoryChange(it)) },
+                    addEditCategory = { categoryAddEditDialogPopup = true },
+                    list = uiState.categoryList
                 )
-                SubCategoryRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    selectedCategory = selectedSubCategory,
-                    subCategoryMenuExpanded = subCategoryMenuExpanded,
-                    toggleCategoryMenu = { subCategoryMenuExpanded = !subCategoryMenuExpanded },
-                    selectedCategoryChange = { selectedSubCategory = it },
-                    addEditCategory = { subCategoryAddEditDialogPopup = true }
-                )
+//                SubCategoryRow(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    selectedCategory = selectedSubCategory,
+//                    subCategoryMenuExpanded = subCategoryMenuExpanded,
+//                    toggleCategoryMenu = { subCategoryMenuExpanded = !subCategoryMenuExpanded },
+//                    selectedCategoryChange = { selectedSubCategory = it },
+//                    addEditCategory = { subCategoryAddEditDialogPopup = true }
+//                )
 
                 Row(
                     Modifier.fillMaxWidth(),
@@ -263,14 +275,23 @@ fun AddEditInventoryDialog(
                 AddEditItemUnitDialog(
                     itemUnit = null,
                     onDismiss = { unitAddEditDialogPopup = false },
-                    onConfirm = { unitAddEditDialogPopup = false }
+                    onConfirm = {
+                        uiAction(InventoryUiAction.OnAddNewUnit)
+                        unitAddEditDialogPopup = false
+                                },
+                    uiState = uiState,
+                    uiAction = uiAction
                 )
             }
             if (categoryAddEditDialogPopup){
                 AddEditCategoryDialog(
                     category = null,
                     onDismiss = { categoryAddEditDialogPopup = false },
-                    onConfirm = { categoryAddEditDialogPopup = false }
+                    onConfirm = {
+                        uiAction(InventoryUiAction.OnAddNewCategory)
+                        categoryAddEditDialogPopup = false },
+                    uiState = uiState,
+                    uiAction = uiAction
                 )
             }
             if (subCategoryAddEditDialogPopup){
@@ -303,7 +324,8 @@ fun CategoryRow(
     selectedCategory: Category? = null,
     categoryMenuExpanded: Boolean = false,
     selectedCategoryChange: (Category) -> Unit,
-    addEditCategory: () -> Unit
+    addEditCategory: () -> Unit,
+    list: List<Category>
 ) {
     Row(
         modifier = modifier,
@@ -334,7 +356,8 @@ fun CategoryRow(
                 selectedCategoryChange = {
                     selectedCategoryChange(it)
                     toggleCategoryMenu()
-                }
+                },
+                list = list
             )
         }
         IconButton(
@@ -352,7 +375,8 @@ fun ItemUnitRow(
     selectedItemUnit: ItemUnit? = null,
     unitMenuExpanded: Boolean = false,
     selectedUnitChange: (ItemUnit) -> Unit,
-    addEditUnit: () -> Unit
+    addEditUnit: () -> Unit,
+    list: List<ItemUnit>
 ) {
     Row(
         modifier = modifier,
@@ -383,7 +407,8 @@ fun ItemUnitRow(
                 selectedUnitChange = {
                     selectedUnitChange(it)
                     toggleUnitMenu()
-                }
+                },
+                unitList = list
             )
         }
         IconButton(
@@ -466,14 +491,15 @@ fun SubCategoryDropdown(
 fun ItemUnitDropdown(
     itemUnitMenuExpanded: Boolean,
     unitMenuExpandedChange: () -> Unit,
-    selectedUnitChange: (ItemUnit) -> Unit
+    selectedUnitChange: (ItemUnit) -> Unit,
+    unitList: List<ItemUnit>
 ){
     DropdownMenu(
         expanded = itemUnitMenuExpanded,
         onDismissRequest = unitMenuExpandedChange,
         modifier = Modifier.width(IntrinsicSize.Max)
     ) {
-        dummyItemUnits.forEach { itemUnits ->
+        unitList.forEach { itemUnits ->
             DropdownMenuItem(
                 text = { Text(text = itemUnits.name) },
                 onClick = { selectedUnitChange(itemUnits) }
@@ -493,7 +519,8 @@ fun AddEditInventoryDialogPreview(){
                 onDismiss = {},
                 onSave = {},
                 uiAction = {},
-                uiState = InventoryUiState()
+                uiState = InventoryUiState(),
+                productFieldValues = ProductDetail.empty()
             )
         }
     )
@@ -510,7 +537,8 @@ fun AddEditInventoryDialogPreviewDark(){
                 onDismiss = {},
                 onSave = {},
                 uiAction = {},
-                uiState = InventoryUiState()
+                uiState = InventoryUiState(),
+                productFieldValues = ProductDetail.empty()
             )
         }
     )
