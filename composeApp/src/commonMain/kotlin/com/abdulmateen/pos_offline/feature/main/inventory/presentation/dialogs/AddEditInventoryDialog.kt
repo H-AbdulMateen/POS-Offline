@@ -1,5 +1,6 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.abdulmateen.pos_offline.core.designsystem.components.LocalImageWidget
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
-import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTFDate
 import com.abdulmateen.pos_offline.core.designsystem.components.WheelDateTimePickerDialog
 import com.abdulmateen.pos_offline.core.utils.formatDatePlatform
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
@@ -54,7 +54,6 @@ import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.ProductDetail
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.SubCategory
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummySubCategories
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyItemUnits
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiAction
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiState
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
@@ -71,7 +70,6 @@ import pos_offline.composeapp.generated.resources.add_new_product
 import pos_offline.composeapp.generated.resources.barcode_reader
 import pos_offline.composeapp.generated.resources.cancel
 import pos_offline.composeapp.generated.resources.edit_product
-import pos_offline.composeapp.generated.resources.expiry_date
 import pos_offline.composeapp.generated.resources.product_name
 import pos_offline.composeapp.generated.resources.purchase_price
 import pos_offline.composeapp.generated.resources.quantity_in_stock
@@ -90,9 +88,8 @@ fun AddEditInventoryDialog(
     uiState: InventoryUiState,
     uiAction: (InventoryUiAction) -> Unit,
     item: Product?,                   // null = Add, not-null = Edit
-    productFieldValues: ProductDetail,
     onDismiss: () -> Unit,
-    onSave: (Product) -> Unit
+    onSave: () -> Unit
 ) {
     val isEditing = item != null
 
@@ -159,7 +156,7 @@ fun AddEditInventoryDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTF(
-                    value = productFieldValues.name,
+                    value = uiState.name,
                     onValueChange = { uiAction(InventoryUiAction.OnNameChange(it)) },
                     placeholder = stringResource(Res.string.product_name),
                     modifier = Modifier.fillMaxWidth(),
@@ -167,7 +164,7 @@ fun AddEditInventoryDialog(
                     errorMessage = uiState.nameErrorText
                 )
                 OutlinedTF(
-                    value = productFieldValues.sku,
+                    value = uiState.sku,
                     onValueChange = { uiAction(InventoryUiAction.OnSkuChange(it)) },
                     placeholder = stringResource(Res.string.sku),
                     modifier = Modifier.fillMaxWidth(),
@@ -176,7 +173,7 @@ fun AddEditInventoryDialog(
                 )
 
                 OutlinedTF(
-                    value = productFieldValues.barcode,
+                    value = uiState.barcode,
                     onValueChange = { uiAction(InventoryUiAction.OnBarcodeChange(it)) },
                     placeholder = stringResource(Res.string.scan_barcode),
                     modifier = Modifier.fillMaxWidth(),
@@ -187,19 +184,17 @@ fun AddEditInventoryDialog(
 
 
                 OutlinedTF(
-                    value = if (productFieldValues.quantity != 0.0) productFieldValues.quantity.toString() else "",
-                    onValueChange = { 
-                        if (it.all { c -> c.isDigit() }) { uiAction(InventoryUiAction.OnQuantityChange(it)) }
-                    },
+                    value = uiState.stock,
+                    onValueChange = { uiAction(InventoryUiAction.OnStockChange(it)) },
                     keyboardType = KeyboardType.Decimal,
                     placeholder = stringResource(Res.string.quantity_in_stock),
                     modifier = Modifier.fillMaxWidth(),
-                    hasError = uiState.hasQuantityError,
-                    errorMessage = uiState.quantityErrorText
+                    hasError = uiState.hasStockError,
+                    errorMessage = uiState.stockErrorText
                 )
 
                 OutlinedTF(
-                    value = if (productFieldValues.price != 0.0) productFieldValues.price.toString() else "",
+                    value = uiState.salePrice,
                     onValueChange = { uiAction(InventoryUiAction.OnSalesPriceChange(it)) },
                     placeholder = stringResource(Res.string.sales_price),
                     keyboardType = KeyboardType.Decimal,
@@ -209,7 +204,7 @@ fun AddEditInventoryDialog(
                 )
 
                 OutlinedTF(
-                    value = if (productFieldValues.purchasePrice != 0.0) productFieldValues.purchasePrice.toString() else "",
+                    value = uiState.purchasePrice,
                     onValueChange = { uiAction(InventoryUiAction.OnPurchasePriceChange(it)) },
                     placeholder = stringResource(Res.string.purchase_price),
                     keyboardType = KeyboardType.Decimal,
@@ -226,7 +221,7 @@ fun AddEditInventoryDialog(
 
                 ItemUnitRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedItemUnit = productFieldValues.unit,
+                    selectedItemUnit = uiState.unit,
                     unitMenuExpanded = unitMenuExpanded,
                     toggleUnitMenu = { unitMenuExpanded = !unitMenuExpanded },
                     selectedUnitChange = { uiAction(InventoryUiAction.OnItemUnitChange(it)) },
@@ -236,7 +231,7 @@ fun AddEditInventoryDialog(
 
                 CategoryRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedCategory = productFieldValues.category,
+                    selectedCategory = uiState.category,
                     categoryMenuExpanded = categoryMenuExpanded,
                     toggleCategoryMenu = { categoryMenuExpanded = !categoryMenuExpanded },
                     selectedCategoryChange = { uiAction(InventoryUiAction.OnCategoryChange(it)) },
@@ -251,6 +246,18 @@ fun AddEditInventoryDialog(
 //                    selectedCategoryChange = { selectedSubCategory = it },
 //                    addEditCategory = { subCategoryAddEditDialogPopup = true }
 //                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                   verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AnimatedVisibility(visible = uiState.errorResult.isNotEmpty()){
+                        Text(
+                            text = uiState.errorResult,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+                }
 
                 Row(
                     Modifier.fillMaxWidth(),
@@ -263,9 +270,7 @@ fun AddEditInventoryDialog(
                     Spacer(Modifier.width(8.dp))
 
                     Button(
-                        onClick = {
-                            uiAction(InventoryUiAction.OnAddItemClick)
-                        }
+                        onClick = onSave
                     ) {
                         Text(if (isEditing) stringResource(Res.string.update) else stringResource(Res.string.add))
                     }
@@ -519,8 +524,7 @@ fun AddEditInventoryDialogPreview(){
                 onDismiss = {},
                 onSave = {},
                 uiAction = {},
-                uiState = InventoryUiState(),
-                productFieldValues = ProductDetail.empty()
+                uiState = InventoryUiState()
             )
         }
     )
@@ -537,8 +541,7 @@ fun AddEditInventoryDialogPreviewDark(){
                 onDismiss = {},
                 onSave = {},
                 uiAction = {},
-                uiState = InventoryUiState(),
-                productFieldValues = ProductDetail.empty()
+                uiState = InventoryUiState()
             )
         }
     )

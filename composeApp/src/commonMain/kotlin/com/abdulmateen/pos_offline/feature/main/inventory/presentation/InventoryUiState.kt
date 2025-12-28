@@ -4,34 +4,39 @@ import androidx.compose.ui.graphics.ImageBitmap
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.ProductDetail
 
 data class InventoryUiState(
     val isLoading: Boolean = false,
-    val searchProduct: String = "",
+    val searchProductQuery: String = "",
     val productList: List<Product> = emptyList(),
-    val error: String = "",
+    val errorResult: String = "",
     val showDialog: Boolean = false,
 
+    val name: String = "",
     val hasNameError: Boolean = false,
     val nameErrorText: String = "",
 
+
+    val sku: String = "",
     val hasSkuError: Boolean = false,
     val skuErrorText: String = "",
 
+    val barcode: String = "",
     val hasBarcodeError: Boolean = false,
     val barcodeErrorText: String = "",
 
 
+    val purchasePrice: String = "",
     val hasPurchasePriceError: Boolean = false,
     val purchasePriceErrorText: String = "",
 
-
+    val salePrice: String = "",
     val hasSalesPriceError: Boolean = false,
     val salesPriceErrorText: String = "",
 
-    val hasQuantityError: Boolean = false,
-    val quantityErrorText: String = "",
+    val stock: String = "",
+    val hasStockError: Boolean = false,
+    val stockErrorText: String = "",
 
     val categoryErrorText: String = "",
     val hasCategoryError: Boolean = false,
@@ -41,7 +46,7 @@ data class InventoryUiState(
 
 
     val imageBitmap: ImageBitmap? = null,
-    val imageByteArrayString: String = "",
+    val photoBytes: ByteArray? = null,
     val itemImageUrl: String = "",
 
     val categoryList: List<Category> = emptyList(),

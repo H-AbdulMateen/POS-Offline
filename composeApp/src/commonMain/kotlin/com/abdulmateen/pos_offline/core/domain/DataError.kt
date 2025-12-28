@@ -18,6 +18,8 @@ sealed interface DataError : Error {
 
     enum class Local : DataError {
         DISK_FULL,
-        UNKNOWN
+        UNKNOWN,
+        SKU_ALREADY_EXISTS,
+        BARCODE_ALREADY_EXISTS
     }
 }

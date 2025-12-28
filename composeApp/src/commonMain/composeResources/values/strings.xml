@@ -90,6 +90,8 @@
     <string name="unit_display_name">Unit Display Name</string>
     <string name="item_unit">Item Unit</string>
     <string name="select_item_unit">Select Item Unit</string>
+    <string name="error_sku_already_exists">SKU already exists</string>
+    <string name="error_barcode_already_exists">Barcode already exists</string>
 
 
 </resources>

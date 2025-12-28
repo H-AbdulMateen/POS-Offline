@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +32,8 @@ import com.abdulmateen.pos_offline.feature.main.inventory.presentation.component
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryTable
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs.AddEditInventoryDialog
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -41,20 +44,25 @@ import pos_offline.composeapp.generated.resources.add_item
 fun InventoryScreenRoot(){
     val viewModel = koinViewModel<InventoryViewModel>()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-    val productFields = viewModel.newProduct.collectAsStateWithLifecycle().value
+    val searchProductQuery = viewModel.searchProductQuery.collectAsStateWithLifecycle().value
+    val event = viewModel.eventChannel
     InventoryScreen(
         uiState = uiState,
         uiAction = viewModel::uiAction,
-        productFieldValues = productFields
+        onSearchProductQueryChange = viewModel::onSearchProductQueryChange,
+        searchProductQuery = searchProductQuery,
+        eventChannel = event
     )
 }
 
 
 @Composable
 fun InventoryScreen(
+    searchProductQuery: String,
     uiState: InventoryUiState = InventoryUiState(),
+    onSearchProductQueryChange: (String) -> Unit,
     uiAction: (InventoryUiAction) -> Unit,
-    productFieldValues: ProductDetail
+    eventChannel: Flow<InventoryEvents>
 ){
     Scaffold(
     ) { innerPadding ->
@@ -62,6 +70,19 @@ fun InventoryScreen(
         var dialogItem by remember { mutableStateOf<Product?>(null) }
         val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
         val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+
+        LaunchedEffect(Unit){
+            eventChannel.collect { event ->
+                when(event){
+                    InventoryEvents.NewProductSaved -> {
+                        addEditDialogVisible = false
+                    }
+                    InventoryEvents.ProductUpdated -> {}
+                    InventoryEvents.ProductDeleted -> {}
+                }
+            }
+        }
+
         Column(
             modifier = Modifier.fillMaxSize()
                 .padding(innerPadding)
@@ -80,8 +101,8 @@ fun InventoryScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     SearchField(
-                        value = uiState.searchProduct,
-                        onValueChange = { uiAction(InventoryUiAction.OnSearchProductChange(it)) },
+                        value = searchProductQuery,
+                        onValueChange = { onSearchProductQueryChange(it) },
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -94,7 +115,7 @@ fun InventoryScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         SearchField(
-                            value = uiState.searchProduct,
+                            value = uiState.searchProductQuery,
                             onValueChange = { uiAction(InventoryUiAction.OnSearchProductChange(it)) },
                             modifier = Modifier.weight(.1f)
                         )
@@ -117,17 +138,11 @@ fun InventoryScreen(
             AddEditInventoryDialog(
                 item = dialogItem,
                 onDismiss = { addEditDialogVisible = false },
-                onSave = { newItem ->
-                    // Handle save or update
-                    if (dialogItem == null) {
-                        println("Adding item: $newItem")
-                    } else {
-                        println("Updating item: $newItem")
-                    }
+                onSave = {
+                    uiAction(InventoryUiAction.OnAddItemClick)
                 },
                 uiAction = uiAction,
-                uiState = uiState,
-                productFieldValues = productFieldValues
+                uiState = uiState
             )
         }
     }
@@ -142,7 +157,9 @@ fun InventoryScreenPreview(){
             InventoryScreen(
                 uiState = InventoryUiState(),
                 uiAction = {},
-                productFieldValues = ProductDetail.empty()
+                searchProductQuery = "",
+                onSearchProductQueryChange = {},
+                eventChannel = emptyFlow()
             )
         }
     )
@@ -156,7 +173,9 @@ fun InventoryScreenPreviewDark(){
             InventoryScreen(
                 uiState = InventoryUiState(),
                 uiAction = {},
-                productFieldValues = ProductDetail.empty()
+                searchProductQuery = "",
+                onSearchProductQueryChange = {},
+                eventChannel = emptyFlow()
             )
         }
     )

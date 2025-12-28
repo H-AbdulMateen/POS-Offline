@@ -1,26 +1,35 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.abdulmateen.pos_offline.common.presentation.utils.Patterns
+import com.abdulmateen.pos_offline.core.domain.onError
+import com.abdulmateen.pos_offline.core.domain.onSuccess
 import com.abdulmateen.pos_offline.feature.main.home.domain.InventoryRepository
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
+import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.ProductDetail
 import com.abdulmateen.pos_offline.utils.Validator
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class InventoryViewModel constructor(
     private val repository: InventoryRepository
 ) : ViewModel() {
@@ -34,9 +43,29 @@ class InventoryViewModel constructor(
         started = SharingStarted.WhileSubscribed(),
         initialValue = InventoryUiState()
     )
+    private val _eventChannel = Channel<InventoryEvents>()
+    val eventChannel = _eventChannel.receiveAsFlow()
 
-    private val _newProduct = MutableStateFlow(ProductDetail.empty())
-    var newProduct: StateFlow<ProductDetail> = _newProduct
+    private val _searchProductQuery = MutableStateFlow("")
+    val searchProductQuery: StateFlow<String> = _searchProductQuery.asStateFlow()
+    init {
+        viewModelScope.launch {
+            _searchProductQuery.debounce(600)
+                .distinctUntilChanged()
+                .mapLatest {query ->
+                    repository.searchProductsByName(query)
+                }
+                .collect {filteredList ->
+                    filteredList.onEach {list ->
+                        _uiState.update {
+                            it.copy(
+                                productList = list
+                            )
+                        }
+                    }.launchIn(viewModelScope)
+                }
+        }
+    }
 
     private fun loadCategories() {
         viewModelScope.launch {
@@ -62,6 +91,10 @@ class InventoryViewModel constructor(
         }
     }
 
+    fun onSearchProductQueryChange(query: String) {
+        _searchProductQuery.value = query
+    }
+
 
     fun uiAction(action: InventoryUiAction) {
         when (action) {
@@ -70,13 +103,11 @@ class InventoryViewModel constructor(
             }
 
             InventoryUiAction.OnAddItemClick -> {
-                viewModelScope.launch {
                     validateFields()
-                }
             }
 
             is InventoryUiAction.OnBarcodeChange -> {
-                _newProduct.update {
+                _uiState.update {
                     it.copy(
                         barcode = action.barcode
                     )
@@ -85,7 +116,7 @@ class InventoryViewModel constructor(
             }
 
             is InventoryUiAction.OnCategoryChange -> {
-                _newProduct.update {
+                _uiState.update {
                     it.copy(
                         category = action.category
                     )
@@ -93,25 +124,13 @@ class InventoryViewModel constructor(
             }
 
             is InventoryUiAction.OnDeleteItemClick -> {
-                _uiState.update {
-                    it.copy(
-                        productList = it.productList.filter { product -> product != action.product }
-                    )
-                }
-            }
-
-            is InventoryUiAction.OnDescriptionChange -> {
-                _newProduct.update {
-                    it.copy(
-                        description = action.description
-                    )
-                }
+                deleteProduct(action.product)
             }
 
             is InventoryUiAction.OnEditItemClick -> {
                 viewModelScope.launch {
                     repository.getProductById(action.productId)?.let {
-                        _newProduct.update { it }
+                        _uiState.update { it }
                     }
                 }
             }
@@ -127,18 +146,15 @@ class InventoryViewModel constructor(
             is InventoryUiAction.OnImageSelection -> {
                 _uiState.update {
                     it.copy(
-                        imageBitmap = action.imageBitmap
-                    )
-                }
-                _newProduct.update {
-                    it.copy(
+                        imageBitmap = action.imageBitmap,
                         photoBytes = action.bytes
+
                     )
                 }
             }
 
             is InventoryUiAction.OnNameChange -> {
-                _newProduct.update {
+                _uiState.update {
                     it.copy(
                         name = action.name
                     )
@@ -146,39 +162,76 @@ class InventoryViewModel constructor(
             }
 
             is InventoryUiAction.OnPurchasePriceChange -> {
-                _newProduct.update {
-                    it.copy(
-                        purchasePrice = action.purchasePrice.toDouble()
-                    )
+                val inputPurchasePrice = action.purchasePrice
+                if (inputPurchasePrice.isEmpty() || inputPurchasePrice.matches(Patterns.decimalRegex)){
+                    _uiState.update {
+                        it.copy(
+                            purchasePrice = inputPurchasePrice,
+                            hasPurchasePriceError = false,
+                            purchasePriceErrorText = ""
+                        )
+                    }
+                }else{
+                    _uiState.update {
+                        it.copy(
+                            hasPurchasePriceError = true,
+                            purchasePriceErrorText = "Only decimals are allowed"
+                        )
+                    }
                 }
             }
 
-            is InventoryUiAction.OnQuantityChange -> {
-                _newProduct.update {
-                    it.copy(
-                        quantity = action.quantity.toDouble()
-                    )
+            is InventoryUiAction.OnStockChange -> {
+                val inputQuantity = action.quantity
+
+                if (inputQuantity.isEmpty() || inputQuantity.matches(Patterns.decimalRegex)){
+                    _uiState.update {
+                        it.copy(
+                            stock = inputQuantity,
+                            hasStockError = false,
+                            stockErrorText = ""
+                        )
+                    }
+                }else{
+                    _uiState.update {
+                        it.copy(
+                            hasStockError = true,
+                            stockErrorText = "Only decimals are allowed"
+                        )
+                    }
                 }
             }
 
             is InventoryUiAction.OnSalesPriceChange -> {
-                _newProduct.update {
-                    it.copy(
-                        price = action.salesPrice.toDouble()
-                    )
+                val inputPrice = action.salesPrice
+                if (inputPrice.isEmpty() || inputPrice.matches(Patterns.decimalRegex)) {
+                    _uiState.update {
+                        it.copy(
+                            salePrice = inputPrice,
+                            hasSalesPriceError = false,
+                            salesPriceErrorText = ""
+                        )
+                    }
+                }else{
+                    _uiState.update {
+                        it.copy(
+                            hasSalesPriceError = true,
+                            salesPriceErrorText = "Only decimals are allowed"
+                        )
+                    }
                 }
             }
 
             is InventoryUiAction.OnSearchProductChange -> {
                 _uiState.update {
                     it.copy(
-                        searchProduct = action.searchProduct
+                        searchProductQuery = action.searchProduct
                     )
                 }
             }
 
             is InventoryUiAction.OnSkuChange -> {
-                _newProduct.update {
+                _uiState.update {
                     it.copy(
                         sku = action.sku
                     )
@@ -186,7 +239,7 @@ class InventoryViewModel constructor(
             }
 
             is InventoryUiAction.OnItemUnitChange -> {
-                _newProduct.update {
+                _uiState.update {
                     it.copy(
                         unit = action.itemUnit
                     )
@@ -226,6 +279,17 @@ class InventoryViewModel constructor(
             }
 
 
+        }
+    }
+
+    private fun deleteProduct(item: Product) {
+        viewModelScope.launch {
+            repository.deleteProduct(item.productId)
+            _uiState.update {
+                it.copy(
+                    productList = it.productList.filter { product -> product != item }
+                )
+            }
         }
     }
 
@@ -274,96 +338,141 @@ class InventoryViewModel constructor(
     }
 
     private fun clearForm() {
-        _newProduct.value = ProductDetail.empty()
+        _uiState.update {
+            it.copy(
+                name = "",
+                sku = "",
+                barcode = "",
+                purchasePrice = "",
+                salePrice = "",
+                stock = "",
+                imageBitmap = null,
+                photoBytes = null,
+                category = null,
+                unit = null,
+                itemExpiryDate = ""
+            )
+        }
     }
 
-    private suspend fun validateFields() {
-        val validateName = Validator.validateNonEmpty(newProduct.value.name)
-        if (!validateName.isValid) {
-            _uiState.update {
-                it.copy(
-                    hasNameError = validateName.isValid,
-                    nameErrorText = validateName.errorMessage
-                )
+    private fun validateFields() {
+        viewModelScope.launch {
+            val validateName = Validator.validateNonEmpty(uiState.value.name)
+            if (!validateName.isValid) {
+                _uiState.update {
+                    it.copy(
+                        hasNameError = validateName.isValid,
+                        nameErrorText = validateName.errorMessage
+                    )
+                }
+                return@launch
             }
-            return
-        }
-        val validateSku = Validator.validateNonEmpty(newProduct.value.sku)
-        if (!validateSku.isValid) {
-            _uiState.update {
-                it.copy(
-                    hasSkuError = validateSku.isValid,
-                    skuErrorText = validateSku.errorMessage
-                )
+            val validateSku = Validator.validateNonEmpty(uiState.value.sku)
+            if (!validateSku.isValid) {
+                _uiState.update {
+                    it.copy(
+                        hasSkuError = validateSku.isValid,
+                        skuErrorText = validateSku.errorMessage
+                    )
+                }
+                return@launch
             }
-            return
-        }
-        val validateBarcode = Validator.validateNonEmpty(newProduct.value.barcode)
-        if (!validateBarcode.isValid) {
-            _uiState.update {
-                it.copy(
-                    hasBarcodeError = validateBarcode.isValid,
-                    barcodeErrorText = validateBarcode.errorMessage
-                )
+            val validateBarcode = Validator.validateNonEmpty(uiState.value.barcode)
+            if (!validateBarcode.isValid) {
+                _uiState.update {
+                    it.copy(
+                        hasBarcodeError = validateBarcode.isValid,
+                        barcodeErrorText = validateBarcode.errorMessage
+                    )
+                }
+                return@launch
             }
-            return
-        }
-        val validatePurchasePrice =
-            Validator.validateNonEmpty(newProduct.value.purchasePrice.toString())
-        if (!validatePurchasePrice.isValid) {
-            _uiState.update {
-                it.copy(
-                    hasPurchasePriceError = validatePurchasePrice.isValid,
-                    purchasePriceErrorText = validatePurchasePrice.errorMessage
-                )
+            val validatePurchasePrice =
+                Validator.validateNonEmpty(uiState.value.purchasePrice)
+            if (!validatePurchasePrice.isValid) {
+                _uiState.update {
+                    it.copy(
+                        hasPurchasePriceError = validatePurchasePrice.isValid,
+                        purchasePriceErrorText = validatePurchasePrice.errorMessage
+                    )
+                }
+                return@launch
             }
-            return
-        }
 
-        val validateSalesPrice = Validator.validateNonEmpty(newProduct.value.price.toString())
-        if (!validateSalesPrice.isValid) {
-            _uiState.update {
-                it.copy(
-                    hasSalesPriceError = validateSalesPrice.isValid,
-                    salesPriceErrorText = validateSalesPrice.errorMessage
-                )
+            val validateSalesPrice = Validator.validateNonEmpty(uiState.value.salePrice)
+            if (!validateSalesPrice.isValid) {
+                _uiState.update {
+                    it.copy(
+                        hasSalesPriceError = validateSalesPrice.isValid,
+                        salesPriceErrorText = validateSalesPrice.errorMessage
+                    )
+                }
+                return@launch
             }
-            return
-        }
 
-        val validateQuantity = Validator.validateNonEmpty(newProduct.value.quantity.toString())
-        if (!validateQuantity.isValid) {
-            _uiState.update {
-                it.copy(
-                    hasQuantityError = validateQuantity.isValid,
-                    quantityErrorText = validateQuantity.errorMessage
-                )
+            val validateQuantity = Validator.validateNonEmpty(uiState.value.stock)
+            if (!validateQuantity.isValid) {
+                _uiState.update {
+                    it.copy(
+                        hasStockError = validateQuantity.isValid,
+                        stockErrorText = validateQuantity.errorMessage
+                    )
+                }
+                return@launch
             }
-            return
-        }
 
-        val validateCategory = Validator.validateNonEmpty(newProduct.value.category?.name!!)
-        if (!validateCategory.isValid) {
-            _uiState.update {
-                it.copy(
-                    hasCategoryError = validateCategory.isValid,
-                    categoryErrorText = validateCategory.errorMessage
-                )
+            val validateCategory = Validator.validateNonEmpty(uiState.value.category?.name!!)
+            if (!validateCategory.isValid) {
+                _uiState.update {
+                    it.copy(
+                        hasCategoryError = validateCategory.isValid,
+                        categoryErrorText = validateCategory.errorMessage
+                    )
+                }
+                return@launch
             }
-            return
-        }
 
-        val validateUnit = Validator.validateNonEmpty(newProduct.value.unit?.name!!)
-        if (!validateUnit.isValid) {
-            _uiState.update {
-                it.copy(
-                    hasUnitError = validateUnit.isValid,
-                    unitErrorText = validateUnit.errorMessage
-                )
+            val validateUnit = Validator.validateNonEmpty(uiState.value.unit?.name!!)
+            if (!validateUnit.isValid) {
+                _uiState.update {
+                    it.copy(
+                        hasUnitError = validateUnit.isValid,
+                        unitErrorText = validateUnit.errorMessage
+                    )
+                }
+                return@launch
             }
-            return
-        }
 
-        repository.insertProduct(newProduct.value)
+            repository.insertProduct(
+                ProductDetail(
+                    name = uiState.value.name,
+                    sku = uiState.value.sku,
+                    barcode = uiState.value.barcode,
+                    purchasePrice = uiState.value.purchasePrice.toDouble(),
+                    price = uiState.value.salePrice.toDouble(),
+                    stock = uiState.value.stock.toDouble(),
+                    photoBytes = uiState.value.photoBytes,
+                    category = uiState.value.category,
+                    unit = uiState.value.unit
+                )
+
+            )
+                .onSuccess {
+                    _uiState.update {
+                        it.copy(
+                            errorResult = ""
+                        )
+                    }
+                    _eventChannel.send(InventoryEvents.NewProductSaved)
+                    clearForm()
+                }
+                .onError {
+                    _uiState.update {
+                        it.copy(
+                            errorResult = it.toString()
+                        )
+                    }
+                }
+        }
     }
 }

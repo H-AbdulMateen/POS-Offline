@@ -14,7 +14,7 @@ suspend fun ProductWithCategoryAndUnit.toProduct(imageStorage: ImageStorage) = P
     barcode = this.product.barcode,
     purchasePrice = this.product.purchasePrice,
     price = this.product.salePrice,
-    quantity = this.product.quantity,
+    stock = this.product.stock,
     photoBytes = this.product.imagePath?.let { imageStorage.getImage(it) },
     category = this.category?.toCategory(),
     unit = this.unit?.toUnit()
@@ -25,6 +25,6 @@ suspend fun ProductEntity.toProduct(imageStorage: ImageStorage) = Product(
     name = this.name,
     sku = this.sku,
     price = this.salePrice,
-    quantity = this.quantity,
+    quantity = this.stock,
     photoBytes = this.imagePath?.let { imageStorage.getImage(it) }
 )

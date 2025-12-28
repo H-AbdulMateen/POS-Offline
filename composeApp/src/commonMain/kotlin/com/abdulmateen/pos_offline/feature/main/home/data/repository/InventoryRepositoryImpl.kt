@@ -1,6 +1,8 @@
 package com.abdulmateen.pos_offline.feature.main.home.data.repository
 
 import com.abdulmateen.pos_offline.core.data.filestorage.ImageStorage
+import com.abdulmateen.pos_offline.core.domain.DataError
+import com.abdulmateen.pos_offline.core.domain.Result
 import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.CategoryDao
 import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.ProductDao
 import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.UnitDao
@@ -27,7 +29,18 @@ class InventoryRepositoryImpl(
     private val unitDao: UnitDao,
     private val imageStorage: ImageStorage
 ) : InventoryRepository {
-    override suspend fun insertProduct(product: ProductDetail) {
+    override suspend fun insertProduct(product: ProductDetail): Result<String, DataError.Local> {
+        val productBySku = productDao.getProductBySku(product.sku)
+        if (productBySku != null) {
+            return Result.Error(DataError.Local.SKU_ALREADY_EXISTS)
+        }
+        val productByBarcode = productDao.getProductByBarcode(product.barcode)
+        if (productByBarcode != null) {
+            return Result.Error(DataError.Local.BARCODE_ALREADY_EXISTS)
+        }
+
+
+
         val imagePath = product.photoBytes?.let { imageBytes ->
             imageStorage.saveImage(imageBytes)
         }
@@ -40,12 +53,14 @@ class InventoryRepositoryImpl(
                 barcode = product.barcode,
                 purchasePrice = product.purchasePrice,
                 salePrice = product.price,
-                quantity = product.quantity,
+                stock = product.stock,
                 imagePath = imagePath,
                 categoryId = product.category?.categoryId,
                 unitId = product.unit?.unitId
             )
         )
+        return Result.Success("Product inserted successfully")
+
     }
 
     override suspend fun updateProduct(product: ProductDetail) {
@@ -64,7 +79,7 @@ class InventoryRepositoryImpl(
                     barcode = product.barcode,
                     purchasePrice = product.purchasePrice,
                     salePrice = product.price,
-                    quantity = product.quantity,
+                    stock = product.stock,
                     imagePath = imagePath ?: oldProduct.product.imagePath,
                     categoryId = product.category?.categoryId,
                     unitId = product.unit?.unitId
