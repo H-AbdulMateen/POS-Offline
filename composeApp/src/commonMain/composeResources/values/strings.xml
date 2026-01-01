@@ -87,11 +87,13 @@
     <string name="add_unit">Add Unit</string>
     <string name="edit_unit">Edit Unit</string>
     <string name="unit_name">Unit Name</string>
-    <string name="unit_display_name">Unit Display Name</string>
+    <string name="unit_symbol_name">Unit Display Name (like kg, ltr, pcs)</string>
     <string name="item_unit">Item Unit</string>
     <string name="select_item_unit">Select Item Unit</string>
     <string name="error_sku_already_exists">SKU already exists</string>
     <string name="error_barcode_already_exists">Barcode already exists</string>
+    <string name="error_category_already_exists">Category already exists</string>
+    <string name="error_unit_already_exists">Unit with this name or symbol already exists</string>
 
 
 </resources>

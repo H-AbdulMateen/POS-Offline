@@ -270,6 +270,23 @@ class InventoryViewModel constructor(
                 }
             }
 
+            InventoryUiAction.ToggleCategoryDialog -> {
+                _uiState.update {
+                    it.copy(
+                        categoryDialogVisible = !it.categoryDialogVisible
+                    )
+                }
+            }
+
+            InventoryUiAction.ToggleUnitDialog -> {
+                _uiState.update {
+                    it.copy(
+                        unitDialogVisible = !it.unitDialogVisible
+                    )
+                }
+            }
+
+
             InventoryUiAction.OnAddNewCategory -> {
                 addNewCategory()
             }
@@ -295,32 +312,83 @@ class InventoryViewModel constructor(
 
     private fun addNewUnit() {
         viewModelScope.launch {
+            val validateUnitName = Validator.validateNonEmpty(uiState.value.itemUnitName)
+            if (!validateUnitName.isValid){
+                _uiState.update {
+                    it.copy(
+                        hasItemUnitNameError = true,
+                        itemUnitNameErrorText = validateUnitName.errorMessage
+                    )
+                }
+                return@launch
+            }
+
+            val validateUnitSymbol = Validator.validateNonEmpty(uiState.value.itemUnitSymbol)
+            if (!validateUnitSymbol.isValid){
+                _uiState.update {
+                    it.copy(
+                        hasItemUnitSymbolError = true,
+                        itemUnitSymbolErrorText = validateUnitSymbol.errorMessage
+                    )
+                }
+                return@launch
+            }
+
             repository.insertUnit(
                 unit = ItemUnit(
                     name = uiState.value.itemUnitName,
                     symbol = uiState.value.itemUnitSymbol
                 )
-            )
-            _uiState.update {
-                it.copy(
-                    itemUnitName = "",
-                    itemUnitSymbol = ""
-                )
+            ).onSuccess {
+                _eventChannel.send(InventoryEvents.UnitAdded)
+                _uiState.update {
+                    it.copy(
+                        itemUnitName = "",
+                        itemUnitSymbol = "",
+                        unitErrorResult = ""
+                    )
+                }
             }
+                .onError {
+                    _uiState.update {
+                        it.copy(
+                            unitErrorResult = it.toString()
+                        )
+                    }
+                }
         }
     }
 
     private fun addNewCategory() {
         viewModelScope.launch {
+            val validateCategoryName = Validator.validateNonEmpty(uiState.value.categoryName)
+            if (!validateCategoryName.isValid){
+                _uiState.update {
+                    it.copy(
+                        hasCategoryNameError = true,
+                        categoryNameErrorText = validateCategoryName.errorMessage
+                    )
+                }
+                return@launch
+            }
             repository.insertCategory(
                 Category(
                     name = uiState.value.categoryName
                 )
-            )
-            _uiState.update {
-                it.copy(
-                    categoryName = ""
-                )
+            ).onSuccess {
+                _uiState.update {
+                    _eventChannel.send(InventoryEvents.CategoryAdded)
+                    it.copy(
+                        categoryName = "",
+                        categoryErrorResult = ""
+                    )
+                }
+            }.onError {
+                _uiState.update {
+                    it.copy(
+                        categoryErrorResult = it.toString()
+                    )
+                }
             }
         }
     }
@@ -361,7 +429,7 @@ class InventoryViewModel constructor(
             if (!validateName.isValid) {
                 _uiState.update {
                     it.copy(
-                        hasNameError = validateName.isValid,
+                        hasNameError = true,
                         nameErrorText = validateName.errorMessage
                     )
                 }
@@ -371,7 +439,7 @@ class InventoryViewModel constructor(
             if (!validateSku.isValid) {
                 _uiState.update {
                     it.copy(
-                        hasSkuError = validateSku.isValid,
+                        hasSkuError = true,
                         skuErrorText = validateSku.errorMessage
                     )
                 }
@@ -381,7 +449,7 @@ class InventoryViewModel constructor(
             if (!validateBarcode.isValid) {
                 _uiState.update {
                     it.copy(
-                        hasBarcodeError = validateBarcode.isValid,
+                        hasBarcodeError = true,
                         barcodeErrorText = validateBarcode.errorMessage
                     )
                 }
@@ -392,7 +460,7 @@ class InventoryViewModel constructor(
             if (!validatePurchasePrice.isValid) {
                 _uiState.update {
                     it.copy(
-                        hasPurchasePriceError = validatePurchasePrice.isValid,
+                        hasPurchasePriceError = true,
                         purchasePriceErrorText = validatePurchasePrice.errorMessage
                     )
                 }
@@ -403,7 +471,7 @@ class InventoryViewModel constructor(
             if (!validateSalesPrice.isValid) {
                 _uiState.update {
                     it.copy(
-                        hasSalesPriceError = validateSalesPrice.isValid,
+                        hasSalesPriceError = true,
                         salesPriceErrorText = validateSalesPrice.errorMessage
                     )
                 }
@@ -414,7 +482,7 @@ class InventoryViewModel constructor(
             if (!validateQuantity.isValid) {
                 _uiState.update {
                     it.copy(
-                        hasStockError = validateQuantity.isValid,
+                        hasStockError = true,
                         stockErrorText = validateQuantity.errorMessage
                     )
                 }
@@ -425,7 +493,7 @@ class InventoryViewModel constructor(
             if (!validateCategory.isValid) {
                 _uiState.update {
                     it.copy(
-                        hasCategoryError = validateCategory.isValid,
+                        hasCategoryError = true,
                         categoryErrorText = validateCategory.errorMessage
                     )
                 }
@@ -436,7 +504,7 @@ class InventoryViewModel constructor(
             if (!validateUnit.isValid) {
                 _uiState.update {
                     it.copy(
-                        hasUnitError = validateUnit.isValid,
+                        hasUnitError = true,
                         unitErrorText = validateUnit.errorMessage
                     )
                 }

@@ -18,7 +18,7 @@ interface InventoryRepository {
 
     suspend fun clearProducts()
 
-    suspend fun insertCategory(category: Category)
+    suspend fun insertCategory(category: Category): Result<String, DataError.Local>
     suspend fun updateCategory(category: Category)
     suspend fun deleteCategory(category: Category)
 
@@ -26,7 +26,7 @@ interface InventoryRepository {
     fun getCategoryById(categoryId: Long): Flow<Category?>
     suspend fun clearCategories()
 
-    suspend fun insertUnit(unit: ItemUnit)
+    suspend fun insertUnit(unit: ItemUnit): Result<String, DataError.Local>
     suspend fun updateUnit(unit: ItemUnit)
     suspend fun deleteUnit(unit: ItemUnit)
 

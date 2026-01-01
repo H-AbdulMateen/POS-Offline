@@ -17,6 +17,8 @@ interface UnitDao {
     fun getAllUnits(): Flow<List<UnitEntity>>
     @Query("SELECT * FROM units WHERE unitId = :unitId")
     fun getUnitById(unitId: Long): Flow<UnitEntity?>
+    @Query("SELECT * FROM units WHERE name = :name OR symbol = :symbol")
+    fun getUnitByNameOrSymbol(name: String, symbol: String): UnitEntity?
     @Query("DELETE FROM units")
     suspend fun clearUnits()
 

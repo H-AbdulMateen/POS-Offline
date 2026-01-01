@@ -79,6 +79,20 @@ fun InventoryScreen(
                     }
                     InventoryEvents.ProductUpdated -> {}
                     InventoryEvents.ProductDeleted -> {}
+                    InventoryEvents.CategoryAdded -> {
+                        uiAction(InventoryUiAction.ToggleCategoryDialog)
+                    }
+                    InventoryEvents.CategoryDeleted -> {}
+                    InventoryEvents.CategoryUpdated -> {
+                        uiAction(InventoryUiAction.ToggleCategoryDialog)
+                    }
+                    InventoryEvents.UnitAdded -> {
+                        uiAction(InventoryUiAction.ToggleUnitDialog)
+                    }
+                    InventoryEvents.UnitDeleted -> {}
+                    InventoryEvents.UnitUpdated -> {
+                        uiAction(InventoryUiAction.ToggleUnitDialog)
+                    }
                 }
             }
         }

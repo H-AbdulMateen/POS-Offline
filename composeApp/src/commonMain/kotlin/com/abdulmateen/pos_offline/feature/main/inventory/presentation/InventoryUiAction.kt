@@ -29,6 +29,8 @@ sealed interface InventoryUiAction {
 
     data class OnEditItemClick(val productId: Long) : InventoryUiAction
     data class OnDeleteItemClick(val product: Product) : InventoryUiAction
+    object ToggleCategoryDialog : InventoryUiAction
+    object ToggleUnitDialog : InventoryUiAction
 
     object ClearForm: InventoryUiAction
 

@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.abdulmateen.pos_offline.core.designsystem.components.AnimatedErrorText
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
@@ -76,6 +77,11 @@ fun AddEditCategoryDialog(
                     value = uiState.categoryName,
                     onValueChange = { uiAction(InventoryUiAction.OnCategoryNameChange(it)) },
                     placeholder = stringResource(Res.string.category_name),
+                )
+                AnimatedErrorText(
+                    modifier = Modifier.fillMaxWidth(),
+                    visible = uiState.categoryErrorResult.isNotEmpty(),
+                    errorMessage = uiState.categoryErrorResult
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),

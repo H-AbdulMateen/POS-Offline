@@ -10,7 +10,13 @@ data class InventoryUiState(
     val searchProductQuery: String = "",
     val productList: List<Product> = emptyList(),
     val errorResult: String = "",
+    val categoryErrorResult: String = "",
+    val unitErrorResult: String = "",
+
     val showDialog: Boolean = false,
+    val categoryDialogVisible: Boolean = false,
+    val unitDialogVisible: Boolean = false,
+
 
     val name: String = "",
     val hasNameError: Boolean = false,
@@ -56,9 +62,16 @@ data class InventoryUiState(
     val category: Category? = null,
 
     val categoryName: String = "",
+    val hasCategoryNameError: Boolean = false,
+    val categoryNameErrorText: String = "",
+
 
     val itemUnitName: String = "",
+    val hasItemUnitNameError: Boolean = false,
+    val itemUnitNameErrorText: String = "",
     val itemUnitSymbol: String = "",
+    val hasItemUnitSymbolError: Boolean = false,
+    val itemUnitSymbolErrorText: String = "",
 
 
     val unit: ItemUnit? = null,

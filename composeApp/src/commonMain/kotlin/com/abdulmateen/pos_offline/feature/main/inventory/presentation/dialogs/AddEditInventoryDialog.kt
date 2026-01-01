@@ -1,6 +1,7 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +45,7 @@ import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.abdulmateen.pos_offline.core.designsystem.components.AnimatedErrorText
 import com.abdulmateen.pos_offline.core.designsystem.components.LocalImageWidget
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.WheelDateTimePickerDialog
@@ -95,13 +97,6 @@ fun AddEditInventoryDialog(
 
     var datePickerDialog by remember { mutableStateOf(false) }
     var categoryMenuExpanded by remember { mutableStateOf(false) }
-    var subCategoryMenuExpanded by remember { mutableStateOf(false) }
-    var selectedCategory by remember { mutableStateOf<Category?>(null)}
-    var selectedSubCategory by remember { mutableStateOf<SubCategory?>(null)}
-    var categoryAddEditDialogPopup by remember { mutableStateOf(false) }
-    var subCategoryAddEditDialogPopup by remember { mutableStateOf(false) }
-    var selectedItemUnit by remember { mutableStateOf<ItemUnit?>(null) }
-    var unitAddEditDialogPopup by remember { mutableStateOf(false) }
     var unitMenuExpanded by remember { mutableStateOf(false) }
 
 
@@ -225,7 +220,7 @@ fun AddEditInventoryDialog(
                     unitMenuExpanded = unitMenuExpanded,
                     toggleUnitMenu = { unitMenuExpanded = !unitMenuExpanded },
                     selectedUnitChange = { uiAction(InventoryUiAction.OnItemUnitChange(it)) },
-                    addEditUnit = { unitAddEditDialogPopup = true },
+                    addEditUnit = { uiAction(InventoryUiAction.ToggleUnitDialog) },
                     list = uiState.unitList
                 )
 
@@ -235,7 +230,7 @@ fun AddEditInventoryDialog(
                     categoryMenuExpanded = categoryMenuExpanded,
                     toggleCategoryMenu = { categoryMenuExpanded = !categoryMenuExpanded },
                     selectedCategoryChange = { uiAction(InventoryUiAction.OnCategoryChange(it)) },
-                    addEditCategory = { categoryAddEditDialogPopup = true },
+                    addEditCategory = { uiAction(InventoryUiAction.ToggleCategoryDialog) },
                     list = uiState.categoryList
                 )
 //                SubCategoryRow(
@@ -246,18 +241,11 @@ fun AddEditInventoryDialog(
 //                    selectedCategoryChange = { selectedSubCategory = it },
 //                    addEditCategory = { subCategoryAddEditDialogPopup = true }
 //                )
-                Row(
+                AnimatedErrorText(
                     modifier = Modifier.fillMaxWidth(),
-                   verticalAlignment = Alignment.CenterVertically
-                ) {
-                    AnimatedVisibility(visible = uiState.errorResult.isNotEmpty()){
-                        Text(
-                            text = uiState.errorResult,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    }
-                }
+                    visible = uiState.errorResult.isNotEmpty(),
+                    errorMessage = uiState.errorResult
+                )
 
                 Row(
                     Modifier.fillMaxWidth(),
@@ -276,34 +264,22 @@ fun AddEditInventoryDialog(
                     }
                 }
             }
-            if (unitAddEditDialogPopup){
+            if (uiState.unitDialogVisible){
                 AddEditItemUnitDialog(
                     itemUnit = null,
-                    onDismiss = { unitAddEditDialogPopup = false },
-                    onConfirm = {
-                        uiAction(InventoryUiAction.OnAddNewUnit)
-                        unitAddEditDialogPopup = false
-                                },
+                    onDismiss = { uiAction(InventoryUiAction.ToggleUnitDialog) },
+                    onConfirm = { uiAction(InventoryUiAction.OnAddNewUnit) },
                     uiState = uiState,
                     uiAction = uiAction
                 )
             }
-            if (categoryAddEditDialogPopup){
+            if (uiState.categoryDialogVisible){
                 AddEditCategoryDialog(
                     category = null,
-                    onDismiss = { categoryAddEditDialogPopup = false },
-                    onConfirm = {
-                        uiAction(InventoryUiAction.OnAddNewCategory)
-                        categoryAddEditDialogPopup = false },
+                    onDismiss = { uiAction(InventoryUiAction.ToggleCategoryDialog) },
+                    onConfirm = { uiAction(InventoryUiAction.OnAddNewCategory) },
                     uiState = uiState,
                     uiAction = uiAction
-                )
-            }
-            if (subCategoryAddEditDialogPopup){
-                AddEditSubCategoryDialog(
-                    category = null,
-                    onDismiss = { subCategoryAddEditDialogPopup = false },
-                    onConfirm = { subCategoryAddEditDialogPopup = false }
                 )
             }
         }
@@ -423,74 +399,7 @@ fun ItemUnitRow(
         }
     }
 }
-@Composable
-fun SubCategoryRow(
-    modifier: Modifier,
-    toggleCategoryMenu: () -> Unit = {},
-    selectedCategory: SubCategory? = null,
-    subCategoryMenuExpanded: Boolean = false,
-    selectedCategoryChange: (SubCategory) -> Unit,
-    addEditCategory: () -> Unit
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ){
-        Box(
-            modifier = Modifier.weight(1f)
-        ){
-            Card(modifier = Modifier.fillMaxWidth()
-                .clickable(
-                    onClick = toggleCategoryMenu
-                ),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = selectedCategory?.name ?: stringResource(Res.string.select_sub_category))
-                    Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "ArrowDropdown")
-                }
-            }
-            SubCategoryDropdown(
-                isSubCategoryMenuVisible = subCategoryMenuExpanded,
-                subCategoryMenuExpandedChange = toggleCategoryMenu,
-                selectedSubCategoryChange = {
-                    selectedCategoryChange(it)
-                    toggleCategoryMenu()
-                }
-            )
-        }
-        IconButton(
-            onClick = addEditCategory
-        ){
-            Icon(imageVector = Icons.Default.Add, contentDescription = "AddIcon")
-        }
-    }
-}
 
-@Composable
-fun SubCategoryDropdown(
-    isSubCategoryMenuVisible: Boolean,
-    subCategoryMenuExpandedChange: () -> Unit,
-    selectedSubCategoryChange: (SubCategory) -> Unit,
-){
-    DropdownMenu(
-        expanded = isSubCategoryMenuVisible,
-        onDismissRequest = subCategoryMenuExpandedChange,
-        modifier = Modifier.width(IntrinsicSize.Max)
-    ) {
-        dummySubCategories.forEach { category ->
-            DropdownMenuItem(
-                text = { Text(text = category.name) },
-                onClick = { selectedSubCategoryChange(category) }
-            )
-        }
-    }
-}
 
 @Composable
 fun ItemUnitDropdown(

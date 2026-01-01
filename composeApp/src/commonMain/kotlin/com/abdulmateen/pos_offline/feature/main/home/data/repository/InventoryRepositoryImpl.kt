@@ -121,8 +121,14 @@ class InventoryRepositoryImpl(
         productDao.clearProducts()
     }
 
-    override suspend fun insertCategory(category: Category) {
+    override suspend fun insertCategory(category: Category): Result<String, DataError.Local> {
+        val categoryExists = categoryDao.getCategoryByName(category.name)
+        if (categoryExists != null) {
+            return Result.Error(DataError.Local.CATEGORY_ALREADY_EXISTS)
+        }
+
         categoryDao.insertOrUpdate(category = category.toCategoryEntity())
+        return Result.Success("Category added successfully")
     }
 
     override suspend fun updateCategory(category: Category) {
@@ -147,8 +153,13 @@ class InventoryRepositoryImpl(
         categoryDao.clearCategories()
     }
 
-    override suspend fun insertUnit(unit: ItemUnit) {
+    override suspend fun insertUnit(unit: ItemUnit): Result<String, DataError.Local> {
+        val unitExists = unitDao.getUnitByNameOrSymbol(unit.name, unit.symbol)
+        if (unitExists != null) {
+            return Result.Error(DataError.Local.UNIT_ALREADY_EXISTS)
+        }
         unitDao.insertOrUpdate(unit.toUnitEntity())
+        return Result.Success("Unit added successfully")
     }
 
     override suspend fun updateUnit(unit: ItemUnit) {

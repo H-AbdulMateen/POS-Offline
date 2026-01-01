@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.abdulmateen.pos_offline.core.designsystem.components.AnimatedErrorText
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
 import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
@@ -36,6 +37,7 @@ import pos_offline.composeapp.generated.resources.cancel
 import pos_offline.composeapp.generated.resources.edit_unit
 import pos_offline.composeapp.generated.resources.save
 import pos_offline.composeapp.generated.resources.unit_name
+import pos_offline.composeapp.generated.resources.unit_symbol_name
 
 
 @Composable
@@ -76,6 +78,22 @@ fun AddEditItemUnitDialog(
                     value = uiState.itemUnitName,
                     onValueChange = { uiAction(InventoryUiAction.OnUnitNameChange(it)) },
                     placeholder = stringResource(Res.string.unit_name),
+                    hasError = uiState.hasItemUnitNameError,
+                    errorMessage = uiState.itemUnitNameErrorText
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                OutlinedTF(
+                    value = uiState.itemUnitSymbol,
+                    onValueChange = { uiAction(InventoryUiAction.OnUnitSymbolChange(it)) },
+                    placeholder = stringResource(Res.string.unit_symbol_name),
+                    hasError = uiState.hasItemUnitSymbolError,
+                    errorMessage = uiState.itemUnitSymbolErrorText
+                )
+
+                AnimatedErrorText(
+                    modifier = Modifier.fillMaxWidth(),
+                    visible = uiState.unitErrorResult.isNotEmpty(),
+                    errorMessage = uiState.unitErrorResult
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),

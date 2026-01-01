@@ -1,8 +1,10 @@
 package com.abdulmateen.pos_offline.core.designsystem.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -153,6 +155,28 @@ fun SimpleBtnPreview(){
         contentColor = Color.White,
         loading = false
     )
+}
+
+@Composable
+fun AnimatedErrorText(
+    modifier: Modifier = Modifier,
+    errorMessage: String,
+    visible: Boolean
+){
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AnimatedVisibility(
+            visible = visible
+        ){
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+    }
 }
 
 @Composable

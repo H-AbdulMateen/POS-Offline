@@ -20,6 +20,8 @@ sealed interface DataError : Error {
         DISK_FULL,
         UNKNOWN,
         SKU_ALREADY_EXISTS,
-        BARCODE_ALREADY_EXISTS
+        BARCODE_ALREADY_EXISTS,
+        CATEGORY_ALREADY_EXISTS,
+        UNIT_ALREADY_EXISTS
     }
 }
