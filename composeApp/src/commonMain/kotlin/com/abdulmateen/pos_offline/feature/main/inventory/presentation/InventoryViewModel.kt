@@ -3,13 +3,14 @@ package com.abdulmateen.pos_offline.feature.main.inventory.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.common.presentation.utils.Patterns
+import com.abdulmateen.pos_offline.core.designsystem.toUiText
 import com.abdulmateen.pos_offline.core.domain.onError
 import com.abdulmateen.pos_offline.core.domain.onSuccess
-import com.abdulmateen.pos_offline.feature.main.home.domain.InventoryRepository
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.ProductDetail
+import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
+import com.abdulmateen.pos_offline.domain.models.Category
+import com.abdulmateen.pos_offline.domain.models.ItemUnit
+import com.abdulmateen.pos_offline.domain.models.Product
+import com.abdulmateen.pos_offline.domain.models.ProductDetail
 import com.abdulmateen.pos_offline.utils.Validator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -53,7 +54,7 @@ class InventoryViewModel constructor(
             _searchProductQuery.debounce(600)
                 .distinctUntilChanged()
                 .mapLatest {query ->
-                    repository.searchProductsByName(query)
+                    repository.searchProduct(query)
                 }
                 .collect {filteredList ->
                     filteredList.onEach {list ->
@@ -92,7 +93,7 @@ class InventoryViewModel constructor(
     }
 
     fun onSearchProductQueryChange(query: String) {
-        _searchProductQuery.value = query
+              _searchProductQuery.value = query
     }
 
 
@@ -345,14 +346,14 @@ class InventoryViewModel constructor(
                     it.copy(
                         itemUnitName = "",
                         itemUnitSymbol = "",
-                        unitErrorResult = ""
+                        unitErrorResult = null
                     )
                 }
             }
-                .onError {
+                .onError {error ->
                     _uiState.update {
                         it.copy(
-                            unitErrorResult = it.toString()
+                            unitErrorResult = error.toUiText()
                         )
                     }
                 }
@@ -380,13 +381,13 @@ class InventoryViewModel constructor(
                     _eventChannel.send(InventoryEvents.CategoryAdded)
                     it.copy(
                         categoryName = "",
-                        categoryErrorResult = ""
+                        categoryErrorResult = null
                     )
                 }
-            }.onError {
+            }.onError {error ->
                 _uiState.update {
                     it.copy(
-                        categoryErrorResult = it.toString()
+                        categoryErrorResult = error.toUiText()
                     )
                 }
             }
@@ -528,16 +529,16 @@ class InventoryViewModel constructor(
                 .onSuccess {
                     _uiState.update {
                         it.copy(
-                            errorResult = ""
+                            errorResult = null
                         )
                     }
                     _eventChannel.send(InventoryEvents.NewProductSaved)
                     clearForm()
                 }
-                .onError {
+                .onError {error ->
                     _uiState.update {
                         it.copy(
-                            errorResult = it.toString()
+                            errorResult = error.toUiText()
                         )
                     }
                 }

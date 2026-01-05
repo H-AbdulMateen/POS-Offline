@@ -1,0 +1,54 @@
+package com.abdulmateen.pos_offline.data.database.dao
+
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Upsert
+import com.abdulmateen.pos_offline.data.database.entities.ProductEntity
+import com.abdulmateen.pos_offline.data.database.entities.ProductWithCategoryAndUnit
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface ProductDao {
+
+    @Upsert
+    suspend fun insertOrUpdate(product: ProductEntity)
+
+    @Query("SELECT * FROM products WHERE sku=:sku")
+    suspend fun getProductBySku(sku: String): ProductEntity?
+
+    @Query("SELECT * FROM products WHERE barcode=:barcode")
+    suspend fun getProductByBarcode(barcode: String): ProductEntity?
+
+
+    @Query("SELECT * FROM products ORDER BY name ASC")
+    fun getAllProducts(): Flow<List<ProductEntity>>
+
+    @Query("DELETE FROM products WHERE productId = :productId")
+    suspend fun delete(productId: Long)
+
+    @Query("DELETE FROM products WHERE productId = :productId")
+    suspend fun deleteById(productId: Long)
+
+    @Query("SELECT * FROM products WHERE productId = :productId")
+    suspend fun getProductById(productId: Long): ProductWithCategoryAndUnit?
+
+    @Query("SELECT * FROM products WHERE name LIKE '%' || :query || '%' OR sku LIKE '%' || :query || '%' OR barcode = :query ORDER BY name ASC")
+    suspend fun searchProduct(query: String): ProductEntity
+
+    @Query("SELECT * FROM products WHERE sku = :sku")
+    suspend fun searchProductBySku(sku: String): ProductEntity
+
+    @Query("SELECT * FROM products WHERE barcode = :barcode")
+    suspend fun searchProductByBarcode(barcode: String): ProductEntity
+
+
+    @Query("SELECT products.* FROM products WHERE products.categoryId = :categoryId")
+    fun getProductsByCategoryId(categoryId: Long): Flow<List<ProductEntity>>
+
+
+    @Query("SELECT * FROM products WHERE name LIKE '%' || :name || '%'")
+    fun filterProductsByQuery(name: String): Flow<List<ProductEntity>>
+
+    @Query("DELETE FROM products")
+    suspend fun clearProducts()
+}

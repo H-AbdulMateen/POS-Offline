@@ -3,24 +3,29 @@ package com.abdulmateen.pos_offline.di
 
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.abdulmateen.pos_offline.StartupViewModel
-import com.abdulmateen.pos_offline.common.data.database.DatabaseFactory
-import com.abdulmateen.pos_offline.common.data.database.MyAppDatabase
 import com.abdulmateen.pos_offline.core.data.datastore.DataStoreManagerImpl
 import com.abdulmateen.pos_offline.core.data.datastore.createDataStore
 import com.abdulmateen.pos_offline.core.data.network.HttpClientFactory
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
+import com.abdulmateen.pos_offline.data.database.DatabaseFactory
+import com.abdulmateen.pos_offline.data.database.MyAppDatabase
+import com.abdulmateen.pos_offline.feature.auth.data.LoginRepositoryImpl
 import com.abdulmateen.pos_offline.feature.auth.data.network.RemoteUserDataSource
 import com.abdulmateen.pos_offline.feature.auth.data.network.ktor.KtorUserDataSource
 import com.abdulmateen.pos_offline.feature.auth.domain.LoginRepository
 import com.abdulmateen.pos_offline.feature.auth.presentation.login.LoginViewModel
 import com.abdulmateen.pos_offline.feature.auth.presentation.register.SignUpViewModel
-import com.abdulmateen.pos_offline.feature.auth.data.LoginRepositoryImpl
 import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.KtorProductsDataSource
 import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.RemoteProductsDataSource
-import com.abdulmateen.pos_offline.feature.main.home.data.repository.InventoryRepositoryImpl
-import com.abdulmateen.pos_offline.feature.main.home.data.repository.OrderRepositoryImpl
-import com.abdulmateen.pos_offline.feature.main.home.domain.InventoryRepository
-import com.abdulmateen.pos_offline.feature.main.home.domain.OrderRepository
+import com.abdulmateen.pos_offline.data.repository.InventoryRepositoryImpl
+import com.abdulmateen.pos_offline.data.repository.OrderRepositoryImpl
+import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
+import com.abdulmateen.pos_offline.domain.repository.OrderRepository
+import com.abdulmateen.pos_offline.domain.use_cases.product.AddProduct
+import com.abdulmateen.pos_offline.domain.use_cases.product.DeleteProduct
+import com.abdulmateen.pos_offline.domain.use_cases.product.GetProductList
+import com.abdulmateen.pos_offline.domain.use_cases.product.ProductUseCases
+import com.abdulmateen.pos_offline.domain.use_cases.product.SearchProductByName
 import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderViewModel
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryViewModel
 import com.abdulmateen.pos_offline.feature.main.profile.presentation.ProfileViewModel
@@ -53,6 +58,13 @@ val sharedModule = module {
     singleOf(::KtorProductsDataSource).bind<RemoteProductsDataSource>()
     singleOf(::InventoryRepositoryImpl).bind<InventoryRepository>()
     singleOf(::OrderRepositoryImpl).bind<OrderRepository>()
+
+    single{ ProductUseCases(
+        searchProduct = SearchProductByName(get()),
+        getProductList = GetProductList(get()),
+        addProduct = AddProduct(get()),
+        deleteProduct = DeleteProduct(get())
+    ) }
 
     viewModelOf(::StartupViewModel)
 

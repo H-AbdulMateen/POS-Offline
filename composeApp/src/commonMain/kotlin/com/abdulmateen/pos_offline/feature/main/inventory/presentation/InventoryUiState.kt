@@ -1,17 +1,18 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation
 
 import androidx.compose.ui.graphics.ImageBitmap
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
+import com.abdulmateen.pos_offline.core.designsystem.UiText
+import com.abdulmateen.pos_offline.domain.models.Category
+import com.abdulmateen.pos_offline.domain.models.ItemUnit
+import com.abdulmateen.pos_offline.domain.models.Product
 
 data class InventoryUiState(
     val isLoading: Boolean = false,
     val searchProductQuery: String = "",
     val productList: List<Product> = emptyList(),
-    val errorResult: String = "",
-    val categoryErrorResult: String = "",
-    val unitErrorResult: String = "",
+    val errorResult: UiText? = null,
+    val categoryErrorResult: UiText? = null,
+    val unitErrorResult: UiText? = null,
 
     val showDialog: Boolean = false,
     val categoryDialogVisible: Boolean = false,

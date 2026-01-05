@@ -25,9 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abdulmateen.pos_offline.core.designsystem.components.SearchField
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.ProductDetail
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyProducts
+import com.abdulmateen.pos_offline.domain.models.Product
+import com.abdulmateen.pos_offline.domain.models.dummyProducts
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryHeaderRow
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryTable
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs.AddEditInventoryDialog

@@ -33,8 +33,8 @@ import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.compose_multiplatform
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
+import com.abdulmateen.pos_offline.domain.models.ItemUnit
+import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.CartSummarySection
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.CustomerSection
 import com.abdulmateen.pos_offline.feature.main.home.presentation.components.ProductListSection
@@ -58,22 +58,26 @@ fun OrderScreenRoot(
         navigateToCart = navigateToCart,
         uiAction = viewModel::uiAction,
         toggleDarkTheme = toggleDarkTheme,
-        isDarkTheme = isDarkTheme
+        isDarkTheme = isDarkTheme,
+        searchField = viewModel.searchProductField.collectAsStateWithLifecycle().value
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderScreen(
-    uiState: ProductListUiState,
+    searchField: String,
+    uiState: OrderUiState,
     navigateToCart: () -> Unit,
-    uiAction: (ProductListUiAction) -> Unit,
+    uiAction: (OrderUiAction) -> Unit,
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean
 ) {
 
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+    val productList = uiState.productList
+
     Scaffold(
         topBar = {
             if (deviceConfiguration != DeviceConfiguration.MOBILE_LANDSCAPE) {
@@ -100,9 +104,17 @@ fun OrderScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.size(8.dp))
-                    ProductSearchSection(modifier = Modifier.fillMaxWidth())
+                    ProductSearchSection(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = searchField,
+                        onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
+                    )
                     Spacer(modifier = Modifier.size(8.dp))
-                    ProductListSection(modifier = Modifier.fillMaxWidth())
+                    ProductListSection(
+                        modifier = Modifier.fillMaxWidth(),
+                        list = productList,
+                        onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
+                    )
                 }
             }
             DeviceConfiguration.MOBILE_LANDSCAPE -> {
@@ -117,11 +129,15 @@ fun OrderScreen(
                         modifier = Modifier.weight(.1f)
                     ) {
                         ProductSearchSection(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            value = searchField,
+                            onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
                         )
                         Spacer(modifier = Modifier.size(8.dp))
                         ProductListSection(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            list = productList,
+                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
                         )
                     }
                 }
@@ -138,11 +154,15 @@ fun OrderScreen(
                         modifier = Modifier.weight(.1f)
                     ) {
                         ProductSearchSection(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            value = searchField,
+                            onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
                         )
                         Spacer(modifier = Modifier.size(8.dp))
                         ProductListSection(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            list = productList,
+                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
                         )
                     }
                 }
@@ -159,11 +179,15 @@ fun OrderScreen(
                         modifier = Modifier.weight(.1f)
                     ) {
                         ProductSearchSection(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            value = searchField,
+                            onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
                         )
                         Spacer(modifier = Modifier.size(16.dp))
                         ProductListSection(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            list = productList,
+                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
                         )
                     }
                     CartSummarySection(
@@ -183,11 +207,15 @@ fun OrderScreen(
                         modifier = Modifier.weight(.1f)
                     ) {
                         ProductSearchSection(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            value = searchField,
+                            onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
                         )
                         Spacer(modifier = Modifier.size(24.dp))
                         ProductListSection(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            list = productList,
+                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
                         )
                     }
                     CartSummarySection(
@@ -246,7 +274,7 @@ private fun TopAppBarOrder(
 @Preview
 @Composable
 fun ProductListScreenPreview() {
-    val uiState = ProductListUiState(
+    val uiState = OrderUiState(
         productList = listOf(
             Product(
                 productId = 123,
@@ -275,7 +303,8 @@ fun ProductListScreenPreview() {
                 navigateToCart = {},
                 uiAction = {},
                 toggleDarkTheme = {},
-                isDarkTheme = false
+                isDarkTheme = false,
+                searchField = ""
             )
         }
     )
@@ -284,7 +313,7 @@ fun ProductListScreenPreview() {
 @Preview(name = "CreateOrderScreenPreview Dark")
 @Composable
 fun CreateOrderScreenPreviewDark() {
-    val uiState = ProductListUiState(
+    val uiState = OrderUiState(
         productList = listOf(
             Product(
                 productId = 123,
@@ -320,7 +349,8 @@ fun CreateOrderScreenPreviewDark() {
                 navigateToCart = {},
                 uiAction = {},
                 toggleDarkTheme = {},
-                isDarkTheme = false
+                isDarkTheme = false,
+                searchField = ""
             )
         }
     )

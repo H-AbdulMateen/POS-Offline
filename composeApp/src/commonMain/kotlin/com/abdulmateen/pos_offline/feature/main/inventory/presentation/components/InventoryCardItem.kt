@@ -12,8 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyProducts
+import com.abdulmateen.pos_offline.domain.models.Product
+import com.abdulmateen.pos_offline.domain.models.dummyProducts
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 

@@ -25,7 +25,7 @@ import androidx.compose.ui.window.Dialog
 import com.abdulmateen.pos_offline.core.designsystem.components.AnimatedErrorText
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
+import com.abdulmateen.pos_offline.domain.models.Category
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiAction
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiState
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
@@ -80,8 +80,8 @@ fun AddEditCategoryDialog(
                 )
                 AnimatedErrorText(
                     modifier = Modifier.fillMaxWidth(),
-                    visible = uiState.categoryErrorResult.isNotEmpty(),
-                    errorMessage = uiState.categoryErrorResult
+                    visible = uiState.categoryErrorResult != null,
+                    errorMessage = uiState.categoryErrorResult?.asString()
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),

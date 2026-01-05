@@ -25,7 +25,7 @@ import androidx.compose.ui.window.Dialog
 import com.abdulmateen.pos_offline.core.designsystem.components.AnimatedErrorText
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.TitleLargeText
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
+import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiAction
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiState
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
@@ -92,8 +92,8 @@ fun AddEditItemUnitDialog(
 
                 AnimatedErrorText(
                     modifier = Modifier.fillMaxWidth(),
-                    visible = uiState.unitErrorResult.isNotEmpty(),
-                    errorMessage = uiState.unitErrorResult
+                    visible = uiState.unitErrorResult != null,
+                    errorMessage = uiState.unitErrorResult?.asString()
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),

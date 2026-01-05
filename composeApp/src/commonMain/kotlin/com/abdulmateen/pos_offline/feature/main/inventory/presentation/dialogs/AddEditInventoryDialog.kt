@@ -1,7 +1,5 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,12 +48,9 @@ import com.abdulmateen.pos_offline.core.designsystem.components.LocalImageWidget
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.WheelDateTimePickerDialog
 import com.abdulmateen.pos_offline.core.utils.formatDatePlatform
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Product
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.ItemUnit
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.ProductDetail
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.SubCategory
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummySubCategories
+import com.abdulmateen.pos_offline.domain.models.Category
+import com.abdulmateen.pos_offline.domain.models.Product
+import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiAction
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiState
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
@@ -79,7 +74,6 @@ import pos_offline.composeapp.generated.resources.sales_price
 import pos_offline.composeapp.generated.resources.scan_barcode
 import pos_offline.composeapp.generated.resources.select_category
 import pos_offline.composeapp.generated.resources.select_item_unit
-import pos_offline.composeapp.generated.resources.select_sub_category
 import pos_offline.composeapp.generated.resources.sku
 import pos_offline.composeapp.generated.resources.update
 import kotlin.time.ExperimentalTime
@@ -243,8 +237,8 @@ fun AddEditInventoryDialog(
 //                )
                 AnimatedErrorText(
                     modifier = Modifier.fillMaxWidth(),
-                    visible = uiState.errorResult.isNotEmpty(),
-                    errorMessage = uiState.errorResult
+                    visible = uiState.errorResult != null,
+                    errorMessage = uiState.errorResult?.asString()
                 )
 
                 Row(

@@ -160,7 +160,7 @@ fun SimpleBtnPreview(){
 @Composable
 fun AnimatedErrorText(
     modifier: Modifier = Modifier,
-    errorMessage: String,
+    errorMessage: String?,
     visible: Boolean
 ){
     Row(
@@ -171,7 +171,7 @@ fun AnimatedErrorText(
             visible = visible
         ){
             Text(
-                text = errorMessage,
+                text = errorMessage ?: "",
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.labelMedium
             )

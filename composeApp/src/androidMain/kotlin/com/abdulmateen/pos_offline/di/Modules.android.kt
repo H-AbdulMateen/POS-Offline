@@ -2,9 +2,9 @@ package com.abdulmateen.pos_offline.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.abdulmateen.pos_offline.common.data.database.DatabaseFactory
 import com.abdulmateen.pos_offline.core.data.datastore.createDataStore
 import com.abdulmateen.pos_offline.core.data.filestorage.ImageStorage
+import com.abdulmateen.pos_offline.data.database.DatabaseFactory
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.android.ext.koin.androidApplication

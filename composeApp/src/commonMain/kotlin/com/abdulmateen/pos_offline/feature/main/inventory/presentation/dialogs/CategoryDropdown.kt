@@ -7,8 +7,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.Category
-import com.abdulmateen.pos_offline.feature.main.home.domain.models.dummyCategories
+import com.abdulmateen.pos_offline.domain.models.Category
 
 @Composable
 fun CategoryDropdown(

@@ -1,7 +1,7 @@
 package com.abdulmateen.pos_offline.datasource.cache.dao
 
 import com.abdulmateen.pos_offline.datasource.cache.FakeDatabase
-import com.abdulmateen.pos_offline.feature.main.home.data.database.dao.ProductDao
+import com.abdulmateen.pos_offline.data.database.dao.ProductDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

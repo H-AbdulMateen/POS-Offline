@@ -7,17 +7,23 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import pos_offline.composeapp.generated.resources.Res
+import pos_offline.composeapp.generated.resources.search
 
 @Composable
 fun ProductSearchSection(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    value: String = "",
+    onValueChange: (String) -> Unit
 ) {
-    OutlinedTextField(
-        value = "",
-        onValueChange = {},
-        placeholder = { Text("Search Product...") },
+    OutlinedTF(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = stringResource(Res.string.search),
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
         modifier = modifier
     )
@@ -29,7 +35,10 @@ fun ProductSearchSectionPreview(){
     POSOfflineTheme(
         darkTheme = false,
         content = {
-            ProductSearchSection()
+            ProductSearchSection(
+                value = "",
+                onValueChange = {}
+            )
         }
     )
 }
@@ -39,7 +48,10 @@ fun ProductSearchSectionPreviewDark(){
     POSOfflineTheme(
         darkTheme = true,
         content = {
-            ProductSearchSection()
+            ProductSearchSection(
+                value = "",
+                onValueChange = {}
+            )
         }
     )
 }
