@@ -2,12 +2,15 @@ package com.abdulmateen.pos_offline.feature.main.home.presentation.order
 
 import androidx.compose.runtime.Immutable
 import com.abdulmateen.pos_offline.core.designsystem.UiText
+import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.domain.models.Product
 
 @Immutable
 data class OrderUiState(
     val isLoading: Boolean = false,
     val productList: List<Product> = emptyList(),
+    val cartItems: List<CartItem> = emptyList(),
+    val cartItemCount: Int = 0,
     val errorMessage: UiText? = null,
     val searchQuery: String = "",
 )

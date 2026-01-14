@@ -8,7 +8,7 @@ fun OrderItemEntity.toOrderItem(): OrderItem {
         orderId = orderId,
         productId = productId,
         quantity = quantity,
-        unitPrice = unitPrice
+        unitPrice = price
     )
 }
 
@@ -16,5 +16,8 @@ fun OrderItem.toOrderItemEntity() = OrderItemEntity(
     orderId = orderId,
     productId = productId,
     quantity = quantity,
-    unitPrice = unitPrice
+    price = unitPrice,
+    discount = 0.0,
+    productName = "",
+    sku = ""
 )

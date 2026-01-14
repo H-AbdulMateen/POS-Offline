@@ -7,4 +7,9 @@ sealed class OrderUiAction {
     data class AddProductToCart(val product: Product) : OrderUiAction()
     data class RemoveProductFromCart(val product: Product) : OrderUiAction()
     object ClearCart : OrderUiAction()
+
+    data class RemoveCartItem(val productId: Long): OrderUiAction()
+    data class IncrementInQuantity(val productId: Long): OrderUiAction()
+    data class DecrementInQuantity(val productId: Long): OrderUiAction()
+    object Checkout: OrderUiAction()
 }

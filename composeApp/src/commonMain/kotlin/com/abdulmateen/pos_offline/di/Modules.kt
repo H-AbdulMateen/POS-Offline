@@ -9,6 +9,7 @@ import com.abdulmateen.pos_offline.core.data.network.HttpClientFactory
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.data.database.DatabaseFactory
 import com.abdulmateen.pos_offline.data.database.MyAppDatabase
+import com.abdulmateen.pos_offline.data.repository.CartRepositoryImpl
 import com.abdulmateen.pos_offline.feature.auth.data.LoginRepositoryImpl
 import com.abdulmateen.pos_offline.feature.auth.data.network.RemoteUserDataSource
 import com.abdulmateen.pos_offline.feature.auth.data.network.ktor.KtorUserDataSource
@@ -19,8 +20,17 @@ import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.KtorProdu
 import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.RemoteProductsDataSource
 import com.abdulmateen.pos_offline.data.repository.InventoryRepositoryImpl
 import com.abdulmateen.pos_offline.data.repository.OrderRepositoryImpl
+import com.abdulmateen.pos_offline.domain.repository.CartRepository
 import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
 import com.abdulmateen.pos_offline.domain.repository.OrderRepository
+import com.abdulmateen.pos_offline.domain.use_cases.cart.AddItemToCart
+import com.abdulmateen.pos_offline.domain.use_cases.cart.CartUseCases
+import com.abdulmateen.pos_offline.domain.use_cases.cart.ClearCartItems
+import com.abdulmateen.pos_offline.domain.use_cases.cart.DecrementInQuantity
+import com.abdulmateen.pos_offline.domain.use_cases.cart.GetCartItemCount
+import com.abdulmateen.pos_offline.domain.use_cases.cart.GetCartItemList
+import com.abdulmateen.pos_offline.domain.use_cases.cart.IncrementInQuantity
+import com.abdulmateen.pos_offline.domain.use_cases.cart.RemoveItem
 import com.abdulmateen.pos_offline.domain.use_cases.product.AddProduct
 import com.abdulmateen.pos_offline.domain.use_cases.product.DeleteProduct
 import com.abdulmateen.pos_offline.domain.use_cases.product.GetProductList
@@ -51,20 +61,36 @@ val sharedModule = module {
     single { get<MyAppDatabase>().orderDao() }
     single { get<MyAppDatabase>().categoryDao() }
     single { get<MyAppDatabase>().unitDao() }
+    single { get<MyAppDatabase>().cartDao() }
 
     singleOf(::KtorUserDataSource).bind<RemoteUserDataSource>()
     singleOf(::DataStoreManagerImpl).bind<DataStoreManager>()
     singleOf(::LoginRepositoryImpl).bind<LoginRepository>()
     singleOf(::KtorProductsDataSource).bind<RemoteProductsDataSource>()
     singleOf(::InventoryRepositoryImpl).bind<InventoryRepository>()
+    singleOf(::CartRepositoryImpl).bind<CartRepository>()
     singleOf(::OrderRepositoryImpl).bind<OrderRepository>()
 
-    single{ ProductUseCases(
-        searchProduct = SearchProductByName(get()),
-        getProductList = GetProductList(get()),
-        addProduct = AddProduct(get()),
-        deleteProduct = DeleteProduct(get())
-    ) }
+    single {
+        ProductUseCases(
+            searchProduct = SearchProductByName(get()),
+            getProductList = GetProductList(get()),
+            addProduct = AddProduct(get()),
+            deleteProduct = DeleteProduct(get())
+        )
+    }
+
+    single {
+        CartUseCases(
+            getCartItemList = GetCartItemList(get()),
+            getCartItemCount = GetCartItemCount(get()),
+            addItemToCart = AddItemToCart(get()),
+            removeItem = RemoveItem(get()),
+            clearCartItems = ClearCartItems(get()),
+            incrementInQuantity = IncrementInQuantity(get()),
+            decrementInQuantity = DecrementInQuantity(get())
+        )
+    }
 
     viewModelOf(::StartupViewModel)
 

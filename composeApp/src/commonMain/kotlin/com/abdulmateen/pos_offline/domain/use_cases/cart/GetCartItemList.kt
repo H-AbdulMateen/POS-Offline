@@ -1,14 +1,13 @@
 package com.abdulmateen.pos_offline.domain.use_cases.cart
 
 import com.abdulmateen.pos_offline.domain.models.CartItem
-import com.abdulmateen.pos_offline.domain.models.OrderItem
 import com.abdulmateen.pos_offline.domain.repository.CartRepository
-import com.abdulmateen.pos_offline.domain.repository.OrderRepository
+import kotlinx.coroutines.flow.Flow
 
-class AddItemToCart(
+class GetCartItemList(
     private val repository: CartRepository
 ) {
-    suspend operator fun invoke(item: CartItem) {
-        repository.addToCart(item)
+    suspend operator fun invoke(): Flow<List<CartItem>> {
+        return repository.getCartItems()
     }
 }

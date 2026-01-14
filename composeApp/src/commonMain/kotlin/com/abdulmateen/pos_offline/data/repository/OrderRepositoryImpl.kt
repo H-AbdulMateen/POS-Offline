@@ -1,6 +1,7 @@
 package com.abdulmateen.pos_offline.data.repository
 
 import com.abdulmateen.pos_offline.data.database.dao.OrderDao
+import com.abdulmateen.pos_offline.data.database.entities.CartWithItems
 import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toOrder
 import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toOrderEntity
 import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toOrderItemEntity
@@ -14,12 +15,21 @@ class OrderRepositoryImpl(
     private val orderDao: OrderDao
 ): OrderRepository {
 
-    override suspend fun createOrder(
-        order: Order,
-        orderItems: List<OrderItem>
+    override suspend fun checkout(
+        cart: CartWithItems
     ) {
-        orderDao.insertOrUpdateOrder(order.toOrderEntity())
-        orderDao.insertOrderItems(orderItems.map { it.toOrderItemEntity() })
+        orderDao.checkout(
+            cart = cart,
+            paymentMethod = "CASH"
+        )
+    }
+
+    override suspend fun addOrderItem(orderItem: OrderItem) {
+        orderDao.upsertOrderItem(orderItem.toOrderItemEntity())
+    }
+
+    override suspend fun removeOrderItem(orderId: Long, productId: Long) {
+        orderDao.removeOrderItem(orderId, productId)
     }
 
     override suspend fun insertOrderItems(orderItems: List<OrderItem>) {

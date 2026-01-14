@@ -10,6 +10,12 @@ import kotlin.time.ExperimentalTime
 data class OrderEntity(
     @PrimaryKey(autoGenerate = true)
     val orderId: Long = 0,
-    val totalAmount: Double,
+    val customerName: String?,
+    val subTotal: Double,
+    val discount: Double?,
+    val tax: Double?,
+    val total: Double,
+    val paymentMethod: String,
+    val paymentStatus: String,
     val createdAt: Long = Clock.System.now().toEpochMilliseconds()
 )

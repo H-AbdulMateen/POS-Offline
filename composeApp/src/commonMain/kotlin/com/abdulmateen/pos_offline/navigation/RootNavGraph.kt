@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.abdulmateen.pos_offline.feature.auth.navigation.AuthNavGraph
 import com.abdulmateen.pos_offline.feature.main.MainScreenRoot
-import com.abdulmateen.pos_offline.feature.main.home.presentation.CartScreen
+import com.abdulmateen.pos_offline.feature.main.home.presentation.CartScreenRoot
 import com.abdulmateen.pos_offline.feature.main.home.presentation.product_detail.ProductDetailScreenRoot
 
 @Composable
@@ -80,7 +80,7 @@ fun AppNavGraph(
                 }
             }
         ) {
-            CartScreen(
+            CartScreenRoot(
                 onBackClick = { navController.popBackStack() }
             )
         }

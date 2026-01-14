@@ -85,7 +85,8 @@ fun OrderScreen(
                     toggleDarkTheme = toggleDarkTheme,
                     isDarkTheme = isDarkTheme,
                     deviceConfiguration = deviceConfiguration,
-                    navigateToCart = navigateToCart
+                    navigateToCart = navigateToCart,
+                    cartItemsCount = uiState.cartItemCount
                 )
             }
         },
@@ -191,7 +192,9 @@ fun OrderScreen(
                         )
                     }
                     CartSummarySection(
-                        modifier = Modifier.weight(.1f)
+                        modifier = Modifier.weight(.1f),
+                        uiState = uiState,
+                        uiAction = uiAction
                     )
                 }
             }
@@ -219,7 +222,9 @@ fun OrderScreen(
                         )
                     }
                     CartSummarySection(
-                        modifier = Modifier.weight(.1f)
+                        modifier = Modifier.weight(.1f),
+                        uiState = uiState,
+                        uiAction = uiAction
                     )
                 }
             }
@@ -233,7 +238,8 @@ private fun TopAppBarOrder(
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean,
     deviceConfiguration: DeviceConfiguration,
-    navigateToCart: () -> Unit
+    navigateToCart: () -> Unit,
+    cartItemsCount: Int
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
@@ -255,7 +261,7 @@ private fun TopAppBarOrder(
         actions = {
             Row {
                 if (deviceConfiguration != DeviceConfiguration.DESKTOP){
-                    CartBadgeBox(itemCount = 5, onCartClick = navigateToCart)
+                    CartBadgeBox(itemCount = cartItemsCount, onCartClick = navigateToCart)
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(

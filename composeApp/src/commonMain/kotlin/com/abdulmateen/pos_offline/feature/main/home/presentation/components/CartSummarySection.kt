@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.RemoveCircle
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DividerDefaults
@@ -36,16 +36,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
+import com.abdulmateen.pos_offline.domain.models.CartItem
+import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderUiAction
+import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderUiState
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.cart_summary
-import pos_offline.composeapp.generated.resources.proceed_to_checkout
-import pos_offline.composeapp.generated.resources.total
 
 @Composable
-fun CartSummarySection(modifier: Modifier = Modifier) {
+fun CartSummarySection(
+    modifier: Modifier = Modifier,
+    uiState: OrderUiState,
+    uiAction: (OrderUiAction) -> Unit
+) {
     var showCheckoutDialog by rememberSaveable { mutableStateOf(false) }
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
@@ -55,6 +60,7 @@ fun CartSummarySection(modifier: Modifier = Modifier) {
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
+        val cartItemList = uiState.cartItems
         when(deviceConfiguration){
             DeviceConfiguration.MOBILE_LANDSCAPE,
             DeviceConfiguration.TABLET_LANDSCAPE-> {
@@ -66,8 +72,11 @@ fun CartSummarySection(modifier: Modifier = Modifier) {
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.weight(.1f)
                     ) {
-                        items(10) {
-                            CartItem(item = it)
+                        items(items = cartItemList) {cartItem ->
+                            CartListItem(
+                                item = cartItem,
+                                uiAction = uiAction
+                            )
                         }
                     }
                     VerticalDivider(
@@ -98,8 +107,11 @@ fun CartSummarySection(modifier: Modifier = Modifier) {
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.weight(.1f)
                 ) {
-                    items(10) {
-                        CartItem(item = it)
+                    items(items = cartItemList) {
+                        CartListItem(
+                            item = it,
+                            uiAction = uiAction
+                        )
                     }
                 }
                 HorizontalDivider(
@@ -129,7 +141,10 @@ fun CartSummarySection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CartItem(item: Int) {
+fun CartListItem(
+    item: CartItem,
+    uiAction: (OrderUiAction) -> Unit
+) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
@@ -143,14 +158,16 @@ fun CartItem(item: Int) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Item #$item (1)",
+                    text = item.productName,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Icon(
                     imageVector = Icons.Filled.Delete,
                     contentDescription = null,
-                    modifier = Modifier.clickable(onClick = {}),
+                    modifier = Modifier.clickable(onClick = {
+                        uiAction(OrderUiAction.RemoveCartItem(item.productId))
+                    }),
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -160,7 +177,7 @@ fun CartItem(item: Int) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Rs. ${(item + 1) * 100}", style = MaterialTheme.typography.labelSmall)
+                Text("Rs. ${item.price}", style = MaterialTheme.typography.labelSmall)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(2.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -168,17 +185,21 @@ fun CartItem(item: Int) {
                     Icon(
                         imageVector = Icons.Rounded.RemoveCircle,
                         contentDescription = null,
-                        modifier = Modifier.clickable(onClick = {})
+                        modifier = Modifier.clickable(onClick = {
+                            uiAction(OrderUiAction.DecrementInQuantity(item.productId))
+                        })
                     )
                     Text(
-                        "1",
+                        item.quantity.toString(),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Icon(
                         imageVector = Icons.Rounded.AddCircle,
                         contentDescription = null,
-                        modifier = Modifier.clickable(onClick = {})
+                        modifier = Modifier.clickable(onClick = {
+                            uiAction(OrderUiAction.IncrementInQuantity(item.productId))
+                        })
                     )
                 }
             }
@@ -192,7 +213,10 @@ fun CartSummarySectionPreview() {
     POSOfflineTheme(
         darkTheme = false,
         content = {
-            CartSummarySection()
+            CartSummarySection(
+                uiState = OrderUiState(),
+                uiAction = {}
+            )
         }
     )
 }
@@ -203,7 +227,10 @@ fun CartSummarySectionPreviewDark() {
     POSOfflineTheme(
         darkTheme = true,
         content = {
-            CartSummarySection()
+            CartSummarySection(
+                uiState = OrderUiState(),
+                uiAction = {}
+            )
         }
     )
 }

@@ -1,11 +1,17 @@
 package com.abdulmateen.pos_offline.domain.repository
 
+import com.abdulmateen.pos_offline.data.database.entities.CartWithItems
+import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.domain.models.Order
 import com.abdulmateen.pos_offline.domain.models.OrderItem
 import kotlinx.coroutines.flow.Flow
 
 interface OrderRepository {
-    suspend fun createOrder(order: Order, orderItems: List<OrderItem>)
+    suspend fun checkout(cart: CartWithItems)
+
+    suspend fun addOrderItem(orderItem: OrderItem)
+    suspend fun removeOrderItem(orderId: Long, productId: Long)
+
     suspend fun insertOrderItems(orderItems: List<OrderItem>)
     suspend fun updateOrder(order: Order, orderItems: List<OrderItem>)
     suspend fun deleteOrder(orderId: Long)

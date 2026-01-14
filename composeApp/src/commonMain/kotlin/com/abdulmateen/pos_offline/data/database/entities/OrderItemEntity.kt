@@ -3,7 +3,6 @@ package com.abdulmateen.pos_offline.data.database.entities
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import com.abdulmateen.pos_offline.data.database.entities.ProductEntity
 
 @Entity(
     tableName = "order_items",
@@ -27,6 +26,9 @@ import com.abdulmateen.pos_offline.data.database.entities.ProductEntity
 data class OrderItemEntity(
     val orderId: Long,
     val productId: Long,
+    val productName: String,
+    val sku: String,
     val quantity: Double,
-    val unitPrice: Double
+    val price: Double,
+    val discount: Double
 )
