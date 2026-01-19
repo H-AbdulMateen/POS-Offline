@@ -1,13 +1,13 @@
 package com.abdulmateen.pos_offline.data.repository
 
 import com.abdulmateen.pos_offline.data.database.dao.OrderDao
-import com.abdulmateen.pos_offline.data.database.entities.CartWithItems
-import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toOrder
-import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toOrderEntity
-import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toOrderItemEntity
-import com.abdulmateen.pos_offline.domain.repository.OrderRepository
+import com.abdulmateen.pos_offline.data.database.entities.CartWithItemsViewTable
+import com.abdulmateen.pos_offline.data.mappers.toOrder
+import com.abdulmateen.pos_offline.data.mappers.toOrderEntity
+import com.abdulmateen.pos_offline.data.mappers.toOrderItemEntity
 import com.abdulmateen.pos_offline.domain.models.Order
 import com.abdulmateen.pos_offline.domain.models.OrderItem
+import com.abdulmateen.pos_offline.domain.repository.OrderRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -16,7 +16,7 @@ class OrderRepositoryImpl(
 ): OrderRepository {
 
     override suspend fun checkout(
-        cart: CartWithItems
+        cart: CartWithItemsViewTable
     ) {
         orderDao.checkout(
             cart = cart,

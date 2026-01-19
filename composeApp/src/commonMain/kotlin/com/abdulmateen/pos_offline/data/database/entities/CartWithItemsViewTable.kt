@@ -2,9 +2,8 @@ package com.abdulmateen.pos_offline.data.database.entities
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import kotlinx.coroutines.flow.Flow
 
-data class CartWithItems(
+data class CartWithItemsViewTable(
     @Embedded val cart: CartEntity,
 
     @Relation(

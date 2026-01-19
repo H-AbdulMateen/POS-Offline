@@ -38,6 +38,7 @@ abstract class MyAppDatabase : RoomDatabase() {
     abstract fun unitDao(): UnitDao
 
 
+
     companion object Companion {
         const val DB_NAME = "my_app.db"
     }

@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.feature.main.home.data.mappers
+package com.abdulmateen.pos_offline.data.mappers
 
 import com.abdulmateen.pos_offline.core.data.filestorage.ImageStorage
 import com.abdulmateen.pos_offline.data.database.entities.ProductEntity
@@ -14,6 +14,7 @@ suspend fun ProductWithCategoryAndUnit.toProduct(imageStorage: ImageStorage) = P
     barcode = this.product.barcode,
     purchasePrice = this.product.purchasePrice,
     price = this.product.salePrice,
+    discount = this.product.discount,
     stock = this.product.stock,
     photoBytes = this.product.imagePath?.let { imageStorage.getImage(it) },
     category = this.category?.toCategory(),
@@ -25,6 +26,7 @@ suspend fun ProductEntity.toProduct(imageStorage: ImageStorage) = Product(
     name = this.name,
     sku = this.sku,
     price = this.salePrice,
+    discount = this.discount,
     quantity = this.stock,
     photoBytes = this.imagePath?.let { imageStorage.getImage(it) }
 )

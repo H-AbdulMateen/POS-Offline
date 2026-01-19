@@ -88,7 +88,8 @@ fun CartSummarySection(
                         onProceedToCheckout = {
                             showCheckoutDialog = true
                         },
-                        modifier = Modifier.fillMaxHeight()
+                        modifier = Modifier.fillMaxHeight(),
+                        totalAmount = uiState.subTotal
                     )
                 }
             }else -> {
@@ -123,7 +124,8 @@ fun CartSummarySection(
                     onProceedToCheckout = {
                         showCheckoutDialog = true
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    totalAmount = uiState.subTotal
                 )
             }
             }

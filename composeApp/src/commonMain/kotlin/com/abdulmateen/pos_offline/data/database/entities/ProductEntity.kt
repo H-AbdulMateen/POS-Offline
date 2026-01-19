@@ -42,6 +42,7 @@ data class ProductEntity @OptIn(ExperimentalTime::class) constructor(
     val purchasePrice: Double,
     val salePrice: Double,
     val stock: Double,
+    val discount: Double = 0.0,
     val imagePath: String? = null,
     val categoryId: Long? = null,
     val unitId: Long? = null,

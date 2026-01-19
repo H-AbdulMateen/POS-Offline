@@ -24,7 +24,8 @@ import com.abdulmateen.pos_offline.domain.repository.CartRepository
 import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
 import com.abdulmateen.pos_offline.domain.repository.OrderRepository
 import com.abdulmateen.pos_offline.domain.use_cases.cart.AddItemToCart
-import com.abdulmateen.pos_offline.domain.use_cases.cart.CartUseCases
+import com.abdulmateen.pos_offline.domain.use_cases.cart.CalculateSubTotal
+import com.abdulmateen.pos_offline.domain.use_cases.CartUseCases
 import com.abdulmateen.pos_offline.domain.use_cases.cart.ClearCartItems
 import com.abdulmateen.pos_offline.domain.use_cases.cart.DecrementInQuantity
 import com.abdulmateen.pos_offline.domain.use_cases.cart.GetCartItemCount
@@ -34,7 +35,8 @@ import com.abdulmateen.pos_offline.domain.use_cases.cart.RemoveItem
 import com.abdulmateen.pos_offline.domain.use_cases.product.AddProduct
 import com.abdulmateen.pos_offline.domain.use_cases.product.DeleteProduct
 import com.abdulmateen.pos_offline.domain.use_cases.product.GetProductList
-import com.abdulmateen.pos_offline.domain.use_cases.product.ProductUseCases
+import com.abdulmateen.pos_offline.domain.use_cases.ProductUseCases
+import com.abdulmateen.pos_offline.domain.use_cases.product.ReduceStock
 import com.abdulmateen.pos_offline.domain.use_cases.product.SearchProductByName
 import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderViewModel
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryViewModel
@@ -76,7 +78,8 @@ val sharedModule = module {
             searchProduct = SearchProductByName(get()),
             getProductList = GetProductList(get()),
             addProduct = AddProduct(get()),
-            deleteProduct = DeleteProduct(get())
+            deleteProduct = DeleteProduct(get()),
+            reduceStock = ReduceStock(get())
         )
     }
 
@@ -88,7 +91,8 @@ val sharedModule = module {
             removeItem = RemoveItem(get()),
             clearCartItems = ClearCartItems(get()),
             incrementInQuantity = IncrementInQuantity(get()),
-            decrementInQuantity = DecrementInQuantity(get())
+            decrementInQuantity = DecrementInQuantity(get()),
+            calculateSubTotal = CalculateSubTotal(get())
         )
     }
 

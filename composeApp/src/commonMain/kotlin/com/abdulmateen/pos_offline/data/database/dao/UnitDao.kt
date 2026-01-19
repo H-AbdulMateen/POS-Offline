@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.Flow
 interface UnitDao {
     @Upsert
     suspend fun insertOrUpdate(unit: UnitEntity)
+    @Upsert
+    suspend fun upsertList(units: List<UnitEntity>)
     @Delete
     suspend fun deleteUnit(unit: UnitEntity)
     @Query("SELECT * FROM units")

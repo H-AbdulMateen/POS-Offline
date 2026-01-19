@@ -21,14 +21,15 @@ import pos_offline.composeapp.generated.resources.total
 @Composable
 fun TotalCheckoutSection(
     onProceedToCheckout: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    totalAmount: Double
 ){
     Column (
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ){
-        Text(stringResource(Res.string.total).plus("Rs 600"), fontWeight = FontWeight.Bold)
+        Text(stringResource(Res.string.total).plus("Rs $totalAmount"), fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
         Button(
             onClick = onProceedToCheckout,
@@ -43,7 +44,8 @@ private fun TotalCheckoutSectionPreview(){
         darkTheme = false,
         content = {
             TotalCheckoutSection(
-                onProceedToCheckout = {}
+                onProceedToCheckout = {},
+                totalAmount = 100.0
             )
         }
     )
@@ -55,7 +57,8 @@ private fun TotalCheckoutSectionDarkPreview(){
         darkTheme = true,
         content = {
             TotalCheckoutSection(
-                onProceedToCheckout = {}
+                onProceedToCheckout = {},
+                totalAmount = 100.0
             )
         }
     )

@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.Flow
 interface CategoryDao {
     @Upsert
     suspend fun insertOrUpdate(category: CategoryEntity)
+    @Upsert
+    suspend fun upsertList(categories: List<CategoryEntity>)
+
     @Delete
     suspend fun deleteCategory(category: CategoryEntity)
 

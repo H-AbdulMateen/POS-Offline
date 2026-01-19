@@ -7,6 +7,7 @@ data class CartItem(
     val productName: String,
     val sku: String,
     val quantity: Double,
-    val price: Double,
+    val unitPrice: Double,
+    val price: Double = unitPrice * quantity,
     val discount: Double = 0.0
 )

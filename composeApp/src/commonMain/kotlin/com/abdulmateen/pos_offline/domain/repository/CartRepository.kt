@@ -1,5 +1,6 @@
 package com.abdulmateen.pos_offline.domain.repository
 
+import com.abdulmateen.pos_offline.data.database.entities.CartWithItemsViewTable
 import com.abdulmateen.pos_offline.domain.models.CartItem
 import kotlinx.coroutines.flow.Flow
 
@@ -16,5 +17,6 @@ interface CartRepository {
 
     suspend fun incrementInQuantity(productId: Long)
     suspend fun decrementInQuantity(productId: Long)
+    fun calculateSubTotal(): Flow<Double>
 
 }

@@ -8,6 +8,7 @@ data class ProductDetail(
     val barcode: String,
     val purchasePrice: Double,
     val price: Double,
+    val discount: Double = 0.0,
     val stock: Double,
     val photoBytes: ByteArray? = null,
     val category: Category?,

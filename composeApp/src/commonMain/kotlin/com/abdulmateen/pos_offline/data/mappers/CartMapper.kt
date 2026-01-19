@@ -14,7 +14,6 @@ fun CartEntity.toCart(): Cart {
 
 fun Cart.toCartEntity(): CartEntity {
     return CartEntity(
-        cartId = cartId,
         createdAt = createdAt
     )
 }
@@ -27,7 +26,7 @@ fun CartItem.toCartItemEntity(): CartItemEntity{
         cartId = cartId,
         sku = sku,
         quantity = quantity,
-        price = price,
+        price = unitPrice,
         discount = discount
     )
 }
@@ -40,7 +39,9 @@ fun CartItemEntity.toCartItem(): CartItem {
         productName = productName,
         sku = sku,
         quantity = quantity,
-        price = price,
-        discount = discount
+        unitPrice = price,
+        discount = discount,
+        price = price * quantity
     )
 }
+

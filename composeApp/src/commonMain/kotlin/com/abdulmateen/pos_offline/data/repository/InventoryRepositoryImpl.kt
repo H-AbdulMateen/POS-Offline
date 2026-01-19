@@ -6,22 +6,28 @@ import com.abdulmateen.pos_offline.core.domain.Result
 import com.abdulmateen.pos_offline.data.database.dao.CategoryDao
 import com.abdulmateen.pos_offline.data.database.dao.ProductDao
 import com.abdulmateen.pos_offline.data.database.dao.UnitDao
+import com.abdulmateen.pos_offline.data.database.entities.CategoryEntity
 import com.abdulmateen.pos_offline.data.database.entities.ProductEntity
-import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toCategory
-import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toCategoryEntity
-import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toProduct
-import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toUnit
-import com.abdulmateen.pos_offline.feature.main.home.data.mappers.toUnitEntity
+import com.abdulmateen.pos_offline.data.database.entities.UnitEntity
+import com.abdulmateen.pos_offline.data.mappers.toCategory
+import com.abdulmateen.pos_offline.data.mappers.toCategoryEntity
+import com.abdulmateen.pos_offline.data.mappers.toProduct
+import com.abdulmateen.pos_offline.data.mappers.toUnit
+import com.abdulmateen.pos_offline.data.mappers.toUnitEntity
 import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
 import com.abdulmateen.pos_offline.domain.models.Category
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.domain.models.ProductDetail
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
 class InventoryRepositoryImpl(
@@ -39,7 +45,6 @@ class InventoryRepositoryImpl(
         if (productByBarcode != null) {
             return Result.Error(DataError.Local.BARCODE_ALREADY_EXISTS)
         }
-
 
 
         val imagePath = product.photoBytes?.let { imageBytes ->
@@ -96,13 +101,17 @@ class InventoryRepositoryImpl(
     override fun getAllProducts(): Flow<List<Product>> =
         productDao.getAllProducts()
             .map { productEntities ->
-                supervisorScope {
-                    productEntities.map { productEntity ->
-                        async { productEntity.toProduct(imageStorage = imageStorage) }
-                    }.awaitAll()
-                }
-                productEntities.map { productEntity ->
-                    productEntity.toProduct(imageStorage = imageStorage)
+                if (productEntities.isNotEmpty()) {
+                    supervisorScope {
+                        productEntities.map { productEntity ->
+                            async { productEntity.toProduct(imageStorage = imageStorage) }
+                        }.awaitAll()
+                    }
+                } else {
+                    supervisorScope {
+                        insertPrepopulatedProducts()
+                        emptyList()
+                    }
                 }
             }
 
@@ -141,6 +150,10 @@ class InventoryRepositoryImpl(
     }
 
     override fun getAllCategories(): Flow<List<Category>> {
+        CoroutineScope(Dispatchers.IO).launch {
+            insertPrepopulatedCategories()
+        }
+
         return categoryDao.getAllCategories()
             .map { categoryEntities -> categoryEntities.map { it.toCategory() } }
     }
@@ -173,7 +186,16 @@ class InventoryRepositoryImpl(
 
     override fun getAllUnits(): Flow<List<ItemUnit>> {
         return unitDao.getAllUnits()
-            .map { unitEntities -> unitEntities.map { it.toUnit() } }
+            .map { unitEntities ->
+                if (unitEntities.isNotEmpty()) {
+                    unitEntities.map { it.toUnit() }
+                }else{
+                    supervisorScope {
+                        insertPrepopulatedUnits()
+                        emptyList()
+                    }
+                }
+                }
     }
 
     override fun getUnitById(unitId: Long): Flow<ItemUnit?> {
@@ -183,7 +205,176 @@ class InventoryRepositoryImpl(
 
     override suspend fun clearUnits() {
         unitDao.clearUnits()
-
     }
 
+    override suspend fun reduceStock(productId: Long, qty: Double) {
+        productDao.reduceStock(productId = productId, qty = qty)
+    }
+
+    private suspend fun insertPrepopulatedProducts() {
+        // Insert prepopulated products here
+        productDao.upsertList(
+            listOf(
+                ProductEntity(
+                    name = "Apple",
+                    description = "Fresh and juicy apples",
+                    sku = "SKU001",
+                    barcode = "123456789012",
+                    purchasePrice = 50.0,
+                    salePrice = 100.0,
+                    stock = 100.0,
+                    discount = 0.0,
+                    categoryId = 2,
+                    unitId = 1
+                ),
+                ProductEntity(
+                    name = "Banana",
+                    description = "Ripe and sweet bananas",
+                    sku = "SKU002",
+                    barcode = "234567890123",
+                    purchasePrice = 300.0,
+                    salePrice = 350.0,
+                    stock = 50.0,
+                    discount = 0.0,
+                    categoryId = 2,
+                    unitId = 6
+                ),
+                ProductEntity(
+                    name = "Milk",
+                    description = "Fresh milk from the cow",
+                    sku = "SKU003",
+                    barcode = "345678901234",
+                    purchasePrice = 1000.0,
+                    salePrice = 1100.0,
+                    stock = 20.0,
+                    discount = 0.0,
+                    categoryId = 5,
+                    unitId = 3
+                ),
+                ProductEntity(
+                    name = "Orange",
+                    description = "Fresh and juicy oranges",
+                    sku = "SKU004",
+                    barcode = "456789012345",
+                    purchasePrice = 50.0,
+                    salePrice = 100.0,
+                    stock = 100.0,
+                    discount = 0.0,
+                    categoryId = 2,
+                    unitId = 1
+                ),
+                ProductEntity(
+                    name = "Tomato",
+                    description = "Fresh and juicy tomatoes",
+                    sku = "SKU005",
+                    barcode = "567890123456",
+                    purchasePrice = 50.0,
+                    salePrice = 100.0,
+                    stock = 100.0,
+                    discount = 0.0,
+                    categoryId = 3,
+                    unitId = 1
+                ),
+                ProductEntity(
+                    name = "Potato",
+                    description = "Fresh and juicy potatoes",
+                    sku = "SKU006",
+                    barcode = "678901234567",
+                    purchasePrice = 50.0,
+                    salePrice = 100.0,
+                    stock = 100.0,
+                    discount = 0.0,
+                    categoryId = 3,
+                    unitId = 1
+                ),
+                ProductEntity(
+                    name = "Carrot",
+                    description = "Fresh and juicy carrots",
+                    sku = "SKU007",
+                    barcode = "789012345678",
+                    purchasePrice = 50.0,
+                    salePrice = 100.0,
+                    stock = 100.0,
+                    discount = 0.0,
+                    categoryId = 3,
+                    unitId = 1
+                ),
+                ProductEntity(
+                    name = "Onion",
+                    description = "Fresh and juicy onions",
+                    sku = "SKU008",
+                    barcode = "890123456789",
+                    purchasePrice = 50.0,
+                    salePrice = 100.0,
+                    stock = 100.0,
+                    discount = 0.0,
+                    categoryId = 3,
+                    unitId = 1
+                ),
+                ProductEntity(
+                    name = "Garlic",
+                    description = "Fresh and juicy garlic",
+                    sku = "SKU009",
+                    barcode = "901234567890",
+                    purchasePrice = 50.0,
+                    salePrice = 100.0,
+                    stock = 100.0,
+                    discount = 0.0,
+                    categoryId = 3,
+                    unitId = 1
+                ),
+                ProductEntity(
+                    name = "Ginger",
+                    description = "Fresh and juicy ginger",
+                    sku = "SKU010",
+                    barcode = "012345678901",
+                    purchasePrice = 20050.0,
+                    salePrice = 21000.0,
+                    stock = 500.0,
+                    discount = 0.0,
+                    categoryId = 3,
+                    unitId = 1
+                )
+            )
+        )
+    }
+    private suspend fun insertPrepopulatedCategories() {
+        // Insert prepopulated categories here
+        categoryDao.upsertList(
+            listOf(
+                CategoryEntity(categoryId = 1, name = "Clothing"),
+                CategoryEntity(categoryId = 2, name = "Fruit"),
+                CategoryEntity(categoryId = 3, name = "Vegetables"),
+                CategoryEntity(categoryId = 4, name = "Bakery"),
+                CategoryEntity(categoryId = 5, name = "Dairy"),
+                CategoryEntity(categoryId = 6, name = "Meat"),
+                CategoryEntity(categoryId = 7, name = "Beverages"),
+                CategoryEntity(categoryId = 8, name = "Snacks")
+            )
+        )
+    }
+
+    private suspend fun insertPrepopulatedUnits() {
+        // Insert prepopulated units here
+        unitDao.upsertList(
+            listOf(
+                UnitEntity(unitId = 1, name = "Kilogram", symbol = "kg"),
+                UnitEntity(unitId = 2, name = "Gram", symbol = "g"),
+                UnitEntity(unitId = 3, name = "Liter", symbol = "l"),
+                UnitEntity(unitId = 4,name = "Milliliter", symbol = "ml"),
+                UnitEntity(unitId = 5, name = "Piece", symbol = "pc"),
+                UnitEntity(unitId = 6, name = "Dozen", symbol = "dz"),
+                UnitEntity(unitId = 7, name = "Pound", symbol = "lb"),
+                UnitEntity(unitId = 8, name = "Ounce", symbol = "oz"),
+                UnitEntity(unitId = 9, name = "Box", symbol = "bx"),
+                UnitEntity(unitId = 10, name = "Packet", symbol = "pkt"),
+                UnitEntity(unitId = 11, name = "Can", symbol = "can"),
+                UnitEntity(unitId = 12, name = "Bag", symbol = "bag"),
+                UnitEntity(unitId = 13, name = "Roll", symbol = "roll"),
+                UnitEntity(unitId = 14, name = "Jar", symbol = "jar"),
+                UnitEntity(unitId = 15, name = "Carton", symbol = "ct"),
+                UnitEntity(unitId = 16, name = "Unit", symbol = "unit")
+            )
+        )
+    }
 }

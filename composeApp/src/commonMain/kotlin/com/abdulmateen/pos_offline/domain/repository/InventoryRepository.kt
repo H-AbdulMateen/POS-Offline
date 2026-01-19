@@ -34,5 +34,7 @@ interface InventoryRepository {
     fun getUnitById(unitId: Long): Flow<ItemUnit?>
     suspend fun clearUnits()
 
+    suspend fun reduceStock(productId: Long, qty: Double)
+
 
 }

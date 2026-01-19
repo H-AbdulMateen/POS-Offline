@@ -6,7 +6,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.abdulmateen.pos_offline.data.database.entities.CartEntity
 import com.abdulmateen.pos_offline.data.database.entities.CartItemEntity
-import com.abdulmateen.pos_offline.data.database.entities.CartWithItems
+import com.abdulmateen.pos_offline.data.database.entities.CartWithItemsViewTable
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -38,7 +38,7 @@ interface CartDao {
     // Relationships
     @Transaction
     @Query("SELECT * FROM cart WHERE cartId = :cartId")
-    fun getCartWithItems(cartId: Long): Flow<CartWithItems>
+    fun getCartWithItems(cartId: Long): Flow<CartWithItemsViewTable>
 
     @Query("SELECT * FROM cart_items WHERE productId = :productId")
     fun getCartItemByProductId(productId: Long): Flow<CartItemEntity?>
@@ -48,5 +48,8 @@ interface CartDao {
 
     @Query("UPDATE cart_items SET quantity = quantity - 1 WHERE productId = :productId")
     suspend fun decrementInQuantity(productId: Long)
+
+    @Query("SELECT SUM(price * quantity) FROM cart_items")
+    fun calculateSubTotal(): Flow<Double>
 
 }

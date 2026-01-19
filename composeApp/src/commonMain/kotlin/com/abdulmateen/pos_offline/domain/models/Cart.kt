@@ -6,5 +6,7 @@ import kotlin.time.Clock
 
 data class Cart(
     val cartId: Long = 0,
+    val subTotal: Double = 0.0,
     val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
+
 )

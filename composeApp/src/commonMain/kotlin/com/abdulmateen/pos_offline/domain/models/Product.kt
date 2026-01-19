@@ -5,6 +5,7 @@ data class Product(
     val name: String,
     val sku: String,
     val price: Double,
+    val discount: Double = 0.0,
     val quantity: Double,
     val photoBytes: ByteArray? = null,
     val unit: ItemUnit? = null,

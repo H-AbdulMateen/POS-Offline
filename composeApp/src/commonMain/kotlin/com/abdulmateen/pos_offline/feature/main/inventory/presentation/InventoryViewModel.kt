@@ -36,9 +36,9 @@ class InventoryViewModel constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(InventoryUiState())
     val uiState: StateFlow<InventoryUiState> = _uiState.onStart {
-        loadProducts()
         loadCategories()
         loadUnits()
+        loadProducts()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),

@@ -1,11 +1,10 @@
 package com.abdulmateen.pos_offline.data.database.dao
 
 import androidx.room.Dao
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
-import com.abdulmateen.pos_offline.data.database.entities.CartWithItems
+import com.abdulmateen.pos_offline.data.database.entities.CartWithItemsViewTable
 import com.abdulmateen.pos_offline.data.database.entities.OrderEntity
 import com.abdulmateen.pos_offline.data.database.entities.OrderItemEntity
 import com.abdulmateen.pos_offline.data.database.entities.OrderWithItems
@@ -68,7 +67,7 @@ interface OrderDao {
 
     @Transaction
     suspend fun checkout(
-        cart: CartWithItems,
+        cart: CartWithItemsViewTable,
         paymentMethod: String
     ) {
         val orderId = insertOrUpdateOrder(
@@ -94,7 +93,7 @@ interface OrderDao {
                 discount = it.cartItem.discount
             )
         }
-
         insertOrderItems(orderItems)
     }
+
 }

@@ -13,6 +13,10 @@ interface ProductDao {
     @Upsert
     suspend fun insertOrUpdate(product: ProductEntity)
 
+    @Upsert
+    suspend fun upsertList(products: List<ProductEntity>)
+
+
     @Query("SELECT * FROM products WHERE sku=:sku")
     suspend fun getProductBySku(sku: String): ProductEntity?
 
