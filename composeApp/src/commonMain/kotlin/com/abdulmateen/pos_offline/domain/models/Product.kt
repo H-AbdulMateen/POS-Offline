@@ -1,5 +1,7 @@
 package com.abdulmateen.pos_offline.domain.models
 
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
+
 data class Product(
     val productId: Long = 0,
     val name: String,
@@ -14,19 +16,25 @@ data class Product(
 
 
 val dummyProducts = listOf(
-    Product(productId = 1, name = "Apple", sku = "SKU123", price = 2.49, quantity = 10.0, unit = ItemUnit(
-        unitId = 1,
-        name = "kilogram",
-        symbol = "kg"
-    )
+    ProductUi(
+        productId = 1,
+        name = "Apple",
+        sku = "SKU123",
+        price = 2.49,
+        quantity = 10.0,
+        unit = ItemUnit(
+            unitId = 1,
+            name = "kilogram",
+            symbol = "kg"
+        )
     ),
-    Product(productId = 2, name = "Banana", sku = "SKU456",  price = 1.49, quantity = 15.0, unit = ItemUnit(
+    ProductUi(productId = 2, name = "Banana", sku = "SKU456",  price = 1.49, quantity = 15.0, unit = ItemUnit(
         unitId = 2,
         name = "litre",
         symbol = "l"
     )
     ),
-    Product(productId = 3, name = "Carrot", sku = "SKU789", price = 1.29, quantity = 20.0, unit = ItemUnit(
+    ProductUi(productId = 3, name = "Carrot", sku = "SKU789", price = 1.29, quantity = 20.0, unit = ItemUnit(
         unitId = 3,
         name = "piece",
         symbol = "pcs"

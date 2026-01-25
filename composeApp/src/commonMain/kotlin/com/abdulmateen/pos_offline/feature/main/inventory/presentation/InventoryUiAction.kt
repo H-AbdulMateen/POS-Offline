@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import com.abdulmateen.pos_offline.domain.models.Category
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.domain.models.Product
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
 
 sealed interface InventoryUiAction {
 
@@ -28,10 +29,11 @@ sealed interface InventoryUiAction {
     object OnAddItemClick : InventoryUiAction
 
     data class OnEditItemClick(val productId: Long) : InventoryUiAction
-    data class OnDeleteItemClick(val product: Product) : InventoryUiAction
+    data class OnDeleteItemClick(val productId: Long) : InventoryUiAction
     object ToggleCategoryDialog : InventoryUiAction
     object ToggleUnitDialog : InventoryUiAction
 
     object ClearForm: InventoryUiAction
+    data class ToggleOptionReveal(val index: Int, val isRevealed: Boolean) : InventoryUiAction
 
 }

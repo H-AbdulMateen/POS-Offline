@@ -1,7 +1,8 @@
-package com.abdulmateen.pos_offline.feature.main.inventory.presentation.components
+package com.abdulmateen.pos_offline.feature.main.home.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,24 +28,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.sp
 import com.abdulmateen.pos_offline.common.presentation.components.ProductPhoto
-import com.abdulmateen.pos_offline.domain.models.Product
-import com.abdulmateen.pos_offline.domain.models.dummyProducts
-import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.toProduct
+import com.abdulmateen.pos_offline.domain.models.CartItem
+import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderUiAction
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import pos_offline.composeapp.generated.resources.Res
-import pos_offline.composeapp.generated.resources.quantity_in_stock
-import pos_offline.composeapp.generated.resources.stock
 
 @Composable
-fun InventoryCardItem(item: Product) {
+fun CartListItem(
+    item: CartItem,
+    uiAction: (OrderUiAction) -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp)
@@ -66,8 +63,8 @@ fun InventoryCardItem(item: Product) {
                 contentAlignment = Alignment.Center
             ) {
                 ProductPhoto(
-                    photoBytes = item.photoBytes,
-                    contentDescription = item.name,
+                    photoBytes = null,
+                    contentDescription = item.productName,
                     modifier = Modifier
                 )
             }
@@ -76,16 +73,27 @@ fun InventoryCardItem(item: Product) {
 
             // Product Details
             Column(modifier = Modifier.weight(1f)) {
-                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Column {
-                        Text(text = item.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(
+                            text = item.productName,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
                         Text(text = "Category", color = Color.Gray, fontSize = 13.sp)
                     }
                     Icon(
                         imageVector = Icons.Default.DeleteOutline,
                         contentDescription = "Delete",
                         tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(20.dp).clickable(
+                            onClick = {
+                                uiAction(OrderUiAction.RemoveCartItem(item.productId))
+                            }
+                        )
                     )
                 }
 
@@ -106,25 +114,49 @@ fun InventoryCardItem(item: Product) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .border(0.5.dp,
-                                color = MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
+                            .border(
+                                0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                RoundedCornerShape(8.dp)
+                            )
 
                     ) {
                         IconButton(
-                            modifier = Modifier.background(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)).size(24.dp),
-                            onClick = { },
+                            modifier = Modifier.background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
+                            ).size(24.dp),
+                            onClick = {
+                                uiAction(OrderUiAction.DecrementInQuantity(item.productId))
+                            },
                         ) {
-                            Icon(Icons.Default.Remove, contentDescription = "Minus", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
+                            Icon(
+                                Icons.Default.Remove,
+                                contentDescription = "Minus",
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(16.dp)
+                            )
                         }
-                        Text(text = item.quantity.toString().padStart(2, '0'), modifier = Modifier.padding(horizontal = 8.dp))
+                        Text(
+                            text = item.quantity.toString().padStart(2, '0'),
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
                         IconButton(
-                            onClick = { },
+                            onClick = { uiAction(OrderUiAction.IncrementInQuantity(item.productId)) },
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+                                .background(
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)
+                                )
                                 .size(24.dp)
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = "Plus", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = "Plus",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
                         }
                     }
                 }
@@ -133,27 +165,46 @@ fun InventoryCardItem(item: Product) {
     }
 }
 
-
-@Preview(name = "Light Mode")
+@Preview()
 @Composable
-fun InventoryCardItemPreview() {
+fun CartListItemLightPreview() {
     POSOfflineTheme(
         darkTheme = false,
         content = {
-            InventoryCardItem(
-                item = dummyProducts[0].toProduct()
+            CartListItem(
+                item = CartItem(
+                    productId = 1,
+                    productName = "Product Name",
+                    price = 100.0,
+                    quantity = 1.0,
+                    unitPrice = 100.0,
+                    discount = 100.0,
+                    sku = "Sku123",
+
+                    ),
+                uiAction = {}
             )
         }
     )
 }
-@Preview(name = "Dark Mode")
+@Preview
 @Composable
-fun InventoryCardItemPreviewDark() {
+fun CartListItemDarkPreview() {
     POSOfflineTheme(
         darkTheme = true,
         content = {
-            InventoryCardItem(
-                item = dummyProducts[0].toProduct()
+            CartListItem(
+                item = CartItem(
+                    productId = 1,
+                    productName = "Product Name",
+                    price = 100.0,
+                    quantity = 1.0,
+                    unitPrice = 100.0,
+                    discount = 100.0,
+                    sku = "Sku123",
+
+                    ),
+                uiAction = {}
             )
         }
     )

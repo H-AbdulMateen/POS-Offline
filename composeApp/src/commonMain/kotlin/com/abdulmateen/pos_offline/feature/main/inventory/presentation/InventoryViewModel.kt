@@ -11,6 +11,7 @@ import com.abdulmateen.pos_offline.domain.models.Category
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.domain.models.ProductDetail
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.toProductUi
 import com.abdulmateen.pos_offline.utils.Validator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -60,7 +61,7 @@ class InventoryViewModel constructor(
                     filteredList.onEach {list ->
                         _uiState.update {
                             it.copy(
-                                productList = list
+                                productList = list.map { product -> product.toProductUi() }
                             )
                         }
                     }.launchIn(viewModelScope)
@@ -125,7 +126,7 @@ class InventoryViewModel constructor(
             }
 
             is InventoryUiAction.OnDeleteItemClick -> {
-                deleteProduct(action.product)
+                deleteProduct(action.productId)
             }
 
             is InventoryUiAction.OnEditItemClick -> {
@@ -296,16 +297,28 @@ class InventoryViewModel constructor(
                 addNewUnit()
             }
 
+            is InventoryUiAction.ToggleOptionReveal -> {
+                _uiState.update {
+                    it.copy(
+                        productList = it.productList.mapIndexed { index, product ->
+                            product.copy(
+                                isOptionRevealed = index == action.index && action.isRevealed
+                            )
+                        }
+                    )
+                }
 
+//                uiState.value.productList[action.index].copy(isOptionRevealed = action.isRevealed)
+            }
         }
     }
 
-    private fun deleteProduct(item: Product) {
+    private fun deleteProduct(productId: Long) {
         viewModelScope.launch {
-            repository.deleteProduct(item.productId)
+            repository.deleteProduct(productId)
             _uiState.update {
                 it.copy(
-                    productList = it.productList.filter { product -> product != item }
+                    productList = it.productList.filter { product -> product.productId != productId }
                 )
             }
         }
@@ -399,7 +412,7 @@ class InventoryViewModel constructor(
             repository.getAllProducts().onEach { products ->
                 _uiState.update {
                     it.copy(
-                        productList = products
+                        productList = products.map { product -> product.toProductUi() }
                     )
                 }
             }.launchIn(viewModelScope)

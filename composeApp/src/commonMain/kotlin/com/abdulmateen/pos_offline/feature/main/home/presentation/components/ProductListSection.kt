@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.domain.models.dummyProducts
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.toProduct
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -66,7 +67,7 @@ fun ProductListSectionPreview() {
         darkTheme = false,
         content = {
             ProductListSection(
-                list = dummyProducts,
+                list = dummyProducts.map { it.toProduct() },
                 onAddToCart = {}
             )
         }
@@ -79,7 +80,7 @@ fun ProductListSectionPreviewDark() {
         darkTheme = true,
         content = {
             ProductListSection(
-                list = dummyProducts,
+                list = dummyProducts.map { it.toProduct() },
                 onAddToCart = {}
             )
         }

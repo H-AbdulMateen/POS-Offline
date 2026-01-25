@@ -64,6 +64,7 @@ fun InventoryScreen(
     eventChannel: Flow<InventoryEvents>
 ){
     Scaffold(
+
     ) { innerPadding ->
         var addEditDialogVisible by remember { mutableStateOf(false) }
         var dialogItem by remember { mutableStateOf<Product?>(null) }
@@ -119,7 +120,10 @@ fun InventoryScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    InventoryTable(items = uiState.productList)
+                    InventoryTable(
+                        items = uiState.productList,
+                        uiAction = uiAction
+                    )
                 }
                 DeviceConfiguration.MOBILE_LANDSCAPE, DeviceConfiguration.TABLET_LANDSCAPE -> {
                     Row(
@@ -143,7 +147,10 @@ fun InventoryScreen(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    InventoryTable(items = dummyProducts)
+                    InventoryTable(
+                        items = uiState.productList,
+                        uiAction = uiAction
+                    )
                 }
             }
         }
