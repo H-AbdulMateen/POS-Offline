@@ -29,11 +29,12 @@ sealed interface InventoryUiAction {
     object OnAddItemClick : InventoryUiAction
 
     data class OnEditItemClick(val productId: Long) : InventoryUiAction
-    data class OnDeleteItemClick(val productId: Long) : InventoryUiAction
+    object OnDeleteItemClick : InventoryUiAction
     object ToggleCategoryDialog : InventoryUiAction
     object ToggleUnitDialog : InventoryUiAction
 
     object ClearForm: InventoryUiAction
-    data class ToggleOptionReveal(val index: Int, val isRevealed: Boolean) : InventoryUiAction
+    data class ToggleOptionReveal(val productId: Long, val isRevealed: Boolean) : InventoryUiAction
+    data class ToggleDeleteDialog(val item: ProductUi?) : InventoryUiAction
 
 }

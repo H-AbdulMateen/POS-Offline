@@ -80,4 +80,6 @@ data class InventoryUiState(
 
 
     val itemExpiryDate: String = "",
+    val showDeleteDialog: Boolean = false,
+    val selectedItem: ProductUi? = null,
 )

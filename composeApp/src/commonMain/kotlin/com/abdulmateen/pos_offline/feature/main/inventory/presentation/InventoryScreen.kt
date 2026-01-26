@@ -16,9 +16,11 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,10 +28,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abdulmateen.pos_offline.core.designsystem.components.SearchField
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.domain.models.Product
-import com.abdulmateen.pos_offline.domain.models.dummyProducts
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryHeaderRow
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryTable
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs.AddEditInventoryDialog
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -121,8 +123,8 @@ fun InventoryScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     InventoryTable(
-                        items = uiState.productList,
-                        uiAction = uiAction
+                        uiAction = uiAction,
+                        uiState = uiState
                     )
                 }
                 DeviceConfiguration.MOBILE_LANDSCAPE, DeviceConfiguration.TABLET_LANDSCAPE -> {
@@ -148,8 +150,8 @@ fun InventoryScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
                     InventoryTable(
-                        items = uiState.productList,
-                        uiAction = uiAction
+                        uiAction = uiAction,
+                        uiState = uiState
                     )
                 }
             }

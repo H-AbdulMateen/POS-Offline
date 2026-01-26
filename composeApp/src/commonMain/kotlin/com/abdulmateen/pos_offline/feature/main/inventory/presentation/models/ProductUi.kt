@@ -12,7 +12,7 @@ data class ProductUi(
     val quantity: Double,
     val photoBytes: ByteArray? = null,
     val unit: ItemUnit? = null,
-    val isOptionRevealed: Boolean = false
+    var isOptionRevealed: Boolean = false
 )
 
 fun Product.toProductUi() =

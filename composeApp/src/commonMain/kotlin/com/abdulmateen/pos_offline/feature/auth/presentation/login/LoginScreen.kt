@@ -41,8 +41,8 @@ import pos_offline.composeapp.generated.resources.login
 import pos_offline.composeapp.generated.resources.password
 import pos_offline.composeapp.generated.resources.sign_up
 import pos_offline.composeapp.generated.resources.username
-import com.abdulmateen.pos_offline.core.designsystem.components.ErrorAlertDialog
-import com.abdulmateen.pos_offline.core.designsystem.components.LoadingDialog
+import com.abdulmateen.pos_offline.core.designsystem.components.dialogs.ErrorAlertDialog
+import com.abdulmateen.pos_offline.core.designsystem.components.dialogs.LoadingDialog
 import com.abdulmateen.pos_offline.core.designsystem.components.LogoImage
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTFPassword

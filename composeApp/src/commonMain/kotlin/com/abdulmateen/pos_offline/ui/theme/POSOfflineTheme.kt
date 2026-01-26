@@ -10,6 +10,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.unit.dp
 
 val LightColorScheme = lightColorScheme(
@@ -23,6 +24,8 @@ val LightColorScheme = lightColorScheme(
     outline = Color(0xFFE0E0E0),           // Divider or border
     surfaceVariant = Color(0xFFF2F4F7),    // Alternate section backgrounds
     error = Color(0xFFD32F2F),             // Error state (delete, invalid)
+    primaryFixed = Color.Green,
+    onPrimaryFixed = Color.White
 )
 
 val DarkColorScheme = darkColorScheme(
@@ -37,6 +40,9 @@ val DarkColorScheme = darkColorScheme(
     surfaceVariant = Color(0xFF242424),    // Slightly lighter for nested cards
     outline = Color(0xFF333333),     // Variant surfaces (forms, panels)
     error = Color(0xFFEF5350),             // Error red
+    primaryFixed = Color.Green,
+    onPrimaryFixed = White
+
 )
 
 @Composable

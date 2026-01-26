@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline.core.designsystem.components
+package com.abdulmateen.pos_offline.core.designsystem.components.dialogs
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text

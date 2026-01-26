@@ -1,5 +1,7 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation
 
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.common.presentation.utils.Patterns
@@ -11,6 +13,7 @@ import com.abdulmateen.pos_offline.domain.models.Category
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.domain.models.ProductDetail
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.toProductUi
 import com.abdulmateen.pos_offline.utils.Validator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -126,7 +129,9 @@ class InventoryViewModel constructor(
             }
 
             is InventoryUiAction.OnDeleteItemClick -> {
-                deleteProduct(action.productId)
+                uiState.value.selectedItem?.let {
+                    deleteProduct(it.productId)
+                }
             }
 
             is InventoryUiAction.OnEditItemClick -> {
@@ -300,15 +305,24 @@ class InventoryViewModel constructor(
             is InventoryUiAction.ToggleOptionReveal -> {
                 _uiState.update {
                     it.copy(
-                        productList = it.productList.mapIndexed { index, product ->
-                            product.copy(
-                                isOptionRevealed = index == action.index && action.isRevealed
-                            )
+                        productList = uiState.value.productList.map { product ->
+                            if (product.productId == action.productId) {
+                                product.copy(isOptionRevealed = action.isRevealed)
+                            } else {
+                                product.copy(isOptionRevealed = false) // auto-close others
+                            }
                         }
                     )
                 }
+            }
 
-//                uiState.value.productList[action.index].copy(isOptionRevealed = action.isRevealed)
+            is InventoryUiAction.ToggleDeleteDialog -> {
+                _uiState.update {
+                    it.copy(
+                        selectedItem = action.item,
+                        showDeleteDialog = !it.showDeleteDialog,
+                    )
+                }
             }
         }
     }
@@ -318,7 +332,8 @@ class InventoryViewModel constructor(
             repository.deleteProduct(productId)
             _uiState.update {
                 it.copy(
-                    productList = it.productList.filter { product -> product.productId != productId }
+                    selectedItem = null,
+                    showDeleteDialog = false
                 )
             }
         }
@@ -410,11 +425,13 @@ class InventoryViewModel constructor(
     private fun loadProducts() {
         viewModelScope.launch {
             repository.getAllProducts().onEach { products ->
+//                productList.clear()
                 _uiState.update {
                     it.copy(
                         productList = products.map { product -> product.toProductUi() }
                     )
                 }
+//                productList.addAll(products.map { product -> product.toProductUi() })
             }.launchIn(viewModelScope)
         }
     }
