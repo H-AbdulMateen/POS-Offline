@@ -5,7 +5,7 @@ import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
 class DeleteProduct(
     private val repository: InventoryRepository
 ) {
-    suspend operator fun invoke(productId: Long) {
-        repository.deleteProduct(productId)
+    suspend operator fun invoke(productId: Long): Boolean {
+        return repository.deleteProduct(productId)
     }
 }

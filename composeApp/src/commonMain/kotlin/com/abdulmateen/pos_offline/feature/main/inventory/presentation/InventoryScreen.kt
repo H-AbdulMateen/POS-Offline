@@ -10,31 +10,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abdulmateen.pos_offline.core.designsystem.components.SearchField
+import com.abdulmateen.pos_offline.core.designsystem.components.layouts.MySnackBarScaffold
+import com.abdulmateen.pos_offline.core.presentation.util.ObserveAsEvents
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
-import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryHeaderRow
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.components.InventoryTable
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs.AddEditInventoryDialog
-import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs.ProductDetailDialog
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -46,14 +40,27 @@ fun InventoryScreenRoot(){
     val viewModel = koinViewModel<InventoryViewModel>()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
     val searchProductQuery = viewModel.searchProductQuery.collectAsStateWithLifecycle().value
-    val event = viewModel.eventChannel
+    val snackBarState = remember { SnackbarHostState() }
+
     InventoryScreen(
         uiState = uiState,
         uiAction = viewModel::uiAction,
         onSearchProductQueryChange = viewModel::onSearchProductQueryChange,
         searchProductQuery = searchProductQuery,
-        eventChannel = event
+        snackbarHostState = snackBarState
     )
+
+    ObserveAsEvents(viewModel.eventChannel){event ->
+        when(event){
+            is InventoryEvents.OnSuccess -> {
+                snackBarState.showSnackbar(message = getString(event.message))
+            }
+            is InventoryEvents.OnError -> {
+                snackBarState.showSnackbar(message = getString(event.message))
+            }
+        }
+    }
+
 }
 
 
@@ -63,45 +70,18 @@ fun InventoryScreen(
     uiState: InventoryUiState = InventoryUiState(),
     onSearchProductQueryChange: (String) -> Unit,
     uiAction: (InventoryUiAction) -> Unit,
-    eventChannel: Flow<InventoryEvents>
+    snackbarHostState: SnackbarHostState
 ){
-    Scaffold(
-
-    ) { innerPadding ->
-        var addEditDialogVisible by remember { mutableStateOf(false) }
-        var dialogItem by remember { mutableStateOf<Product?>(null) }
+    MySnackBarScaffold(
+        snackbarHostState = snackbarHostState
+    ) {
         val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
         val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-        LaunchedEffect(Unit){
-            eventChannel.collect { event ->
-                when(event){
-                    InventoryEvents.NewProductSaved -> {
-                        addEditDialogVisible = false
-                    }
-                    InventoryEvents.ProductUpdated -> {}
-                    InventoryEvents.ProductDeleted -> {}
-                    InventoryEvents.CategoryAdded -> {
-                        uiAction(InventoryUiAction.ToggleCategoryDialog)
-                    }
-                    InventoryEvents.CategoryDeleted -> {}
-                    InventoryEvents.CategoryUpdated -> {
-                        uiAction(InventoryUiAction.ToggleCategoryDialog)
-                    }
-                    InventoryEvents.UnitAdded -> {
-                        uiAction(InventoryUiAction.ToggleUnitDialog)
-                    }
-                    InventoryEvents.UnitDeleted -> {}
-                    InventoryEvents.UnitUpdated -> {
-                        uiAction(InventoryUiAction.ToggleUnitDialog)
-                    }
-                }
-            }
-        }
+
 
         Column(
             modifier = Modifier.fillMaxSize()
-                .padding(innerPadding)
                 .padding(16.dp)
         ) {
             when(deviceConfiguration){
@@ -110,8 +90,7 @@ fun InventoryScreen(
                 DeviceConfiguration.DESKTOP-> {
                     InventoryHeaderRow(
                         onAddItemClick = {
-                            dialogItem = null
-                            addEditDialogVisible = true
+                            uiAction(InventoryUiAction.ToggleAddEditProductDialog(item = null))
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -140,8 +119,7 @@ fun InventoryScreen(
                         )
                         Button(
                             onClick = {
-                                dialogItem = null
-                                addEditDialogVisible = true
+                                uiAction(InventoryUiAction.ToggleAddEditProductDialog(item = null))
                             },
                             shape = MaterialTheme.shapes.small) {
                             Text(text = stringResource(Res.string.add_item))
@@ -156,16 +134,25 @@ fun InventoryScreen(
                 }
             }
         }
-        if (addEditDialogVisible){
+        if (uiState.addEditProductDialog){
             AddEditInventoryDialog(
-                item = dialogItem,
-                onDismiss = { addEditDialogVisible = false },
+                item = uiState.selectedProduct,
+                onDismiss = { uiAction(InventoryUiAction.ToggleAddEditProductDialog(item = null)) },
                 onSave = {
                     uiAction(InventoryUiAction.OnAddItemClick)
                 },
                 uiAction = uiAction,
                 uiState = uiState
             )
+        }
+
+        if (uiState.detailProductDialog){
+            uiState.selectedProduct?.let {
+                ProductDetailDialog(
+                    product = it,
+                    onDismiss = { uiAction(InventoryUiAction.ToggleDetailDialog(item = null)) },
+                )
+            }
         }
     }
 }
@@ -181,7 +168,7 @@ fun InventoryScreenPreview(){
                 uiAction = {},
                 searchProductQuery = "",
                 onSearchProductQueryChange = {},
-                eventChannel = emptyFlow()
+                snackbarHostState = remember { SnackbarHostState() }
             )
         }
     )
@@ -197,7 +184,7 @@ fun InventoryScreenPreviewDark(){
                 uiAction = {},
                 searchProductQuery = "",
                 onSearchProductQueryChange = {},
-                eventChannel = emptyFlow()
+                snackbarHostState = remember { SnackbarHostState() }
             )
         }
     )

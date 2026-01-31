@@ -3,7 +3,6 @@ package com.abdulmateen.pos_offline.feature.main.inventory.presentation
 import androidx.compose.ui.graphics.ImageBitmap
 import com.abdulmateen.pos_offline.domain.models.Category
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
-import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
 
 sealed interface InventoryUiAction {
@@ -22,6 +21,9 @@ sealed interface InventoryUiAction {
     data class OnCategoryNameChange(val categoryName: String) : InventoryUiAction
     data class OnUnitNameChange(val unitName: String) : InventoryUiAction
     data class OnUnitSymbolChange(val unitSymbol: String) : InventoryUiAction
+    data class ToggleAddEditProductDialog(val item: ProductUi?) : InventoryUiAction
+    data class ToggleDetailDialog(val item: ProductUi?) : InventoryUiAction
+
     object OnAddNewCategory: InventoryUiAction
     object OnAddNewUnit: InventoryUiAction
 
@@ -32,6 +34,7 @@ sealed interface InventoryUiAction {
     object OnDeleteItemClick : InventoryUiAction
     object ToggleCategoryDialog : InventoryUiAction
     object ToggleUnitDialog : InventoryUiAction
+    
 
     object ClearForm: InventoryUiAction
     data class ToggleOptionReveal(val productId: Long, val isRevealed: Boolean) : InventoryUiAction

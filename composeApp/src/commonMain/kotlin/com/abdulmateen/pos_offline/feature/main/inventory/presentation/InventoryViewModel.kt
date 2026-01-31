@@ -1,7 +1,5 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.common.presentation.utils.Patterns
@@ -11,9 +9,8 @@ import com.abdulmateen.pos_offline.core.domain.onSuccess
 import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
 import com.abdulmateen.pos_offline.domain.models.Category
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
-import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.domain.models.ProductDetail
-import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
+import com.abdulmateen.pos_offline.domain.use_cases.ProductUseCases
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.toProductUi
 import com.abdulmateen.pos_offline.utils.Validator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,6 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
@@ -33,10 +31,16 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pos_offline.composeapp.generated.resources.Res
+import pos_offline.composeapp.generated.resources.cant_delete_this_product
+import pos_offline.composeapp.generated.resources.category_added
+import pos_offline.composeapp.generated.resources.product_added
+import pos_offline.composeapp.generated.resources.unit_added
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class InventoryViewModel constructor(
-    private val repository: InventoryRepository
+    private val repository: InventoryRepository,
+    private val productUseCases: ProductUseCases
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(InventoryUiState())
     val uiState: StateFlow<InventoryUiState> = _uiState.onStart {
@@ -129,7 +133,7 @@ class InventoryViewModel constructor(
             }
 
             is InventoryUiAction.OnDeleteItemClick -> {
-                uiState.value.selectedItem?.let {
+                uiState.value.selectedProduct?.let {
                     deleteProduct(it.productId)
                 }
             }
@@ -319,9 +323,33 @@ class InventoryViewModel constructor(
             is InventoryUiAction.ToggleDeleteDialog -> {
                 _uiState.update {
                     it.copy(
-                        selectedItem = action.item,
                         showDeleteDialog = !it.showDeleteDialog,
                     )
+                }
+
+                if (action.item != null){
+                    getProductDetail(action.item.productId)
+                }
+            }
+
+            is InventoryUiAction.ToggleDetailDialog -> {
+                _uiState.update {
+                    it.copy(
+                        detailProductDialog = !it.detailProductDialog
+                    )
+                }
+                if (action.item != null){
+                    getProductDetail(action.item.productId)
+                }
+            }
+            is InventoryUiAction.ToggleAddEditProductDialog -> {
+                _uiState.update {
+                    it.copy(
+                        addEditProductDialog = !it.addEditProductDialog
+                    )
+                }
+                if (action.item != null){
+                    getProductDetail(action.item.productId)
                 }
             }
         }
@@ -329,12 +357,15 @@ class InventoryViewModel constructor(
 
     private fun deleteProduct(productId: Long) {
         viewModelScope.launch {
-            repository.deleteProduct(productId)
+            val isDeleted = productUseCases.deleteProduct(productId)
             _uiState.update {
                 it.copy(
-                    selectedItem = null,
+                    selectedProduct = null,
                     showDeleteDialog = false
                 )
+            }
+            if (!isDeleted){
+                _eventChannel.send(InventoryEvents.OnError(Res.string.cant_delete_this_product))
             }
         }
     }
@@ -369,12 +400,13 @@ class InventoryViewModel constructor(
                     symbol = uiState.value.itemUnitSymbol
                 )
             ).onSuccess {
-                _eventChannel.send(InventoryEvents.UnitAdded)
+                _eventChannel.send(InventoryEvents.OnSuccess(Res.string.unit_added))
                 _uiState.update {
                     it.copy(
                         itemUnitName = "",
                         itemUnitSymbol = "",
-                        unitErrorResult = null
+                        unitErrorResult = null,
+                        unitDialogVisible = false
                     )
                 }
             }
@@ -406,10 +438,11 @@ class InventoryViewModel constructor(
                 )
             ).onSuccess {
                 _uiState.update {
-                    _eventChannel.send(InventoryEvents.CategoryAdded)
+                    _eventChannel.send(InventoryEvents.OnSuccess(Res.string.category_added))
                     it.copy(
                         categoryName = "",
-                        categoryErrorResult = null
+                        categoryErrorResult = null,
+                        categoryDialogVisible = false
                     )
                 }
             }.onError {error ->
@@ -424,14 +457,12 @@ class InventoryViewModel constructor(
 
     private fun loadProducts() {
         viewModelScope.launch {
-            repository.getAllProducts().onEach { products ->
-//                productList.clear()
+            productUseCases.getProductUiList().onEach { products ->
                 _uiState.update {
                     it.copy(
-                        productList = products.map { product -> product.toProductUi() }
+                        productList = products
                     )
                 }
-//                productList.addAll(products.map { product -> product.toProductUi() })
             }.launchIn(viewModelScope)
         }
     }
@@ -562,7 +593,7 @@ class InventoryViewModel constructor(
                             errorResult = null
                         )
                     }
-                    _eventChannel.send(InventoryEvents.NewProductSaved)
+                    _eventChannel.send(InventoryEvents.OnSuccess(Res.string.product_added))
                     clearForm()
                 }
                 .onError {error ->
@@ -572,6 +603,19 @@ class InventoryViewModel constructor(
                         )
                     }
                 }
+        }
+    }
+
+    private fun getProductDetail(productId: Long){
+        viewModelScope.launch {
+            val product = productUseCases.getProductDetail(productId).firstOrNull()
+            product?.let {
+                _uiState.update {
+                    it.copy(
+                        selectedProduct = product
+                    )
+                }
+            }
         }
     }
 }

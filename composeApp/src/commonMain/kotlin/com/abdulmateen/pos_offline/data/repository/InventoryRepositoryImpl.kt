@@ -1,5 +1,6 @@
 package com.abdulmateen.pos_offline.data.repository
 
+import co.touchlab.kermit.Logger
 import com.abdulmateen.pos_offline.core.data.filestorage.ImageStorage
 import com.abdulmateen.pos_offline.core.domain.DataError
 import com.abdulmateen.pos_offline.core.domain.Result
@@ -70,7 +71,7 @@ class InventoryRepositoryImpl(
     }
 
     override suspend fun updateProduct(product: ProductDetail) {
-        val oldProduct = productDao.getProductById(product.productId)
+        val oldProduct = productDao.getProductById(product.productId).firstOrNull()
         if (oldProduct != null) {
             val imagePath = product.photoBytes?.let { imageBytes ->
                 imageStorage.saveImage(imageBytes)
@@ -94,8 +95,15 @@ class InventoryRepositoryImpl(
         }
     }
 
-    override suspend fun deleteProduct(productId: Long) {
-        productDao.delete(productId = productId)
+    override suspend fun deleteProduct(productId: Long): Boolean {
+        try {
+            productDao.delete(productId = productId)
+            return true
+        }catch (ex: Exception){
+            Logger.e("Exception: ${ex.message}")
+            ex.printStackTrace()
+            return false
+        }
     }
 
     override fun getAllProducts(): Flow<List<Product>> =
@@ -123,8 +131,8 @@ class InventoryRepositoryImpl(
         }
     }
 
-    override suspend fun getProductById(productId: Long): ProductDetail? {
-        return productDao.getProductById(productId)?.toProduct(imageStorage = imageStorage)
+    override fun getProductById(productId: Long): Flow<ProductDetail?> {
+        return productDao.getProductById(productId).map { it?.toProduct(imageStorage = imageStorage) }
     }
 
     override suspend fun clearProducts() {

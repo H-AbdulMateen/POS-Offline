@@ -57,7 +57,6 @@ import pos_offline.composeapp.generated.resources.stock
 
 @Composable
 fun InventoryTable(
-//    items: SnapshotStateList<ProductUi>,
     modifier: Modifier = Modifier,
     uiAction: (InventoryUiAction) -> Unit,
     uiState: InventoryUiState
@@ -110,7 +109,7 @@ fun InventoryTable(
                             )
                             ActionIcon(
                                 onClick = {
-                                    uiAction(InventoryUiAction.OnEditItemClick(item.productId))
+                                    uiAction(InventoryUiAction.ToggleAddEditProductDialog(item = item))
                                 },
                                 backgroundColor = MaterialTheme.colorScheme.primary,
                                 icon = Icons.Default.Edit,
@@ -118,7 +117,7 @@ fun InventoryTable(
                             )
                             ActionIcon(
                                 onClick = {
-                                    //TODO
+                                    uiAction(InventoryUiAction.ToggleDetailDialog(item = item))
                                 },
                                 backgroundColor = MaterialTheme.colorScheme.primaryFixed,
                                 icon = Icons.Default.Preview,

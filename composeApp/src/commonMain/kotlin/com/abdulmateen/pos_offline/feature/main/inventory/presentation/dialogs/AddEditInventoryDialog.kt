@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.abdulmateen.pos_offline.common.presentation.components.ProductPhoto
 import com.abdulmateen.pos_offline.core.designsystem.components.AnimatedErrorText
 import com.abdulmateen.pos_offline.core.designsystem.components.LocalImageWidget
 import com.abdulmateen.pos_offline.core.designsystem.components.OutlinedTF
@@ -51,8 +52,10 @@ import com.abdulmateen.pos_offline.core.utils.formatDatePlatform
 import com.abdulmateen.pos_offline.domain.models.Category
 import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
+import com.abdulmateen.pos_offline.domain.models.ProductDetail
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiAction
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryUiState
+import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import network.chaintech.cmpimagepickncrop.CMPImagePickNCropDialog
 import network.chaintech.cmpimagepickncrop.imagecropper.rememberImageCropper
@@ -83,7 +86,7 @@ import kotlin.time.ExperimentalTime
 fun AddEditInventoryDialog(
     uiState: InventoryUiState,
     uiAction: (InventoryUiAction) -> Unit,
-    item: Product?,                   // null = Add, not-null = Edit
+    item: ProductDetail?,                   // null = Add, not-null = Edit
     onDismiss: () -> Unit,
     onSave: () -> Unit
 ) {
@@ -98,17 +101,22 @@ fun AddEditInventoryDialog(
     val imageCropper = rememberImageCropper()
     var openImagePicker by remember { mutableStateOf(value = false) }
 
-    CMPImagePickNCropDialog(
-        imageCropper = imageCropper,
-        openImagePicker = openImagePicker,
-        imagePickerDialogHandler = {
-            openImagePicker = it
-        },
-        selectedImageCallback = {
-            uiAction(InventoryUiAction.OnImageSelection(imageBitmap = it, bytes = it.toByteArray(format = ImageFileFormat.PNG, quality = 1.0f)))
-        },
-        selectedImageFileCallback = {}
-    )
+        CMPImagePickNCropDialog(
+            imageCropper = imageCropper,
+            openImagePicker = openImagePicker,
+            imagePickerDialogHandler = {
+                openImagePicker = it
+            },
+            selectedImageCallback = {
+                uiAction(
+                    InventoryUiAction.OnImageSelection(
+                        imageBitmap = it,
+                        bytes = it.toByteArray(format = ImageFileFormat.PNG, quality = 1.0f)
+                    )
+                )
+            },
+            selectedImageFileCallback = {}
+        )
 
 
 
@@ -133,19 +141,32 @@ fun AddEditInventoryDialog(
                 )
 
                 //User Profile Image
-                LocalImageWidget(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .align(Alignment.CenterHorizontally)
-                        .clickable { openImagePicker = true }
-                        .background(LightGray.takeIf { uiState.imageBitmap == null } ?: Transparent),
-                    selectedImage = uiState.imageBitmap
-                )
+                if (isEditing && uiState.imageBitmap != null){
+                    ProductPhoto(
+                        photoBytes = item.photoBytes,
+                        contentDescription = item.name,
+                        modifier = Modifier.clickable(
+                            onClick = {
+                                openImagePicker = true
+                            }
+                        )
+                    )
+                }else {
+                    LocalImageWidget(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .align(Alignment.CenterHorizontally)
+                            .clickable { openImagePicker = true }
+                            .background(LightGray.takeIf { uiState.imageBitmap == null }
+                                ?: Transparent),
+                        selectedImage = uiState.imageBitmap
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTF(
-                    value = uiState.name,
+                    value = item?.name ?: uiState.name,
                     onValueChange = { uiAction(InventoryUiAction.OnNameChange(it)) },
                     placeholder = stringResource(Res.string.product_name),
                     modifier = Modifier.fillMaxWidth(),
@@ -153,7 +174,7 @@ fun AddEditInventoryDialog(
                     errorMessage = uiState.nameErrorText
                 )
                 OutlinedTF(
-                    value = uiState.sku,
+                    value = item?.sku ?: uiState.sku,
                     onValueChange = { uiAction(InventoryUiAction.OnSkuChange(it)) },
                     placeholder = stringResource(Res.string.sku),
                     modifier = Modifier.fillMaxWidth(),
@@ -162,7 +183,7 @@ fun AddEditInventoryDialog(
                 )
 
                 OutlinedTF(
-                    value = uiState.barcode,
+                    value = item?.barcode ?: uiState.barcode,
                     onValueChange = { uiAction(InventoryUiAction.OnBarcodeChange(it)) },
                     placeholder = stringResource(Res.string.scan_barcode),
                     modifier = Modifier.fillMaxWidth(),
@@ -173,7 +194,7 @@ fun AddEditInventoryDialog(
 
 
                 OutlinedTF(
-                    value = uiState.stock,
+                    value = if (isEditing) item.stock.toString() else uiState.stock,
                     onValueChange = { uiAction(InventoryUiAction.OnStockChange(it)) },
                     keyboardType = KeyboardType.Decimal,
                     placeholder = stringResource(Res.string.quantity_in_stock),
@@ -183,7 +204,7 @@ fun AddEditInventoryDialog(
                 )
 
                 OutlinedTF(
-                    value = uiState.salePrice,
+                    value = if (isEditing) item.price.toString() else uiState.salePrice,
                     onValueChange = { uiAction(InventoryUiAction.OnSalesPriceChange(it)) },
                     placeholder = stringResource(Res.string.sales_price),
                     keyboardType = KeyboardType.Decimal,
@@ -193,7 +214,7 @@ fun AddEditInventoryDialog(
                 )
 
                 OutlinedTF(
-                    value = uiState.purchasePrice,
+                    value = if (isEditing) item.purchasePrice.toString() else uiState.purchasePrice,
                     onValueChange = { uiAction(InventoryUiAction.OnPurchasePriceChange(it)) },
                     placeholder = stringResource(Res.string.purchase_price),
                     keyboardType = KeyboardType.Decimal,
@@ -210,7 +231,7 @@ fun AddEditInventoryDialog(
 
                 ItemUnitRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedItemUnit = uiState.unit,
+                    selectedItemUnit = item?.unit ?: uiState.unit,
                     unitMenuExpanded = unitMenuExpanded,
                     toggleUnitMenu = { unitMenuExpanded = !unitMenuExpanded },
                     selectedUnitChange = { uiAction(InventoryUiAction.OnItemUnitChange(it)) },
@@ -220,7 +241,7 @@ fun AddEditInventoryDialog(
 
                 CategoryRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedCategory = uiState.category,
+                    selectedCategory = item?.category ?: uiState.category,
                     categoryMenuExpanded = categoryMenuExpanded,
                     toggleCategoryMenu = { categoryMenuExpanded = !categoryMenuExpanded },
                     selectedCategoryChange = { uiAction(InventoryUiAction.OnCategoryChange(it)) },

@@ -5,6 +5,7 @@ import com.abdulmateen.pos_offline.core.designsystem.UiText
 import com.abdulmateen.pos_offline.domain.models.Category
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.domain.models.Product
+import com.abdulmateen.pos_offline.domain.models.ProductDetail
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
 
 data class InventoryUiState(
@@ -15,6 +16,8 @@ data class InventoryUiState(
     val categoryErrorResult: UiText? = null,
     val unitErrorResult: UiText? = null,
 
+    val addEditProductDialog: Boolean = false,
+    val detailProductDialog: Boolean = false,
     val showDialog: Boolean = false,
     val categoryDialogVisible: Boolean = false,
     val unitDialogVisible: Boolean = false,
@@ -81,5 +84,5 @@ data class InventoryUiState(
 
     val itemExpiryDate: String = "",
     val showDeleteDialog: Boolean = false,
-    val selectedItem: ProductUi? = null,
+    val selectedProduct: ProductDetail? = null
 )

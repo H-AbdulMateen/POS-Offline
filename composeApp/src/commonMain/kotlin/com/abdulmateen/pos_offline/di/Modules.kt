@@ -36,6 +36,8 @@ import com.abdulmateen.pos_offline.domain.use_cases.product.AddProduct
 import com.abdulmateen.pos_offline.domain.use_cases.product.DeleteProduct
 import com.abdulmateen.pos_offline.domain.use_cases.product.GetProductList
 import com.abdulmateen.pos_offline.domain.use_cases.ProductUseCases
+import com.abdulmateen.pos_offline.domain.use_cases.product.GetProductDetail
+import com.abdulmateen.pos_offline.domain.use_cases.product.GetProductUiList
 import com.abdulmateen.pos_offline.domain.use_cases.product.ReduceStock
 import com.abdulmateen.pos_offline.domain.use_cases.product.SearchProductByName
 import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderViewModel
@@ -79,7 +81,9 @@ val sharedModule = module {
             getProductList = GetProductList(get()),
             addProduct = AddProduct(get()),
             deleteProduct = DeleteProduct(get()),
-            reduceStock = ReduceStock(get())
+            reduceStock = ReduceStock(get()),
+            getProductDetail = GetProductDetail(get()),
+            getProductUiList = GetProductUiList(get())
         )
     }
 

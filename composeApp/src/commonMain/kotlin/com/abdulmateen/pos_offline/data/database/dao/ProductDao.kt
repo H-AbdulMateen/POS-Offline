@@ -34,7 +34,7 @@ interface ProductDao {
     suspend fun deleteById(productId: Long)
 
     @Query("SELECT * FROM products WHERE productId = :productId")
-    suspend fun getProductById(productId: Long): ProductWithCategoryAndUnit?
+    fun getProductById(productId: Long): Flow<ProductWithCategoryAndUnit?>
 
     @Query("SELECT * FROM products WHERE name LIKE '%' || :query || '%' OR sku LIKE '%' || :query || '%' OR barcode = :query ORDER BY name ASC")
     suspend fun searchProduct(query: String): ProductEntity
