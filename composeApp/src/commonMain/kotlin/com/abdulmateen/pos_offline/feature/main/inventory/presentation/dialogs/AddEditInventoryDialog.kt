@@ -87,8 +87,7 @@ fun AddEditInventoryDialog(
     uiState: InventoryUiState,
     uiAction: (InventoryUiAction) -> Unit,
     item: ProductDetail?,                   // null = Add, not-null = Edit
-    onDismiss: () -> Unit,
-    onSave: () -> Unit
+    onDismiss: () -> Unit
 ) {
     val isEditing = item != null
 
@@ -141,11 +140,14 @@ fun AddEditInventoryDialog(
                 )
 
                 //User Profile Image
-                if (isEditing && uiState.imageBitmap != null){
+                if (isEditing && item.photoBytes != null){
                     ProductPhoto(
-                        photoBytes = item.photoBytes,
+                        photoBytes = uiState.photoBytes ?: item.photoBytes,
                         contentDescription = item.name,
-                        modifier = Modifier.clickable(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .clickable(
                             onClick = {
                                 openImagePicker = true
                             }
@@ -155,7 +157,6 @@ fun AddEditInventoryDialog(
                     LocalImageWidget(
                         modifier = Modifier
                             .size(100.dp)
-                            .clip(CircleShape)
                             .align(Alignment.CenterHorizontally)
                             .clickable { openImagePicker = true }
                             .background(LightGray.takeIf { uiState.imageBitmap == null }
@@ -166,7 +167,7 @@ fun AddEditInventoryDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTF(
-                    value = item?.name ?: uiState.name,
+                    value = uiState.name,
                     onValueChange = { uiAction(InventoryUiAction.OnNameChange(it)) },
                     placeholder = stringResource(Res.string.product_name),
                     modifier = Modifier.fillMaxWidth(),
@@ -174,7 +175,7 @@ fun AddEditInventoryDialog(
                     errorMessage = uiState.nameErrorText
                 )
                 OutlinedTF(
-                    value = item?.sku ?: uiState.sku,
+                    value = uiState.sku,
                     onValueChange = { uiAction(InventoryUiAction.OnSkuChange(it)) },
                     placeholder = stringResource(Res.string.sku),
                     modifier = Modifier.fillMaxWidth(),
@@ -183,7 +184,7 @@ fun AddEditInventoryDialog(
                 )
 
                 OutlinedTF(
-                    value = item?.barcode ?: uiState.barcode,
+                    value = uiState.barcode,
                     onValueChange = { uiAction(InventoryUiAction.OnBarcodeChange(it)) },
                     placeholder = stringResource(Res.string.scan_barcode),
                     modifier = Modifier.fillMaxWidth(),
@@ -194,7 +195,7 @@ fun AddEditInventoryDialog(
 
 
                 OutlinedTF(
-                    value = if (isEditing) item.stock.toString() else uiState.stock,
+                    value = uiState.stock,
                     onValueChange = { uiAction(InventoryUiAction.OnStockChange(it)) },
                     keyboardType = KeyboardType.Decimal,
                     placeholder = stringResource(Res.string.quantity_in_stock),
@@ -204,7 +205,7 @@ fun AddEditInventoryDialog(
                 )
 
                 OutlinedTF(
-                    value = if (isEditing) item.price.toString() else uiState.salePrice,
+                    value = uiState.salePrice,
                     onValueChange = { uiAction(InventoryUiAction.OnSalesPriceChange(it)) },
                     placeholder = stringResource(Res.string.sales_price),
                     keyboardType = KeyboardType.Decimal,
@@ -214,7 +215,7 @@ fun AddEditInventoryDialog(
                 )
 
                 OutlinedTF(
-                    value = if (isEditing) item.purchasePrice.toString() else uiState.purchasePrice,
+                    value = uiState.purchasePrice,
                     onValueChange = { uiAction(InventoryUiAction.OnPurchasePriceChange(it)) },
                     placeholder = stringResource(Res.string.purchase_price),
                     keyboardType = KeyboardType.Decimal,
@@ -231,7 +232,7 @@ fun AddEditInventoryDialog(
 
                 ItemUnitRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedItemUnit = item?.unit ?: uiState.unit,
+                    selectedItemUnit = uiState.unit,
                     unitMenuExpanded = unitMenuExpanded,
                     toggleUnitMenu = { unitMenuExpanded = !unitMenuExpanded },
                     selectedUnitChange = { uiAction(InventoryUiAction.OnItemUnitChange(it)) },
@@ -241,7 +242,7 @@ fun AddEditInventoryDialog(
 
                 CategoryRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedCategory = item?.category ?: uiState.category,
+                    selectedCategory = uiState.category,
                     categoryMenuExpanded = categoryMenuExpanded,
                     toggleCategoryMenu = { categoryMenuExpanded = !categoryMenuExpanded },
                     selectedCategoryChange = { uiAction(InventoryUiAction.OnCategoryChange(it)) },
@@ -273,7 +274,7 @@ fun AddEditInventoryDialog(
                     Spacer(Modifier.width(8.dp))
 
                     Button(
-                        onClick = onSave
+                        onClick = { uiAction(InventoryUiAction.OnAddItemClick(isEditing = isEditing)) }
                     ) {
                         Text(if (isEditing) stringResource(Res.string.update) else stringResource(Res.string.add))
                     }
@@ -446,7 +447,6 @@ fun AddEditInventoryDialogPreview(){
             AddEditInventoryDialog(
                 item = null,
                 onDismiss = {},
-                onSave = {},
                 uiAction = {},
                 uiState = InventoryUiState()
             )
@@ -463,7 +463,6 @@ fun AddEditInventoryDialogPreviewDark(){
             AddEditInventoryDialog(
                 item = null,
                 onDismiss = {},
-                onSave = {},
                 uiAction = {},
                 uiState = InventoryUiState()
             )

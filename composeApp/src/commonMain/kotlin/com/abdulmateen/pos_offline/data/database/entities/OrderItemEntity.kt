@@ -27,6 +27,7 @@ data class OrderItemEntity(
     val orderId: Long,
     val productId: Long,
     val productName: String,
+    val imagePath: String? = null,
     val sku: String,
     val quantity: Double,
     val price: Double,

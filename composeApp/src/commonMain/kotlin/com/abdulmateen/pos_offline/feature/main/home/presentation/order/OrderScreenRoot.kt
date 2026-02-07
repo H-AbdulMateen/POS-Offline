@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
+import com.abdulmateen.pos_offline.core.designsystem.components.layouts.LoadingSection
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.compose_multiplatform
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
@@ -101,21 +103,21 @@ fun OrderScreen(
                 Column(
                     modifier = rootModifier
                 ) {
-                    CustomerSection(
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
                     ProductSearchSection(
                         modifier = Modifier.fillMaxWidth(),
                         value = searchField,
                         onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
-                    ProductListSection(
-                        modifier = Modifier.fillMaxWidth(),
-                        list = productList,
-                        onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
-                    )
+                    if (uiState.isLoading){
+                        LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
+                    }else{
+                        ProductListSection(
+                            modifier = Modifier.fillMaxWidth(),
+                            list = productList,
+                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
+                        )
+                    }
                 }
             }
             DeviceConfiguration.MOBILE_LANDSCAPE -> {
@@ -123,9 +125,6 @@ fun OrderScreen(
                     modifier = rootModifier,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    CustomerSection(
-                        modifier = Modifier.weight(.1f)
-                    )
                     Column(
                         modifier = Modifier.weight(.1f)
                     ) {
@@ -135,24 +134,21 @@ fun OrderScreen(
                             onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
                         )
                         Spacer(modifier = Modifier.size(8.dp))
-                        ProductListSection(
-                            modifier = Modifier.fillMaxWidth(),
-                            list = productList,
-                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
-                        )
+                        if (uiState.isLoading){
+                            LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
+                        }else {
+                            ProductListSection(
+                                modifier = Modifier.fillMaxWidth(),
+                                list = productList,
+                                onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
+                            )
+                        }
                     }
                 }
             }
             DeviceConfiguration.TABLET_PORTRAIT -> {
-                Row(
-                    modifier = rootModifier,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ){
-                    CustomerSection(
-                        modifier = Modifier.weight(.1f)
-                    )
                     Column(
-                        modifier = Modifier.weight(.1f)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         ProductSearchSection(
                             modifier = Modifier.fillMaxWidth(),
@@ -160,22 +156,22 @@ fun OrderScreen(
                             onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
                         )
                         Spacer(modifier = Modifier.size(8.dp))
-                        ProductListSection(
-                            modifier = Modifier.fillMaxWidth(),
-                            list = productList,
-                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
-                        )
+                        if (uiState.isLoading) {
+                            LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
+                        } else{
+                            ProductListSection(
+                                modifier = Modifier.fillMaxWidth(),
+                                list = productList,
+                                onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
+                            )
                     }
-                }
+                    }
             }
             DeviceConfiguration.TABLET_LANDSCAPE -> {
                 Row(
                     modifier = rootModifier,
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ){
-                    CustomerSection(
-                        modifier = Modifier.weight(.1f)
-                    )
                     Column(
                         modifier = Modifier.weight(.1f)
                     ) {
@@ -185,11 +181,15 @@ fun OrderScreen(
                             onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
                         )
                         Spacer(modifier = Modifier.size(16.dp))
-                        ProductListSection(
-                            modifier = Modifier.fillMaxWidth(),
-                            list = productList,
-                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
-                        )
+                        if (uiState.isLoading){
+                            LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
+                        }else {
+                            ProductListSection(
+                                modifier = Modifier.fillMaxWidth(),
+                                list = productList,
+                                onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
+                            )
+                        }
                     }
                     CartSummarySection(
                         modifier = Modifier.weight(.1f),
@@ -203,9 +203,6 @@ fun OrderScreen(
                     modifier = rootModifier,
                     horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ){
-                    CustomerSection(
-                        modifier = Modifier.weight(.1f)
-                    )
                     Column(
                         modifier = Modifier.weight(.1f)
                     ) {
@@ -215,11 +212,15 @@ fun OrderScreen(
                             onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
                         )
                         Spacer(modifier = Modifier.size(24.dp))
-                        ProductListSection(
-                            modifier = Modifier.fillMaxWidth(),
-                            list = productList,
-                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
-                        )
+                        if (uiState.isLoading){
+                            LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
+                        }else {
+                            ProductListSection(
+                                modifier = Modifier.fillMaxWidth(),
+                                list = productList,
+                                onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
+                            )
+                        }
                     }
                     CartSummarySection(
                         modifier = Modifier.weight(.1f),

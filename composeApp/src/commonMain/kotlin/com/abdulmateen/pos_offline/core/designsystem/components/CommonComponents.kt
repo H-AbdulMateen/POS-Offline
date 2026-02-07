@@ -66,7 +66,7 @@ fun LocalImageWidget(
         selectedImage?.let {
             Image(
                 bitmap = it,
-                contentDescription = "UserProfileImage",
+                contentDescription = "UserImage",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )

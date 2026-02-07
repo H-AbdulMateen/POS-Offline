@@ -21,23 +21,23 @@ sealed interface InventoryUiAction {
     data class OnCategoryNameChange(val categoryName: String) : InventoryUiAction
     data class OnUnitNameChange(val unitName: String) : InventoryUiAction
     data class OnUnitSymbolChange(val unitSymbol: String) : InventoryUiAction
-    data class ToggleAddEditProductDialog(val item: ProductUi?) : InventoryUiAction
-    data class ToggleDetailDialog(val item: ProductUi?) : InventoryUiAction
+    data class ToggleAddEditProductDialog(val productId: Long?) : InventoryUiAction
+    data class ToggleDetailDialog(val productId: Long?) : InventoryUiAction
 
     object OnAddNewCategory: InventoryUiAction
     object OnAddNewUnit: InventoryUiAction
 
 
-    object OnAddItemClick : InventoryUiAction
+    data class OnAddItemClick(val isEditing: Boolean) : InventoryUiAction
 
-    data class OnEditItemClick(val productId: Long) : InventoryUiAction
+    data class OnEditItemClick(val productId: Long?) : InventoryUiAction
     object OnDeleteItemClick : InventoryUiAction
     object ToggleCategoryDialog : InventoryUiAction
     object ToggleUnitDialog : InventoryUiAction
     
 
     object ClearForm: InventoryUiAction
-    data class ToggleOptionReveal(val productId: Long, val isRevealed: Boolean) : InventoryUiAction
-    data class ToggleDeleteDialog(val item: ProductUi?) : InventoryUiAction
+    data class ToggleOptionReveal(val productId: Long?, val isRevealed: Boolean) : InventoryUiAction
+    data class ToggleDeleteDialog(val productId: Long?) : InventoryUiAction
 
 }

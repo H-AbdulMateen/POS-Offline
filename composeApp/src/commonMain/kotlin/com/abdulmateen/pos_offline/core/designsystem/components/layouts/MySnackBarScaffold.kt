@@ -7,7 +7,13 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -18,7 +24,10 @@ import androidx.compose.ui.unit.dp
 fun MySnackBarScaffold(
     snackbarHostState: SnackbarHostState? = null,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    isFloatingActionButtonDocked: Boolean = false,
+    onFabClick: () -> Unit = {},
+    content: @Composable () -> Unit,
+
 ) {
     Scaffold(
         modifier = modifier,
@@ -31,6 +40,21 @@ fun MySnackBarScaffold(
                     hostState = snackbarHostState,
                     modifier = Modifier.padding(24.dp)
                 )
+            }
+        },
+        floatingActionButton = {
+            if (isFloatingActionButtonDocked){
+                FloatingActionButton(
+                    onClick = onFabClick,
+                    modifier = Modifier.padding(16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ){
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add"
+                    )
+                }
             }
         }
     ){innerPadding ->

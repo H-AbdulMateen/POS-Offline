@@ -1,6 +1,7 @@
 package com.abdulmateen.pos_offline.feature.main.inventory.presentation.dialogs
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,13 +31,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.abdulmateen.pos_offline.common.presentation.components.ProductPhoto
 import com.abdulmateen.pos_offline.domain.models.ProductDetail
 import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.book_error
+import pos_offline.composeapp.generated.resources.stock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
@@ -59,15 +64,15 @@ fun ProductDetailDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
-                            Image(
-                                painter = painterResource(Res.drawable.book_error),
-                                contentDescription = product.name,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
+                ProductPhoto(
+                    photoBytes = product.photoBytes,
+                    contentDescription = product.name,
+                    modifier = Modifier.size(120.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
 
 
-                        Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(8.dp))
 
                         // Title & Category
                         Text(
@@ -77,17 +82,17 @@ fun ProductDetailDialog(
                         )
 
                         Text(
-                            text = product.category.toString(),
+                            text = if (product.category != null) product.category.name else "",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray
                         )
 
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(8.dp))
 
                         // Price Row
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "₹${product.price}",
+                                text = "${product.price}",
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Bold
@@ -95,37 +100,14 @@ fun ProductDetailDialog(
                         }
 
                         Spacer(Modifier.height(8.dp))
-
-                        // Rating
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = null,
-                                tint = Color(0xFFFFC107)
-                            )
-                            Spacer(Modifier.width(4.dp))
-                            Text(text = "5")
-                        }
-
-                        Spacer(Modifier.height(16.dp))
-
-                        // Description
-                        Text(
-                            text = "Description",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-
-
-                        Spacer(Modifier.height(24.dp))
-
                         // Quantity Selector
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
                         ) {
+
                             Text(
-                                text = "Quantity",
+                                text = stringResource(Res.string.stock).plus(": ").plus(product.stock.toString()),
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.weight(1f)
                             )

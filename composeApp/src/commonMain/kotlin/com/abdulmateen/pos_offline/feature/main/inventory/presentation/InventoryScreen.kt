@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abdulmateen.pos_offline.core.designsystem.components.SearchField
+import com.abdulmateen.pos_offline.core.designsystem.components.layouts.LoadingSection
 import com.abdulmateen.pos_offline.core.designsystem.components.layouts.MySnackBarScaffold
 import com.abdulmateen.pos_offline.core.presentation.util.ObserveAsEvents
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
@@ -73,7 +74,11 @@ fun InventoryScreen(
     snackbarHostState: SnackbarHostState
 ){
     MySnackBarScaffold(
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
+        isFloatingActionButtonDocked = true,
+        onFabClick = {
+            uiAction(InventoryUiAction.ToggleAddEditProductDialog(productId = null))
+        }
     ) {
         val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
         val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
@@ -90,21 +95,25 @@ fun InventoryScreen(
                 DeviceConfiguration.DESKTOP-> {
                     InventoryHeaderRow(
                         onAddItemClick = {
-                            uiAction(InventoryUiAction.ToggleAddEditProductDialog(item = null))
+                            uiAction(InventoryUiAction.ToggleAddEditProductDialog(productId = null))
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     SearchField(
                         value = searchProductQuery,
                         onValueChange = { onSearchProductQueryChange(it) },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    InventoryTable(
-                        uiAction = uiAction,
-                        uiState = uiState
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if (uiState.isLoading && uiState.productList.isEmpty()){
+                        LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
+                    }else {
+                        InventoryTable(
+                            uiAction = uiAction,
+                            uiState = uiState
+                        )
+                    }
                 }
                 DeviceConfiguration.MOBILE_LANDSCAPE, DeviceConfiguration.TABLET_LANDSCAPE -> {
                     Row(
@@ -119,28 +128,29 @@ fun InventoryScreen(
                         )
                         Button(
                             onClick = {
-                                uiAction(InventoryUiAction.ToggleAddEditProductDialog(item = null))
+                                uiAction(InventoryUiAction.ToggleAddEditProductDialog(productId = null))
                             },
                             shape = MaterialTheme.shapes.small) {
                             Text(text = stringResource(Res.string.add_item))
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-                    InventoryTable(
-                        uiAction = uiAction,
-                        uiState = uiState
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if (uiState.isLoading && uiState.productList.isEmpty()){
+                        LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
+                    }else {
+                        InventoryTable(
+                            uiAction = uiAction,
+                            uiState = uiState
+                        )
+                    }
                 }
             }
         }
         if (uiState.addEditProductDialog){
             AddEditInventoryDialog(
                 item = uiState.selectedProduct,
-                onDismiss = { uiAction(InventoryUiAction.ToggleAddEditProductDialog(item = null)) },
-                onSave = {
-                    uiAction(InventoryUiAction.OnAddItemClick)
-                },
+                onDismiss = { uiAction(InventoryUiAction.ToggleAddEditProductDialog(productId = null)) },
                 uiAction = uiAction,
                 uiState = uiState
             )
@@ -150,7 +160,7 @@ fun InventoryScreen(
             uiState.selectedProduct?.let {
                 ProductDetailDialog(
                     product = it,
-                    onDismiss = { uiAction(InventoryUiAction.ToggleDetailDialog(item = null)) },
+                    onDismiss = { uiAction(InventoryUiAction.ToggleDetailDialog(productId = null)) },
                 )
             }
         }

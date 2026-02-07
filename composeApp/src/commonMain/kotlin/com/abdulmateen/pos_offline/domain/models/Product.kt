@@ -9,6 +9,7 @@ data class Product(
     val price: Double,
     val discount: Double = 0.0,
     val quantity: Double,
+    val imagePath: String? = null,
     val photoBytes: ByteArray? = null,
     val unit: ItemUnit? = null,
     )

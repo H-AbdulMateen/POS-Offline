@@ -1,6 +1,7 @@
 package com.abdulmateen.pos_offline.data.repository
 
 import androidx.room.Transaction
+import com.abdulmateen.pos_offline.core.data.filestorage.ImageStorage
 import com.abdulmateen.pos_offline.data.database.dao.CartDao
 import com.abdulmateen.pos_offline.data.database.entities.CartEntity
 import com.abdulmateen.pos_offline.data.mappers.toCartItem
@@ -16,7 +17,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 
 class CartRepositoryImpl(
-    private val cartDao: CartDao
+    private val cartDao: CartDao,
+    private val imageStorage: ImageStorage
 ) : CartRepository {
     @Transaction
     override suspend fun addToCart(cartItem: CartItem) {
@@ -58,7 +60,7 @@ class CartRepositoryImpl(
                 supervisorScope {
                         items.map { item ->
                             async {
-                                item.cartItem.toCartItem()
+                                item.cartItem.toCartItem(imageStorage = imageStorage)
                             }
                         }.awaitAll()
 

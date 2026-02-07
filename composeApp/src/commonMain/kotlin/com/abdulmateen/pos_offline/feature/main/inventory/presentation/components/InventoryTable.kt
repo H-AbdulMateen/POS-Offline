@@ -101,7 +101,7 @@ fun InventoryTable(
                             ActionIcon(
                                 onClick = {
                                     uiAction(InventoryUiAction.ToggleOptionReveal(item.productId, false))
-                                    uiAction(InventoryUiAction.ToggleDeleteDialog(item))
+                                    uiAction(InventoryUiAction.ToggleDeleteDialog(productId = item.productId))
                                 },
                                 backgroundColor = MaterialTheme.colorScheme.error,
                                 icon = Icons.Default.DeleteOutline,
@@ -109,7 +109,7 @@ fun InventoryTable(
                             )
                             ActionIcon(
                                 onClick = {
-                                    uiAction(InventoryUiAction.ToggleAddEditProductDialog(item = item))
+                                    uiAction(InventoryUiAction.ToggleAddEditProductDialog(productId = item.productId))
                                 },
                                 backgroundColor = MaterialTheme.colorScheme.primary,
                                 icon = Icons.Default.Edit,
@@ -117,7 +117,7 @@ fun InventoryTable(
                             )
                             ActionIcon(
                                 onClick = {
-                                    uiAction(InventoryUiAction.ToggleDetailDialog(item = item))
+                                    uiAction(InventoryUiAction.ToggleDetailDialog(productId = item.productId))
                                 },
                                 backgroundColor = MaterialTheme.colorScheme.primaryFixed,
                                 icon = Icons.Default.Preview,
@@ -158,10 +158,10 @@ fun InventoryTable(
             confirmButtonText = stringResource(Res.string.delete),
             cancelButtonText = stringResource(Res.string.cancel),
             onDismiss = {
-                uiAction(InventoryUiAction.ToggleDeleteDialog(item = null))
+                uiAction(InventoryUiAction.ToggleDeleteDialog(productId = null))
             },
             onCancelClick = {
-                uiAction(InventoryUiAction.ToggleDeleteDialog(item = null))
+                uiAction(InventoryUiAction.ToggleDeleteDialog(productId = null))
             },
             onConfirmClick = {
                 uiAction(InventoryUiAction.OnDeleteItemClick)

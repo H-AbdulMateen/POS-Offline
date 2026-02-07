@@ -139,6 +139,7 @@ class OrderViewModel(
                 item = CartItem(
                     productId = item.productId,
                     productName = item.name,
+                    imagePath = item.imagePath,
                     sku = item.sku,
                     quantity = 1.0,
                     price = item.price,
@@ -154,12 +155,18 @@ class OrderViewModel(
             _searchProductField.debounce(600)
                 .distinctUntilChanged()
                 .mapLatest { query ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = true
+                        )
+                    }
                     productUseCases.searchProduct(query)
                 }
                 .collect { filteredList ->
                     filteredList.onEach { list ->
                         _uiState.update {
                             it.copy(
+                                isLoading = false,
                                 productList = list
                             )
                         }
@@ -170,10 +177,16 @@ class OrderViewModel(
 
     private fun loadProducts() {
         viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
             productUseCases.getProductList()
                 .onEach { products ->
                     _uiState.update {
                         it.copy(
+                            isLoading = false,
                             productList = products
                         )
                     }

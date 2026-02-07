@@ -63,7 +63,7 @@ fun CartListItem(
                 contentAlignment = Alignment.Center
             ) {
                 ProductPhoto(
-                    photoBytes = null,
+                    photoBytes = item.photoBytes,
                     contentDescription = item.productName,
                     modifier = Modifier
                 )

@@ -28,5 +28,6 @@ suspend fun ProductEntity.toProduct(imageStorage: ImageStorage) = Product(
     price = this.salePrice,
     discount = this.discount,
     quantity = this.stock,
+    imagePath = this.imagePath,
     photoBytes = this.imagePath?.let { imageStorage.getImage(it) }
 )

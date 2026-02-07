@@ -15,7 +15,7 @@ data class InventoryUiState(
     val errorResult: UiText? = null,
     val categoryErrorResult: UiText? = null,
     val unitErrorResult: UiText? = null,
-
+    val selectedProductId: Long? = null,
     val addEditProductDialog: Boolean = false,
     val detailProductDialog: Boolean = false,
     val showDialog: Boolean = false,

@@ -61,6 +61,10 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.app_name
+import pos_offline.composeapp.generated.resources.home
+import pos_offline.composeapp.generated.resources.inventory
+import pos_offline.composeapp.generated.resources.profile
+import pos_offline.composeapp.generated.resources.settings
 
 @Composable
 fun MainScreenRoot(
@@ -294,12 +298,14 @@ fun BottomNavBar(
         NavigationBarItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Home::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Home, "home") },
+            label = { Text(text = stringResource(Res.string.home)) },
             onClick = { navController.navigate(MainScreenRoutes.Home) }
         )
 
         NavigationBarItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Inventory, "inventory") },
+            label = { Text(text = stringResource(Res.string.inventory)) },
             onClick = { navController.navigate(MainScreenRoutes.Inventory) }
         )
 
@@ -308,11 +314,13 @@ fun BottomNavBar(
         NavigationBarItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Person, "profile") },
+            label = { Text(text = stringResource(Res.string.profile)) },
             onClick = { navController.navigate(MainScreenRoutes.Profile) }
         )
         NavigationBarItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Settings::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Settings, "settings") },
+            label = { Text(text = stringResource(Res.string.settings)) },
             onClick = { navController.navigate(MainScreenRoutes.Settings) }
         )
     }
@@ -326,23 +334,27 @@ fun SideNavBar(
         NavigationRailItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Home::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Home, "home") },
+            label = { Text(text = stringResource(Res.string.home)) },
             onClick = { navController.navigate(MainScreenRoutes.Home) }
         )
 
         NavigationRailItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Inventory, contentDescription = "inventory") },
+            label = { Text(text = stringResource(Res.string.inventory)) },
             onClick = { navController.navigate(MainScreenRoutes.Inventory) }
         )
 
         NavigationRailItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Person, "profile") },
+            label = { Text(text = stringResource(Res.string.profile)) },
             onClick = { navController.navigate(MainScreenRoutes.Profile) }
         )
         NavigationRailItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Settings::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Settings, "settings") },
+            label = { Text(text = stringResource(Res.string.settings)) },
             onClick = { navController.navigate(MainScreenRoutes.Settings) }
         )
     }

@@ -32,6 +32,7 @@ data class CartItemEntity(
     val cartId: Long,
     val productId: Long,
     val productName: String,
+    val imagePath: String? = null,
     val sku: String,
     val quantity: Double,
     val price: Double,        // snapshot price

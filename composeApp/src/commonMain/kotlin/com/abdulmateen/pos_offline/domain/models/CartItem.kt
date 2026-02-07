@@ -5,6 +5,8 @@ data class CartItem(
     val cartId: Long = 0,
     val productId: Long,
     val productName: String,
+    val imagePath: String? = null,
+    val photoBytes: ByteArray? = null,
     val sku: String,
     val quantity: Double,
     val unitPrice: Double,
