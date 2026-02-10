@@ -1,6 +1,6 @@
 package com.abdulmateen.pos_offline.domain.models
 
-import com.abdulmateen.pos_offline.feature.main.inventory.presentation.models.ProductUi
+import com.abdulmateen.pos_offline.feature.inventory.presentation.models.ProductUi
 
 data class Product(
     val productId: Long = 0,
@@ -17,7 +17,7 @@ data class Product(
 
 
 val dummyProducts = listOf(
-    ProductUi(
+    com.abdulmateen.pos_offline.feature.inventory.presentation.models.ProductUi(
         productId = 1,
         name = "Apple",
         sku = "SKU123",
@@ -29,16 +29,28 @@ val dummyProducts = listOf(
             symbol = "kg"
         )
     ),
-    ProductUi(productId = 2, name = "Banana", sku = "SKU456",  price = 1.49, quantity = 15.0, unit = ItemUnit(
-        unitId = 2,
-        name = "litre",
-        symbol = "l"
-    )
+    com.abdulmateen.pos_offline.feature.inventory.presentation.models.ProductUi(
+        productId = 2,
+        name = "Banana",
+        sku = "SKU456",
+        price = 1.49,
+        quantity = 15.0,
+        unit = ItemUnit(
+            unitId = 2,
+            name = "litre",
+            symbol = "l"
+        )
     ),
-    ProductUi(productId = 3, name = "Carrot", sku = "SKU789", price = 1.29, quantity = 20.0, unit = ItemUnit(
-        unitId = 3,
-        name = "piece",
-        symbol = "pcs"
-    )
+    com.abdulmateen.pos_offline.feature.inventory.presentation.models.ProductUi(
+        productId = 3,
+        name = "Carrot",
+        sku = "SKU789",
+        price = 1.29,
+        quantity = 20.0,
+        unit = ItemUnit(
+            unitId = 3,
+            name = "piece",
+            symbol = "pcs"
+        )
     ),
 )

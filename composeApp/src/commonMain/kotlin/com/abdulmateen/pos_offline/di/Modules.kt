@@ -16,8 +16,6 @@ import com.abdulmateen.pos_offline.feature.auth.data.network.ktor.KtorUserDataSo
 import com.abdulmateen.pos_offline.feature.auth.domain.LoginRepository
 import com.abdulmateen.pos_offline.feature.auth.presentation.login.LoginViewModel
 import com.abdulmateen.pos_offline.feature.auth.presentation.register.SignUpViewModel
-import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.KtorProductsDataSource
-import com.abdulmateen.pos_offline.feature.main.home.data.network.ktor.RemoteProductsDataSource
 import com.abdulmateen.pos_offline.data.repository.InventoryRepositoryImpl
 import com.abdulmateen.pos_offline.data.repository.OrderRepositoryImpl
 import com.abdulmateen.pos_offline.domain.repository.CartRepository
@@ -40,10 +38,11 @@ import com.abdulmateen.pos_offline.domain.use_cases.product.GetProductDetail
 import com.abdulmateen.pos_offline.domain.use_cases.product.GetProductUiList
 import com.abdulmateen.pos_offline.domain.use_cases.product.ReduceStock
 import com.abdulmateen.pos_offline.domain.use_cases.product.SearchProductByName
-import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderViewModel
-import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryViewModel
-import com.abdulmateen.pos_offline.feature.main.profile.presentation.ProfileViewModel
-import com.abdulmateen.pos_offline.feature.main.settings.presentation.SettingsViewModel
+import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderViewModel
+import com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryViewModel
+import com.abdulmateen.pos_offline.feature.main.MainViewModel
+import com.abdulmateen.pos_offline.feature.profile.presentation.ProfileViewModel
+import com.abdulmateen.pos_offline.feature.settings.presentation.SettingsViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -70,7 +69,6 @@ val sharedModule = module {
     singleOf(::KtorUserDataSource).bind<RemoteUserDataSource>()
     singleOf(::DataStoreManagerImpl).bind<DataStoreManager>()
     singleOf(::LoginRepositoryImpl).bind<LoginRepository>()
-    singleOf(::KtorProductsDataSource).bind<RemoteProductsDataSource>()
     singleOf(::InventoryRepositoryImpl).bind<InventoryRepository>()
     singleOf(::CartRepositoryImpl).bind<CartRepository>()
     singleOf(::OrderRepositoryImpl).bind<OrderRepository>()
@@ -101,7 +99,7 @@ val sharedModule = module {
     }
 
     viewModelOf(::StartupViewModel)
-
+    viewModelOf(::MainViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::SignUpViewModel)
     viewModelOf(::InventoryViewModel)

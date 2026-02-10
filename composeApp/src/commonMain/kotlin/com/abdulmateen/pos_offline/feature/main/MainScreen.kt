@@ -50,15 +50,14 @@ import androidx.navigation.compose.rememberNavController
 import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.main.components.DrawerContentSheet
-import com.abdulmateen.pos_offline.feature.main.home.presentation.order.OrderScreenRoot
-import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryScreen
-import com.abdulmateen.pos_offline.feature.main.inventory.presentation.InventoryScreenRoot
-import com.abdulmateen.pos_offline.feature.main.profile.presentation.ProfileScreenRoot
-import com.abdulmateen.pos_offline.feature.main.settings.presentation.SettingsScreenRoot
+import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderScreenRoot
+import com.abdulmateen.pos_offline.feature.profile.presentation.ProfileScreenRoot
+import com.abdulmateen.pos_offline.feature.settings.presentation.SettingsScreenRoot
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.app_name
 import pos_offline.composeapp.generated.resources.home
@@ -73,11 +72,13 @@ fun MainScreenRoot(
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean
 ) {
+    val viewModel = koinViewModel<MainViewModel>()
     MainScreen(
         navigateToCart = navigateToCart,
         onLogoutClick = onLogoutClick,
         toggleDarkTheme = toggleDarkTheme,
-        isDarkTheme = isDarkTheme
+        isDarkTheme = isDarkTheme,
+        itemsCount = viewModel.cartCount.value
     )
 }
 
@@ -86,7 +87,8 @@ fun MainScreen(
     navigateToCart: () -> Unit,
     onLogoutClick: () -> Unit,
     toggleDarkTheme: () -> Unit,
-    isDarkTheme: Boolean
+    isDarkTheme: Boolean,
+    itemsCount: Int = 0
 ) {
     val navController = rememberNavController()
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
@@ -108,7 +110,8 @@ fun MainScreen(
                 navigateToCart = navigateToCart,
                 onLogoutClick = onLogoutClick,
                 toggleDarkTheme = toggleDarkTheme,
-                isDarkTheme = isDarkTheme
+                isDarkTheme = isDarkTheme,
+                itemsCount = itemsCount
             )
         }
         DeviceConfiguration.TABLET_PORTRAIT -> {
@@ -184,7 +187,8 @@ fun MainScreenScaffoldWithDrawer(
     navigateToCart: () -> Unit,
     onLogoutClick: () -> Unit,
     toggleDarkTheme: () -> Unit,
-    isDarkTheme: Boolean
+    isDarkTheme: Boolean,
+    itemsCount: Int
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -217,7 +221,7 @@ fun MainScreenScaffoldWithDrawer(
                     actions = {
                         Row {
                             CartBadgeBox(
-                                itemCount = 5,
+                                itemCount = itemsCount,
                                 onCartClick = navigateToCart
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -275,7 +279,7 @@ fun NavHostPane(
             )
         }
         composable<MainScreenRoutes.Inventory> {
-            InventoryScreenRoot()
+            _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryScreenRoot()
         }
         composable<MainScreenRoutes.Profile>() {
             ProfileScreenRoot()

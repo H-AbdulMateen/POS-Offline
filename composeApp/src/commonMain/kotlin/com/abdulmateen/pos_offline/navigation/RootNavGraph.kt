@@ -8,8 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.abdulmateen.pos_offline.feature.auth.navigation.AuthNavGraph
 import com.abdulmateen.pos_offline.feature.main.MainScreenRoot
-import com.abdulmateen.pos_offline.feature.main.home.presentation.CartScreenRoot
-import com.abdulmateen.pos_offline.feature.main.home.presentation.product_detail.ProductDetailScreenRoot
+import com.abdulmateen.pos_offline.feature.home.presentation.CartScreenRoot
+import com.abdulmateen.pos_offline.feature.home.presentation.product_detail.ProductDetailScreenRoot
 
 @Composable
 fun AppNavGraph(
