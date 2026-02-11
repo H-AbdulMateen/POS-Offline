@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DividerDefaults
@@ -27,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.abdulmateen.pos_offline.core.designsystem.components.buttons.MyButtonPrimary
 import com.abdulmateen.pos_offline.core.designsystem.components.dialogs.DestructiveConfirmationDialog
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderUiAction
@@ -39,6 +41,7 @@ import pos_offline.composeapp.generated.resources.are_you_sure
 import pos_offline.composeapp.generated.resources.cancel
 import pos_offline.composeapp.generated.resources.cart_summary
 import pos_offline.composeapp.generated.resources.delete
+import pos_offline.composeapp.generated.resources.proceed_to_checkout
 
 @Composable
 fun CartSummarySection(
@@ -80,11 +83,16 @@ fun CartSummarySection(
                         DividerDefaults.color
                     )
                     TotalCheckoutSection(
-                        onProceedToCheckout = {
+                        modifier = Modifier.fillMaxHeight(),
+                        subTotal = uiState.subTotal
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    MyButtonPrimary(
+                        onClick = {
                             showCheckoutDialog = true
                         },
-                        modifier = Modifier.fillMaxHeight(),
-                        totalAmount = uiState.subTotal
+                        text = stringResource(Res.string.proceed_to_checkout),
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }else -> {
@@ -116,11 +124,17 @@ fun CartSummarySection(
                     DividerDefaults.color
                 )
                 TotalCheckoutSection(
-                    onProceedToCheckout = {
+                    modifier = Modifier.fillMaxWidth(),
+                    subTotal = uiState.subTotal
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                MyButtonPrimary(
+                    onClick = {
                         showCheckoutDialog = true
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    totalAmount = uiState.subTotal
+                    text = stringResource(Res.string.proceed_to_checkout),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
             }

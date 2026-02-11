@@ -111,5 +111,9 @@
     <string name="category_added">Category added successfully</string>
     <string name="product_added">Product added successfully</string>
     <string name="product_updated">Product updated successfully</string>
+    <string name="sub_total">Sub Total</string>
+    <string name="discount">Discount</string>
+    <string name="tax">Tax</string>
+
 
 </resources>
