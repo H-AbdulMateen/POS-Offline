@@ -4,21 +4,23 @@ package com.abdulmateen.pos_offline.di
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.abdulmateen.pos_offline.StartupViewModel
 import com.abdulmateen.pos_offline.core.data.datastore.DataStoreManagerImpl
-import com.abdulmateen.pos_offline.core.data.datastore.createDataStore
 import com.abdulmateen.pos_offline.core.data.network.HttpClientFactory
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.data.database.DatabaseFactory
 import com.abdulmateen.pos_offline.data.database.MyAppDatabase
 import com.abdulmateen.pos_offline.data.repository.CartRepositoryImpl
+import com.abdulmateen.pos_offline.data.repository.DashboardRepositoryImpl
 import com.abdulmateen.pos_offline.feature.auth.data.LoginRepositoryImpl
 import com.abdulmateen.pos_offline.feature.auth.data.network.RemoteUserDataSource
 import com.abdulmateen.pos_offline.feature.auth.data.network.ktor.KtorUserDataSource
 import com.abdulmateen.pos_offline.feature.auth.domain.LoginRepository
 import com.abdulmateen.pos_offline.feature.auth.presentation.login.LoginViewModel
 import com.abdulmateen.pos_offline.feature.auth.presentation.register.SignUpViewModel
+import com.abdulmateen.pos_offline.feature.dashboard.presentation.DashboardViewModel
 import com.abdulmateen.pos_offline.data.repository.InventoryRepositoryImpl
 import com.abdulmateen.pos_offline.data.repository.OrderRepositoryImpl
 import com.abdulmateen.pos_offline.domain.repository.CartRepository
+import com.abdulmateen.pos_offline.domain.repository.DashboardRepository
 import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
 import com.abdulmateen.pos_offline.domain.repository.OrderRepository
 import com.abdulmateen.pos_offline.domain.use_cases.cart.AddItemToCart
@@ -43,6 +45,9 @@ import com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryViewM
 import com.abdulmateen.pos_offline.feature.main.MainViewModel
 import com.abdulmateen.pos_offline.feature.profile.presentation.ProfileViewModel
 import com.abdulmateen.pos_offline.feature.settings.presentation.SettingsViewModel
+import com.abdulmateen.pos_offline.domain.repository.ExpenseRepository
+import com.abdulmateen.pos_offline.data.repository.ExpenseRepositoryImpl
+import com.abdulmateen.pos_offline.feature.expense.presentation.ExpenseViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -52,12 +57,12 @@ import org.koin.dsl.module
 expect val platformModule: Module
 
 val sharedModule = module {
-    single { createDataStore(get()) }
     viewModelOf(::StartupViewModel)
     single { HttpClientFactory.create(get()) }
     single {
         get<DatabaseFactory>().create()
             .setDriver(BundledSQLiteDriver())
+            .fallbackToDestructiveMigration(true)
             .build()
     }
     single { get<MyAppDatabase>().productDao() }
@@ -65,6 +70,9 @@ val sharedModule = module {
     single { get<MyAppDatabase>().categoryDao() }
     single { get<MyAppDatabase>().unitDao() }
     single { get<MyAppDatabase>().cartDao() }
+    single { get<MyAppDatabase>().dashboardDao() }
+    single { get<MyAppDatabase>().employeeDao() }
+    single { get<MyAppDatabase>().expenseDao() }
 
     singleOf(::KtorUserDataSource).bind<RemoteUserDataSource>()
     singleOf(::DataStoreManagerImpl).bind<DataStoreManager>()
@@ -72,6 +80,8 @@ val sharedModule = module {
     singleOf(::InventoryRepositoryImpl).bind<InventoryRepository>()
     singleOf(::CartRepositoryImpl).bind<CartRepository>()
     singleOf(::OrderRepositoryImpl).bind<OrderRepository>()
+    singleOf(::DashboardRepositoryImpl).bind<DashboardRepository>()
+    singleOf(::ExpenseRepositoryImpl).bind<ExpenseRepository>()
 
     single {
         ProductUseCases(
@@ -98,13 +108,14 @@ val sharedModule = module {
         )
     }
 
-    viewModelOf(::StartupViewModel)
     viewModelOf(::MainViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::SignUpViewModel)
     viewModelOf(::InventoryViewModel)
+    viewModelOf(::DashboardViewModel)
     viewModelOf(::OrderViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::ProfileViewModel)
+    viewModelOf(::ExpenseViewModel)
 
 }

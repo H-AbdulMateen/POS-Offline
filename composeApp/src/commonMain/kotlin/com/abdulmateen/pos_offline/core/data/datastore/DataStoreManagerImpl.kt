@@ -3,6 +3,7 @@ package com.abdulmateen.pos_offline.core.data.datastore
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -61,6 +62,24 @@ class DataStoreManagerImpl(
                     it[intPreferencesKey(key)] = value
                 }
         }
+    }
+
+    override suspend fun setDoubleValue(key: String, value: Double) {
+        withContext(Dispatchers.IO){
+            dataStore.edit {
+                it[doublePreferencesKey(key)] = value
+            }
+        }
+    }
+
+    override suspend fun getDoubleValue(key: String): Double {
+        return withContext(Dispatchers.IO){
+            dataStore
+                .data
+                .map {
+                    it[doublePreferencesKey(key)] ?: 0.0
+                }
+        }.first()
     }
 
     override suspend fun getIntValue(key: String): Int {

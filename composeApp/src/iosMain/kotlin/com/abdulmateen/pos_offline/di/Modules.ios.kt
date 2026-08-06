@@ -2,7 +2,7 @@ package com.abdulmateen.pos_offline.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.abdulmateen.pos_offline.data.database.`DatabaseFactory.android.kt`
+import com.abdulmateen.pos_offline.data.database.DatabaseFactory
 import com.abdulmateen.pos_offline.core.data.datastore.createDataStore
 import com.abdulmateen.pos_offline.core.data.filestorage.ImageStorage
 import io.ktor.client.engine.HttpClientEngine
@@ -14,7 +14,7 @@ actual val platformModule: Module
     get() = module {
         single<DataStore<Preferences>> { createDataStore(context = null) }
         single<HttpClientEngine> { Darwin.create() }
-        single { `DatabaseFactory.android.kt`() }
+        single { DatabaseFactory() }
         single { ImageStorage() }
 
     }

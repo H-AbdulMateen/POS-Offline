@@ -17,10 +17,15 @@ class PdfViewerActivity: ComponentActivity() {
         } else {
             intent.getParcelableExtra("pdf_uri")
         }
+        val pdfBytes = intent.getByteArrayExtra("pdf_bytes")
+        val fileName = intent.getStringExtra("file_name") ?: "invoice.pdf"
+
         setContent {
             uri?.let {
                 PdfViewerScreen(
-                    pdfUri = it
+                    pdfUri = it,
+                    pdfBytes = pdfBytes,
+                    fileName = fileName
                 )
             }
         }

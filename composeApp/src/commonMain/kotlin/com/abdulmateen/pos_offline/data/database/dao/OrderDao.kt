@@ -64,6 +64,9 @@ interface OrderDao {
     @Query("DELETE FROM order_items WHERE orderId = :orderId AND productId = :productId")
     suspend fun removeOrderItem(orderId: Long, productId: Long)
 
+    @Query("SELECT SUM(total) FROM orders WHERE createdAt >= :start AND createdAt <= :end")
+    fun getTotalRevenueInRange(start: Long, end: Long): Flow<Double?>
+
 
     @Transaction
     suspend fun checkout(

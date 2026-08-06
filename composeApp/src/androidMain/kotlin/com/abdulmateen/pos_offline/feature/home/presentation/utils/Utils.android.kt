@@ -1,16 +1,30 @@
 package com.abdulmateen.pos_offline.feature.home.presentation.utils
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
+import android.print.PrintAttributes
+import android.print.PrintManager
 import androidx.core.content.FileProvider
 import com.abdulmateen.pos_offline.MyApplication
+import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.feature.home.presentation.PdfViewerActivity
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 
-actual fun generateInvoiceInPdf(): ByteArray {
+actual fun generateInvoiceInPdf(
+    cartItems: List<CartItem>,
+    subTotal: Double,
+    discount: Double,
+    tax: Double,
+    total: Double,
+    paidAmount: Double,
+    change: Double,
+    paymentType: String
+): ByteArray {
     val pdfDocument = PdfDocument()
     val pageInfo =
         PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
@@ -22,26 +36,49 @@ actual fun generateInvoiceInPdf(): ByteArray {
     paint.textSize = 12f
 
     canvas.drawText("Invoice", 100f, 50f, paint)
-    canvas.drawText("Order #123", 100f, 70f, paint)
+    canvas.drawText("Payment Type: $paymentType", 100f, 70f, paint)
 
-    canvas.drawText("Customer ID: #", 100f, 100f, paint)
+    canvas.drawText("Order Date:", 100f, 100f, paint)
+    canvas.drawText(java.util.Date().toString(), 200f, 100f, paint)
 
-    canvas.drawText("Order Date:", 100f, 130f, paint)
-    canvas.drawText("11/12/2025", 200f, 130f, paint)
-    canvas.drawText("Delivery Date:", 100f, 150f, paint)
-    canvas.drawText("11/12/2025", 200f, 150f, paint)
+    paint.isFakeBoldText = true
+    canvas.drawText("Product", 100f, 130f, paint)
+    canvas.drawText("Qty", 300f, 130f, paint)
+    canvas.drawText("Price", 350f, 130f, paint)
+    canvas.drawText("Total", 450f, 130f, paint)
+    paint.isFakeBoldText = false
 
-    canvas.drawText("Product", 100f, 180f, paint)
-    canvas.drawText("Quantity", 250f, 180f, paint)
-    canvas.drawText("Price", 350f, 180f, paint)
-    var yPosition = 200f
-    canvas.drawText("Product 1", 100f, yPosition, paint)
-    canvas.drawText("100", 250f, yPosition, paint)
-    canvas.drawText("5000 pkr", 350f, yPosition, paint)
+    var yPosition = 150f
+    cartItems.forEach { item ->
+        canvas.drawText(item.productName, 100f, yPosition, paint)
+        canvas.drawText(item.quantity.toString(), 300f, yPosition, paint)
+        canvas.drawText("%.2f".format(item.unitPrice), 350f, yPosition, paint)
+        canvas.drawText("%.2f".format(item.price), 450f, yPosition, paint)
+        yPosition += 20f
+    }
+
     yPosition += 20f
-
-    canvas.drawText("Total:", 350f, yPosition + 20f, paint)
-    canvas.drawText("5000 pkr", 400f, yPosition + 20f, paint)
+    canvas.drawText("Sub Total:", 350f, yPosition, paint)
+    canvas.drawText("%.2f".format(subTotal), 450f, yPosition, paint)
+    yPosition += 20f
+    canvas.drawText("Discount:", 350f, yPosition, paint)
+    canvas.drawText("%.2f".format(discount), 450f, yPosition, paint)
+    yPosition += 20f
+    canvas.drawText("Tax:", 350f, yPosition, paint)
+    canvas.drawText("%.2f".format(tax), 450f, yPosition, paint)
+    yPosition += 20f
+    
+    paint.isFakeBoldText = true
+    canvas.drawText("Total:", 350f, yPosition, paint)
+    canvas.drawText("%.2f".format(total), 450f, yPosition, paint)
+    paint.isFakeBoldText = false
+    yPosition += 20f
+    
+    canvas.drawText("Paid Amount:", 350f, yPosition, paint)
+    canvas.drawText("%.2f".format(paidAmount), 450f, yPosition, paint)
+    yPosition += 20f
+    canvas.drawText("Change:", 350f, yPosition, paint)
+    canvas.drawText("%.2f".format(change), 450f, yPosition, paint)
 
     pdfDocument.finishPage(page)
 
@@ -61,16 +98,18 @@ actual fun saveInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
         "${context.packageName}.provider",
         file
     )
-//    val intent = Intent(Intent.ACTION_VIEW).apply {
-//        setDataAndType(uri, "application/pdf")
-//        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-//        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//    }
-//    context.startActivity(intent)
     context.startActivity(
         Intent(context, PdfViewerActivity::class.java)
             .putExtra("pdf_uri", uri)
+            .putExtra("pdf_bytes", invoiceByteArray)
+            .putExtra("file_name", fileName)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     )
+}
 
+actual fun printPdf(invoiceByteArray: ByteArray, fileName: String) {
+    val context = MyApplication.instance.applicationContext
+    val printManager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
+    val printAdapter = PdfDocumentAdapter(invoiceByteArray, fileName)
+    printManager.print(fileName, printAdapter, PrintAttributes.Builder().build())
 }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory
@@ -51,8 +52,11 @@ import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.main.components.DrawerContentSheet
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderScreenRoot
+import com.abdulmateen.pos_offline.feature.dashboard.presentation.DashboardScreenRoot
+import com.abdulmateen.pos_offline.feature.expense.presentation.ExpenseScreenRoot
 import com.abdulmateen.pos_offline.feature.profile.presentation.ProfileScreenRoot
 import com.abdulmateen.pos_offline.feature.settings.presentation.SettingsScreenRoot
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.stringResource
@@ -60,6 +64,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.app_name
+import pos_offline.composeapp.generated.resources.dashboard
 import pos_offline.composeapp.generated.resources.home
 import pos_offline.composeapp.generated.resources.inventory
 import pos_offline.composeapp.generated.resources.profile
@@ -281,6 +286,12 @@ fun NavHostPane(
         composable<MainScreenRoutes.Inventory> {
             _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryScreenRoot()
         }
+        composable<MainScreenRoutes.Dashboard> {
+            DashboardScreenRoot()
+        }
+        composable<MainScreenRoutes.Expenses> {
+            ExpenseScreenRoot()
+        }
         composable<MainScreenRoutes.Profile>() {
             ProfileScreenRoot()
         }
@@ -307,10 +318,24 @@ fun BottomNavBar(
         )
 
         NavigationBarItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Dashboard::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.Dashboard, "dashboard") },
+            label = { Text(text = stringResource(Res.string.dashboard)) },
+            onClick = { navController.navigate(MainScreenRoutes.Dashboard) }
+        )
+
+        NavigationBarItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Inventory, "inventory") },
             label = { Text(text = stringResource(Res.string.inventory)) },
             onClick = { navController.navigate(MainScreenRoutes.Inventory) }
+        )
+
+        NavigationBarItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Expenses::class) } == true,
+            icon = { Icon(imageVector = Icons.AutoMirrored.Filled.ReceiptLong, "expenses") },
+            label = { Text(text = "Expenses") },
+            onClick = { navController.navigate(MainScreenRoutes.Expenses) }
         )
 
 
@@ -343,10 +368,24 @@ fun SideNavBar(
         )
 
         NavigationRailItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Dashboard::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.Dashboard, "dashboard") },
+            label = { Text(text = stringResource(Res.string.dashboard)) },
+            onClick = { navController.navigate(MainScreenRoutes.Dashboard) }
+        )
+
+        NavigationRailItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Inventory, contentDescription = "inventory") },
             label = { Text(text = stringResource(Res.string.inventory)) },
             onClick = { navController.navigate(MainScreenRoutes.Inventory) }
+        )
+
+        NavigationRailItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Expenses::class) } == true,
+            icon = { Icon(imageVector = Icons.AutoMirrored.Filled.ReceiptLong, "expenses") },
+            label = { Text(text = "Expenses") },
+            onClick = { navController.navigate(MainScreenRoutes.Expenses) }
         )
 
         NavigationRailItem(
@@ -372,6 +411,12 @@ sealed interface MainScreenRoutes {
 
     @Serializable
     data object Inventory: MainScreenRoutes
+
+    @Serializable
+    data object Dashboard : MainScreenRoutes
+
+    @Serializable
+    data object Expenses : MainScreenRoutes
 
     @Serializable
     data object Profile : MainScreenRoutes

@@ -151,11 +151,11 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "com.abdulmateen.cmpsekeleton.MainKt"
+        mainClass = "com.abdulmateen.pos_offline.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.abdulmateen.cmpsekeleton"
+            packageName = "pos_offline"
             packageVersion = "1.0.0"
         }
     }

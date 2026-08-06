@@ -27,9 +27,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.core.designsystem.components.buttons.MyButtonPrimary
 import com.abdulmateen.pos_offline.core.designsystem.components.dialogs.DestructiveConfirmationDialog
+import com.abdulmateen.pos_offline.core.designsystem.components.dialogs.SingleTextFieldDialog
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderUiAction
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderUiState
@@ -41,7 +43,9 @@ import pos_offline.composeapp.generated.resources.are_you_sure
 import pos_offline.composeapp.generated.resources.cancel
 import pos_offline.composeapp.generated.resources.cart_summary
 import pos_offline.composeapp.generated.resources.delete
+import pos_offline.composeapp.generated.resources.discount
 import pos_offline.composeapp.generated.resources.proceed_to_checkout
+import pos_offline.composeapp.generated.resources.tax
 
 @Composable
 fun CartSummarySection(
@@ -82,31 +86,32 @@ fun CartSummarySection(
                         DividerDefaults.Thickness,
                         DividerDefaults.color
                     )
-                    TotalCheckoutSection(
-                        modifier = Modifier.fillMaxHeight(),
-                        subTotal = uiState.subTotal
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    MyButtonPrimary(
-                        onClick = {
-                            showCheckoutDialog = true
-                        },
-                        text = stringResource(Res.string.proceed_to_checkout),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Column(
+                        modifier = Modifier.fillMaxHeight().weight(.1f)
+                    ) {
+
+                        TotalCheckoutSection(
+                            modifier = Modifier,
+                            subTotal = uiState.subTotal,
+                            uiAction = uiAction,
+                            uiState = uiState
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        MyButtonPrimary(
+                            onClick = {
+                                showCheckoutDialog = true
+                            },
+                            text = stringResource(Res.string.proceed_to_checkout),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
                 }
             }else -> {
             Column(
                 Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-
-                Text(
-                    text = stringResource(Res.string.cart_summary),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(Modifier.height(8.dp))
-
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.weight(.1f)
@@ -125,7 +130,9 @@ fun CartSummarySection(
                 )
                 TotalCheckoutSection(
                     modifier = Modifier.fillMaxWidth(),
-                    subTotal = uiState.subTotal
+                    subTotal = uiState.subTotal,
+                    uiAction = uiAction,
+                    uiState = uiState
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -142,11 +149,16 @@ fun CartSummarySection(
     }
     if (showCheckoutDialog) {
         PaymentDialog(
+            cartItems = uiState.cartItems,
+            subTotal = uiState.subTotal,
+            discount = uiState.discount,
+            tax = uiState.tax,
+            totalAmount = uiState.total,
             onDismiss = { showCheckoutDialog = false },
             onConfirm = {
                 showCheckoutDialog = false
-            },
-            totalAmount = 1000.0
+                uiAction(OrderUiAction.ClearCart)
+            }
         )
     }
     if (uiState.isDeleteDialogVisible) {
@@ -158,6 +170,32 @@ fun CartSummarySection(
             cancelButtonText = stringResource(Res.string.cancel),
             onConfirmClick = { uiAction(OrderUiAction.RemoveCartItem) },
             onCancelClick = { uiAction(OrderUiAction.ToggleDeleteDialog()) },
+        )
+    }
+    if (uiState.isDiscountDialogVisible){
+        SingleTextFieldDialog(
+            title = stringResource(Res.string.discount),
+            onConfirm = { uiAction(OrderUiAction.ApplyDiscount) },
+            onDismiss = { uiAction(OrderUiAction.ToggleDiscountDialog) },
+            hint = stringResource(Res.string.discount),
+            textFieldValue = uiState.discountField,
+            keyboardType = KeyboardType.Decimal,
+            textFieldError = if(uiState.discountFieldErrorMessage != null)  stringResource(uiState.discountFieldErrorMessage) else "",
+            hasError = uiState.hasDiscountError,
+            onValueChange = {uiAction(OrderUiAction.UpdateDiscountField(it))}
+        )
+    }
+    if (uiState.isTaxDialogVisible){
+        SingleTextFieldDialog(
+            title = stringResource(Res.string.tax),
+            onConfirm = { uiAction(OrderUiAction.ApplyTax) },
+            onDismiss = { uiAction(OrderUiAction.ToggleTaxDialog) },
+            hint = stringResource(Res.string.tax),
+            textFieldValue = uiState.taxField,
+            keyboardType = KeyboardType.Decimal,
+            textFieldError = if(uiState.taxFieldErrorMessage != null)  stringResource(uiState.taxFieldErrorMessage) else "",
+            hasError = uiState.hasTaxError,
+            onValueChange = {uiAction(OrderUiAction.UpdateTaxField(it))}
         )
     }
 }

@@ -6,16 +6,22 @@ import androidx.room.RoomDatabase
 import com.abdulmateen.pos_offline.data.database.MyAppDatabaseConstructor
 import com.abdulmateen.pos_offline.data.database.dao.CartDao
 import com.abdulmateen.pos_offline.data.database.dao.CategoryDao
+import com.abdulmateen.pos_offline.data.database.dao.DashboardDao
+import com.abdulmateen.pos_offline.data.database.dao.EmployeeDao
+import com.abdulmateen.pos_offline.data.database.dao.ExpenseDao
 import com.abdulmateen.pos_offline.data.database.dao.OrderDao
 import com.abdulmateen.pos_offline.data.database.dao.ProductDao
 import com.abdulmateen.pos_offline.data.database.dao.UnitDao
 import com.abdulmateen.pos_offline.data.database.entities.CartEntity
 import com.abdulmateen.pos_offline.data.database.entities.CartItemEntity
 import com.abdulmateen.pos_offline.data.database.entities.CategoryEntity
+import com.abdulmateen.pos_offline.data.database.entities.EmployeeEntity
+import com.abdulmateen.pos_offline.data.database.entities.ExpenseEntity
 import com.abdulmateen.pos_offline.data.database.entities.OrderEntity
 import com.abdulmateen.pos_offline.data.database.entities.OrderItemEntity
 import com.abdulmateen.pos_offline.data.database.entities.ProductEntity
 import com.abdulmateen.pos_offline.data.database.entities.UnitEntity
+import androidx.room.TypeConverters
 
 @Database(
     entities = [
@@ -25,10 +31,13 @@ import com.abdulmateen.pos_offline.data.database.entities.UnitEntity
         CartEntity::class,
         CartItemEntity::class,
         OrderEntity::class,
-        OrderItemEntity::class
+        OrderItemEntity::class,
+        EmployeeEntity::class,
+        ExpenseEntity::class
     ],
-    version = 1
+    version = 3
 )
+@TypeConverters(ExpenseTypeConverter::class)
 @ConstructedBy(MyAppDatabaseConstructor::class)
 abstract class MyAppDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
@@ -36,6 +45,9 @@ abstract class MyAppDatabase : RoomDatabase() {
     abstract fun orderDao(): OrderDao
     abstract fun categoryDao(): CategoryDao
     abstract fun unitDao(): UnitDao
+    abstract fun dashboardDao(): DashboardDao
+    abstract fun employeeDao(): EmployeeDao
+    abstract fun expenseDao(): ExpenseDao
 
 
 

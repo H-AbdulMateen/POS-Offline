@@ -2,6 +2,8 @@ package com.abdulmateen.pos_offline.feature.home.presentation.order
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.abdulmateen.pos_offline.core.domain.DataStoreManager
+import com.abdulmateen.pos_offline.core.domain.PrefKeys
 import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
@@ -22,12 +24,15 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pos_offline.composeapp.generated.resources.Res
+import pos_offline.composeapp.generated.resources.field_required
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class OrderViewModel(
     private val productUseCases: ProductUseCases,
     private val cartUseCases: CartUseCases,
-    private val repository: InventoryRepository //TODO: Remove this before go to release
+    private val dataStoreManager: DataStoreManager,
+    private val repository: InventoryRepository, //TODO: Remove this before go to release
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OrderUiState())
     val uiState: StateFlow<OrderUiState> = _uiState
@@ -90,6 +95,26 @@ class OrderViewModel(
                     }
                 }
             }
+            is OrderUiAction.UpdateDiscountField -> {
+                _uiState.update {
+                    it.copy(
+                        discountField = action.discount
+                    )
+                }
+            }
+            is OrderUiAction.UpdateTaxField -> {
+                _uiState.update {
+                    it.copy(
+                        taxField = action.tax
+                    )
+                }
+            }
+            is OrderUiAction.ApplyDiscount -> {
+                applyDiscount()
+            }
+            is OrderUiAction.ApplyTax -> {
+                applyTax()
+            }
 
             is OrderUiAction.ToggleDeleteDialog -> {
                 selectedProductId = action.productId ?: 0
@@ -99,6 +124,70 @@ class OrderViewModel(
                     )
                 }
             }
+            OrderUiAction.ToggleDiscountDialog -> {
+                _uiState.update {
+                    it.copy(
+                        isDiscountDialogVisible = !uiState.value.isDiscountDialogVisible
+                    )
+                }
+            }
+            OrderUiAction.ToggleTaxDialog -> {
+                _uiState.update {
+                    it.copy(
+                        isTaxDialogVisible = !uiState.value.isTaxDialogVisible
+                    )
+                }
+            }
+        }
+    }
+
+    private fun applyDiscount() {
+        if (uiState.value.discountField.isEmpty()){
+            _uiState.update {
+                it.copy(
+                    discountFieldErrorMessage = Res.string.field_required,
+                    hasDiscountError = true
+                )
+            }
+            return
+        }
+        val discount = uiState.value.discountField.toDouble()
+        viewModelScope.launch {
+            dataStoreManager.setDoubleValue(PrefKeys.DISCOUNT, discount)
+        }
+        _uiState.update {
+            it.copy(
+                discount = discount,
+                discountField = "",
+                isDiscountDialogVisible = false,
+                hasDiscountError = false,
+                discountFieldErrorMessage = null
+            )
+        }
+    }
+
+    private fun applyTax() {
+        if (uiState.value.taxField.isEmpty()){
+            _uiState.update {
+                it.copy(
+                    taxFieldErrorMessage = Res.string.field_required,
+                    hasTaxError = true
+                )
+            }
+            return
+        }
+        val tax = uiState.value.taxField.toDouble()
+        viewModelScope.launch {
+            dataStoreManager.setDoubleValue(PrefKeys.TAX,tax)
+        }
+        _uiState.update {
+            it.copy(
+                tax = tax,
+                taxField = "",
+                isTaxDialogVisible = false,
+                hasTaxError = false,
+                taxFieldErrorMessage = null
+            )
         }
     }
 

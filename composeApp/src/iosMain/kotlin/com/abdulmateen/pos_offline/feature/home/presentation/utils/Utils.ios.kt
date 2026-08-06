@@ -1,4 +1,5 @@
 package com.abdulmateen.pos_offline.feature.home.presentation.utils
+import com.abdulmateen.pos_offline.domain.models.CartItem
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -28,7 +29,16 @@ import platform.UIKit.UIGraphicsGetCurrentContext
 import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class)
-actual fun generateInvoiceInPdf(): ByteArray {
+actual fun generateInvoiceInPdf(
+    cartItems: List<CartItem>,
+    subTotal: Double,
+    discount: Double,
+    tax: Double,
+    total: Double,
+    paidAmount: Double,
+    change: Double,
+    paymentType: String
+): ByteArray {
     val pdfData = NSMutableData()
     val pageSize = CGRectMake(0.0, 0.0, 612.0, 792.0)
 
@@ -37,15 +47,20 @@ actual fun generateInvoiceInPdf(): ByteArray {
 
     val context = UIGraphicsGetCurrentContext()
 
+    val productsText = cartItems.joinToString("\n") { "${it.productName} x ${it.quantity} = ${it.price}" }
     val text = """
         Invoice
-        Order #$12345
-        Customer ID: 12
-        Order Date: 11/12/2025
-        Delivery Date: 11/12/2025
-        Products: 123
-        Quantity: 10
-        Total Price: 100
+        Payment Type: $paymentType
+        Order Date: ${platform.Foundation.NSDate()}
+        
+        $productsText
+        
+        Sub Total: $subTotal
+        Discount: $discount
+        Tax: $tax
+        Total: $total
+        Paid: $paidAmount
+        Change: $change
     """.trimIndent()
 
     val paragraphStyle = NSMutableParagraphStyle().apply { NSTextAlignmentLeft }
@@ -77,6 +92,10 @@ actual fun saveInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
     } catch (e: Exception){
         "Failed to save PDF: ${e.message}"
     }
+}
+
+actual fun printPdf(invoiceByteArray: ByteArray, fileName: String) {
+    // Basic implementation for iOS if needed
 }
 
 @OptIn(ExperimentalForeignApi::class)

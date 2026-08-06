@@ -9,7 +9,7 @@ fun main(){
     application {
         Window(
             onCloseRequest = ::exitApplication,
-            title = "CMPSkeleton",
+            title = "POS Offline",
         ) {
             App()
         }

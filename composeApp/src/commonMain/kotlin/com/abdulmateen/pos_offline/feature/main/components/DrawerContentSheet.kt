@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
@@ -65,6 +66,14 @@ fun DrawerContentSheet(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true
         ) {
             navController.navigate(MainScreenRoutes.Inventory) { launchSingleTop = true }
+            closeDrawer()
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        DrawerItem("Expenses",
+            icon = Icons.AutoMirrored.Filled.ReceiptLong,
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Expenses::class) } == true
+        ) {
+            navController.navigate(MainScreenRoutes.Expenses) { launchSingleTop = true }
             closeDrawer()
         }
         Spacer(modifier = Modifier.height(16.dp))

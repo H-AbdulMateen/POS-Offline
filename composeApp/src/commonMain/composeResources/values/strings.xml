@@ -114,6 +114,19 @@
     <string name="sub_total">Sub Total</string>
     <string name="discount">Discount</string>
     <string name="tax">Tax</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="expenses">Expenses</string>
+    <string name="expense_management">Expense Management</string>
+    <string name="add_expense">Add Expense</string>
+    <string name="salaries">Salaries</string>
+    <string name="bills">Bills</string>
+    <string name="transportation">Transportation</string>
+    <string name="revenue">Revenue</string>
+    <string name="profit_loss">Profit / Loss</string>
+    <string name="loss">Loss</string>
+    <string name="profit">Profit</string>
+    <string name="employees">Employees</string>
+    <string name="add_employee">Add Employee</string>
 
 
 </resources>
