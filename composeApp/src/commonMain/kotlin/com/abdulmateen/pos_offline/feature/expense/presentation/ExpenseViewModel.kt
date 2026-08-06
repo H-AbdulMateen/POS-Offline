@@ -63,9 +63,6 @@ class ExpenseViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ExpenseUiState())
 
-    fun selectMonth(date: LocalDate) {
-        _selectedMonth.value = LocalDate(date.year, date.month, 1)
-    }
 
     fun previousMonth() {
         _selectedMonth.value = _selectedMonth.value.minus(1, DateTimeUnit.MONTH)
