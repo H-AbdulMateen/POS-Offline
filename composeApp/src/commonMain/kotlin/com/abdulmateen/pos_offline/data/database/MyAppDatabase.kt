@@ -3,7 +3,10 @@ package com.abdulmateen.pos_offline.data.database
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.abdulmateen.pos_offline.data.database.MyAppDatabaseConstructor
+import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 import com.abdulmateen.pos_offline.data.database.dao.CartDao
 import com.abdulmateen.pos_offline.data.database.dao.CategoryDao
 import com.abdulmateen.pos_offline.data.database.dao.DashboardDao
@@ -21,10 +24,6 @@ import com.abdulmateen.pos_offline.data.database.entities.OrderEntity
 import com.abdulmateen.pos_offline.data.database.entities.OrderItemEntity
 import com.abdulmateen.pos_offline.data.database.entities.ProductEntity
 import com.abdulmateen.pos_offline.data.database.entities.UnitEntity
-import androidx.room.TypeConverters
-import androidx.room.migration.Migration
-import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.execSQL
 
 @Database(
     entities = [
