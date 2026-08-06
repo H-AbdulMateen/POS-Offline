@@ -20,5 +20,6 @@ data class ExpenseEntity @OptIn(ExperimentalTime::class) constructor(
     val description: String,
     val category: ExpenseCategory,
     val employeeId: Long? = null,
+    val paidTo: String? = null,
     val date: Long = Clock.System.now().toEpochMilliseconds()
 )

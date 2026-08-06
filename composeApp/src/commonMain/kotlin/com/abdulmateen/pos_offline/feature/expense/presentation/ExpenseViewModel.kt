@@ -67,14 +67,23 @@ class ExpenseViewModel(
         _selectedMonth.value = LocalDate(date.year, date.month, 1)
     }
 
-    fun addExpense(amount: Double, description: String, category: ExpenseCategory, employeeId: Long? = null) {
+    fun previousMonth() {
+        _selectedMonth.value = _selectedMonth.value.minus(1, DateTimeUnit.MONTH)
+    }
+
+    fun nextMonth() {
+        _selectedMonth.value = _selectedMonth.value.plus(1, DateTimeUnit.MONTH)
+    }
+
+    fun addExpense(amount: Double, description: String, category: ExpenseCategory, paidTo: String?, employeeId: Long? = null) {
         viewModelScope.launch {
             expenseRepository.insertExpense(
                 ExpenseEntity(
                     amount = amount,
                     description = description,
                     category = category,
-                    employeeId = employeeId
+                    employeeId = employeeId,
+                    paidTo = paidTo
                 )
             )
         }

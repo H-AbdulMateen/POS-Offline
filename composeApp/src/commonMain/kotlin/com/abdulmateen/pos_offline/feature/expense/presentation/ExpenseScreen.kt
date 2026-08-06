@@ -1,19 +1,30 @@
 package com.abdulmateen.pos_offline.feature.expense.presentation
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.data.database.entities.ExpenseCategory
 import com.abdulmateen.pos_offline.data.database.entities.ExpenseEntity
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.ExperimentalTime
@@ -26,15 +37,19 @@ fun ExpenseScreenRoot() {
     ExpenseScreen(
         uiState = uiState,
         onAddExpense = viewModel::addExpense,
-        onAddRevenue = viewModel::addRevenue
+        onAddRevenue = viewModel::addRevenue,
+        onPreviousMonth = viewModel::previousMonth,
+        onNextMonth = viewModel::nextMonth
     )
 }
 
 @Composable
 fun ExpenseScreen(
     uiState: ExpenseUiState,
-    onAddExpense: (Double, String, ExpenseCategory, Long?) -> Unit,
-    onAddRevenue: (Double, String) -> Unit
+    onAddExpense: (Double, String, ExpenseCategory, String?, Long?) -> Unit,
+    onAddRevenue: (Double, String) -> Unit,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var showAddRevenueDialog by remember { mutableStateOf(false) }
@@ -43,7 +58,7 @@ fun ExpenseScreen(
         floatingActionButton = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = androidx.compose.ui.Alignment.End
+                horizontalAlignment = Alignment.End
             ) {
                 ExtendedFloatingActionButton(
                     onClick = { showAddRevenueDialog = true },
@@ -73,7 +88,23 @@ fun ExpenseScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            Text(text = "Month: ${uiState.selectedMonth.month} ${uiState.selectedMonth.year}")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(onClick = onPreviousMonth) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Month")
+                }
+                Text(
+                    text = "${uiState.selectedMonth.month} ${uiState.selectedMonth.year}",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                IconButton(onClick = onNextMonth) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Month")
+                }
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -115,15 +146,79 @@ fun ExpenseScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            Text(text = "Recent Expenses", style = MaterialTheme.typography.titleMedium)
+            Text(text = "Expense Records", style = MaterialTheme.typography.titleMedium)
             
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Table Container
+            Card(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                shape = MaterialTheme.shapes.small
             ) {
-                items(uiState.recentExpenses) { expense ->
-                    ExpenseItem(expense)
+                Column {
+                    // Table Header
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .height(IntrinsicSize.Min),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TableHeaderCell("Date", 1f)
+                        TableHeaderCell("Paid To", 2f)
+                        TableHeaderCell("Category", 1.5f)
+                        TableHeaderCell("Amount", 1.2f, isLast = true, textAlign = TextAlign.End)
+                    }
+
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        items(uiState.recentExpenses) { expense ->
+                            ExpenseTableRow(expense)
+                            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                        }
+                        
+                        if (uiState.recentExpenses.isEmpty()) {
+                            item {
+                                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                                    Text(text = "No expenses recorded for this month", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Total Monthly Expense Footer
+            if (uiState.recentExpenses.isNotEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Total Monthly Expense",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                        Text(
+                            text = "Rs ${uiState.totalExpenses}",
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.End,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
                 }
             }
         }
@@ -132,8 +227,8 @@ fun ExpenseScreen(
     if (showAddDialog) {
         AddExpenseDialog(
             onDismiss = { showAddDialog = false },
-            onConfirm = { amount, desc, category ->
-                onAddExpense(amount, desc, category, null)
+            onConfirm = { amount, desc, category, paidTo ->
+                onAddExpense(amount, desc, category, paidTo, null)
                 showAddDialog = false
             }
         )
@@ -151,37 +246,106 @@ fun ExpenseScreen(
 }
 
 @Composable
-fun ExpenseItem(expense: ExpenseEntity) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(text = expense.description, fontWeight = FontWeight.Medium)
-                Text(text = expense.category.name, style = MaterialTheme.typography.labelSmall)
-            }
-            Text(text = "Rs ${expense.amount}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
+fun RowScope.TableHeaderCell(
+    text: String,
+    weight: Float,
+    isLast: Boolean = false,
+    textAlign: TextAlign = TextAlign.Start
+) {
+    Row(
+        modifier = Modifier
+            .weight(weight)
+            .fillMaxHeight(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier
+                .weight(1f)
+                .padding(12.dp),
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.labelMedium,
+            textAlign = textAlign
+        )
+        if (!isLast) {
+            VerticalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant,
+                modifier = Modifier.fillMaxHeight()
+            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExpenseTableRow(expense: ExpenseEntity) {
+    val date = remember(expense.date) {
+        val localDateTime = kotlin.time.Instant.fromEpochMilliseconds(expense.date)
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+        val day = localDateTime.day.toString().padStart(2, '0')
+        val month = localDateTime.month.number.toString().padStart(2, '0')
+        val year = (localDateTime.year % 100).toString().padStart(2, '0')
+        "$day-$month-$year"
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TableCell(date, 1f)
+        TableCell(expense.paidTo ?: "-", 2f)
+        TableCell(expense.category.name, 1.5f)
+        TableCell("${expense.amount}", 1.2f, isLast = true, textAlign = TextAlign.End)
+    }
+}
+
+@Composable
+fun RowScope.TableCell(
+    text: String,
+    weight: Float,
+    isLast: Boolean = false,
+    textAlign: TextAlign = TextAlign.Start
+) {
+    Row(
+        modifier = Modifier
+            .weight(weight)
+            .fillMaxHeight(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier
+                .weight(1f)
+                .padding(12.dp),
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = textAlign
+        )
+        if (!isLast) {
+            VerticalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant,
+                modifier = Modifier.fillMaxHeight()
+            )
+        }
+    }
+}
+
 @Composable
 fun AddExpenseDialog(
     onDismiss: () -> Unit,
-    onConfirm: (Double, String, ExpenseCategory) -> Unit
+    onConfirm: (Double, String, ExpenseCategory, String?) -> Unit
 ) {
     var amount by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var paidTo by remember { mutableStateOf("") }
     var category by remember { mutableStateOf(ExpenseCategory.OTHER) }
+    var expanded by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = {
                 val amountDouble = amount.toDoubleOrNull() ?: 0.0
-                onConfirm(amountDouble, description, category)
+                onConfirm(amountDouble, description, category, paidTo)
             }) {
                 Text("Add")
             }
@@ -199,20 +363,48 @@ fun AddExpenseDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
+                    value = paidTo,
+                    onValueChange = { paidTo = it },
+                    label = { Text("Paid To") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Text("Category")
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    ExpenseCategory.entries.forEach {
-                        FilterChip(
-                            selected = category == it,
-                            onClick = { category = it },
-                            label = { Text(it.name) }
-                        )
+                
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = category.name,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Category") },
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            IconButton(onClick = { expanded = !expanded }) {
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                            }
+                        }
+                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.fillMaxWidth(0.7f)
+                    ) {
+                        ExpenseCategory.entries.forEach { entry ->
+                            DropdownMenuItem(
+                                text = { Text(entry.name) },
+                                onClick = {
+                                    category = entry
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
+                    // Overlay a clickable box to trigger dropdown
+                    Box(modifier = Modifier.matchParentSize().clickable { expanded = !expanded })
                 }
             }
         }
@@ -276,18 +468,22 @@ private fun ExpenseScreenPreview() {
                             expenseId = 1,
                             amount = 2000.0,
                             description = "Office Supplies",
-                            category = ExpenseCategory.OTHER
+                            category = ExpenseCategory.OTHER,
+                            paidTo = "Local Store"
                         ),
                         ExpenseEntity(
                             expenseId = 2,
                             amount = 5000.0,
                             description = "Internet Bill",
-                            category = ExpenseCategory.BILL
+                            category = ExpenseCategory.BILL,
+                            paidTo = "ISP Provider"
                         )
                     )
                 ),
-                onAddExpense = { _, _, _, _ -> },
-                onAddRevenue = { _, _ -> }
+                onAddExpense = { _, _, _, _, _ -> },
+                onAddRevenue = { _, _ -> },
+                onPreviousMonth = {},
+                onNextMonth = {}
             )
         }
     )

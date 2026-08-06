@@ -60,10 +60,11 @@ val sharedModule = module {
     viewModelOf(::StartupViewModel)
     single { HttpClientFactory.create(get()) }
     single {
-        get<DatabaseFactory>().create()
+        val builder = get<DatabaseFactory>().create()
             .setDriver(BundledSQLiteDriver())
-            .fallbackToDestructiveMigration(true)
-            .build()
+            .addMigrations(MyAppDatabase.MIGRATION_3_4)
+            
+        builder.build()
     }
     single { get<MyAppDatabase>().productDao() }
     single { get<MyAppDatabase>().orderDao() }

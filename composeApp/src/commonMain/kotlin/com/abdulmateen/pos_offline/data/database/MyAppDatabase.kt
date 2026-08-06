@@ -22,6 +22,9 @@ import com.abdulmateen.pos_offline.data.database.entities.OrderItemEntity
 import com.abdulmateen.pos_offline.data.database.entities.ProductEntity
 import com.abdulmateen.pos_offline.data.database.entities.UnitEntity
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 
 @Database(
     entities = [
@@ -35,7 +38,7 @@ import androidx.room.TypeConverters
         EmployeeEntity::class,
         ExpenseEntity::class
     ],
-    version = 3
+    version = 4
 )
 @TypeConverters(ExpenseTypeConverter::class)
 @ConstructedBy(MyAppDatabaseConstructor::class)
@@ -53,5 +56,11 @@ abstract class MyAppDatabase : RoomDatabase() {
 
     companion object Companion {
         const val DB_NAME = "my_app.db"
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("ALTER TABLE expenses ADD COLUMN paidTo TEXT")
+            }
+        }
     }
 }
