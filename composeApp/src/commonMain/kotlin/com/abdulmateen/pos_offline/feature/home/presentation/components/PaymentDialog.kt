@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.generateInvoiceInPdf
+import com.abdulmateen.pos_offline.feature.home.presentation.utils.isPrinterAvailable
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.printPdf
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.saveInvoiceFile
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
@@ -42,60 +43,94 @@ fun PaymentDialog(
     tax: Double,
     totalAmount: Double,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: (String?, String?) -> Unit,
+    onConfirmCredit: (String, String?, Double) -> Unit
 ) {
     var paymentType by remember { mutableStateOf("Cash") }
     var paidAmount by remember { mutableStateOf("") }
+    var customerName by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+    var showNoPrinterDialog by remember { mutableStateOf(false) }
+
+    if (showNoPrinterDialog) {
+        AlertDialog(
+            onDismissRequest = { showNoPrinterDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showNoPrinterDialog = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("No Printer Found") },
+            text = { Text("There is no printer available to print the invoice.") }
+        )
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(
-                    onClick = {
-                        val paid = paidAmount.toDoubleOrNull() ?: 0.0
-                        val change = (paid - totalAmount).coerceAtLeast(0.0)
-                        val fileName = "invoice_${Clock.System.now().toEpochMilliseconds()}.pdf"
-                        val invoiceData = generateInvoiceInPdf(
-                            cartItems = cartItems,
-                            subTotal = subTotal,
-                            discount = discount,
-                            tax = tax,
-                            total = totalAmount,
-                            paidAmount = paid,
-                            change = change,
-                            paymentType = paymentType
-                        )
-                        saveInvoiceFile(invoiceData, fileName)
-                        onConfirm()
-                    },
-                    enabled = paidAmount.toDoubleOrNull()?.let { it >= totalAmount } ?: false,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Confirm & View")
-                }
-                Button(
-                    onClick = {
-                        val paid = paidAmount.toDoubleOrNull() ?: 0.0
-                        val change = (paid - totalAmount).coerceAtLeast(0.0)
-                        val fileName = "invoice_${Clock.System.now().toEpochMilliseconds()}.pdf"
-                        val invoiceData = generateInvoiceInPdf(
-                            cartItems = cartItems,
-                            subTotal = subTotal,
-                            discount = discount,
-                            tax = tax,
-                            total = totalAmount,
-                            paidAmount = paid,
-                            change = change,
-                            paymentType = paymentType
-                        )
-                        printPdf(invoiceData, fileName)
-                        onConfirm()
-                    },
-                    enabled = paidAmount.toDoubleOrNull()?.let { it >= totalAmount } ?: false,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Confirm & Print")
+                if (paymentType == "Credit") {
+                    Button(
+                        onClick = {
+                            val paid = paidAmount.toDoubleOrNull() ?: 0.0
+                            onConfirmCredit(customerName, phoneNumber.takeIf { it.isNotBlank() }, paid)
+                        },
+                        enabled = customerName.isNotEmpty(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Confirm Credit")
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            val paid = paidAmount.toDoubleOrNull() ?: 0.0
+                            val change = (paid - totalAmount).coerceAtLeast(0.0)
+                            val fileName = "invoice_${Clock.System.now().toEpochMilliseconds()}.pdf"
+                            val invoiceData = generateInvoiceInPdf(
+                                cartItems = cartItems,
+                                subTotal = subTotal,
+                                discount = discount,
+                                tax = tax,
+                                total = totalAmount,
+                                paidAmount = paid,
+                                change = change,
+                                paymentType = paymentType
+                            )
+                            saveInvoiceFile(invoiceData, fileName)
+                            onConfirm(customerName.takeIf { it.isNotBlank() }, phoneNumber.takeIf { it.isNotBlank() })
+                        },
+                        enabled = paidAmount.toDoubleOrNull()?.let { it >= totalAmount } ?: false,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Confirm & View")
+                    }
+                    Button(
+                        onClick = {
+                            if (isPrinterAvailable()) {
+                                val paid = paidAmount.toDoubleOrNull() ?: 0.0
+                                val change = (paid - totalAmount).coerceAtLeast(0.0)
+                                val fileName = "invoice_${Clock.System.now().toEpochMilliseconds()}.pdf"
+                                val invoiceData = generateInvoiceInPdf(
+                                    cartItems = cartItems,
+                                    subTotal = subTotal,
+                                    discount = discount,
+                                    tax = tax,
+                                    total = totalAmount,
+                                    paidAmount = paid,
+                                    change = change,
+                                    paymentType = paymentType
+                                )
+                                printPdf(invoiceData, fileName)
+                                onConfirm(customerName.takeIf { it.isNotBlank() }, phoneNumber.takeIf { it.isNotBlank() })
+                            } else {
+                                showNoPrinterDialog = true
+                            }
+                        },
+                        enabled = paidAmount.toDoubleOrNull()?.let { it >= totalAmount } ?: false,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Confirm & Print")
+                    }
                 }
             }
         },
@@ -110,7 +145,7 @@ fun PaymentDialog(
                 Text("Select Payment Type")
                 Spacer(Modifier.height(4.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("Cash", "Card", "Split").forEach {
+                    listOf("Cash", "Card", "Credit").forEach {
                         FilterChip(
                             selected = paymentType == it,
                             onClick = { paymentType = it },
@@ -120,8 +155,34 @@ fun PaymentDialog(
                 }
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
+                    value = customerName,
+                    onValueChange = { customerName = it },
+                    label = { Text("Customer Name (Optional)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = phoneNumber,
+                    onValueChange = { input ->
+                        if (input.all { it.isDigit() || it == '+' || it == '-' }) {
+                            phoneNumber = input
+                        }
+                    },
+                    label = { Text("Phone Number (Optional)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                )
+                Spacer(Modifier.height(8.dp))
+                
+                OutlinedTextField(
                     value = paidAmount,
-                    onValueChange = { paidAmount = it },
+                    onValueChange = { input ->
+                        if (input.isEmpty() || input.toDoubleOrNull() != null || (input.count { it == '.' } <= 1 && input.all { it.isDigit() || it == '.' })) {
+                            paidAmount = input
+                        }
+                    },
                     label = { Text("Amount Paid") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -133,7 +194,7 @@ fun PaymentDialog(
                         if (change >= 0) {
                             Text("Change: Rs ${round(change * 100) / 100.0}")
                         } else {
-                            Text("Remaining: Rs ${round(-change * 100) / 100.0}", color = MaterialTheme.colorScheme.error)
+                            Text("Remaining (Credit): Rs ${round(-change * 100) / 100.0}", color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }
@@ -155,7 +216,8 @@ fun PaymentDialogPreview(){
                 tax = 0.0,
                 totalAmount = 100.0,
                 onDismiss = {},
-                onConfirm = {}
+                onConfirm = { _, _ -> },
+                onConfirmCredit = { _, _, _ -> }
             )
         }
     )
@@ -173,7 +235,8 @@ fun PaymentDialogPreviewDark(){
                 tax = 0.0,
                 totalAmount = 100.0,
                 onDismiss = {},
-                onConfirm = {}
+                onConfirm = { _, _ -> },
+                onConfirmCredit = { _, _, _ -> }
             )
         }
     )

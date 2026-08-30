@@ -11,6 +11,7 @@ data class OrderEntity(
     @PrimaryKey(autoGenerate = true)
     val orderId: Long = 0,
     val customerName: String?,
+    val customerPhone: String? = null,
     val subTotal: Double,
     val discount: Double?,
     val tax: Double?,

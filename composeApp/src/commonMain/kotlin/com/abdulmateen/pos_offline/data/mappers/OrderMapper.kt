@@ -8,6 +8,7 @@ fun OrderEntity.toOrder(): Order {
         orderId = orderId,
         totalAmount = total,
         customerName = customerName,
+        customerPhone = customerPhone,
         subTotal = subTotal,
         discount = discount,
         tax = tax,
@@ -22,6 +23,7 @@ fun Order.toOrderEntity(): OrderEntity {
     return OrderEntity(
         total = totalAmount,
         customerName = customerName,
+        customerPhone = customerPhone,
         subTotal = subTotal,
         discount = discount,
         tax = tax,

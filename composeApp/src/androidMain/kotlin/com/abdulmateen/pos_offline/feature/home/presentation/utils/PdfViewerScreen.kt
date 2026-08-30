@@ -11,11 +11,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +45,21 @@ fun PdfViewerScreen(
     var renderedPages by remember {
         mutableStateOf<List<Bitmap>>(emptyList())
     }
+    var showNoPrinterDialog by remember { mutableStateOf(false) }
+
+    if (showNoPrinterDialog) {
+        AlertDialog(
+            onDismissRequest = { showNoPrinterDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showNoPrinterDialog = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("No Printer Found") },
+            text = { Text("There is no printer available to print the invoice.") }
+        )
+    }
+
     LaunchedEffect(pdfUri) {
         pdfUri.let { uri ->
             renderedPages = pdfBitmapConverter.pdfToBitmaps(uri)
@@ -55,7 +72,11 @@ fun PdfViewerScreen(
         floatingActionButton = {
             if (pdfBytes != null) {
                 FloatingActionButton(onClick = {
-                    printPdf(pdfBytes, fileName)
+                    if (isPrinterAvailable()) {
+                        printPdf(pdfBytes, fileName)
+                    } else {
+                        showNoPrinterDialog = true
+                    }
                 }) {
                     Icon(Icons.Default.Print, contentDescription = "Print")
                 }

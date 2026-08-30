@@ -1,7 +1,6 @@
 package com.abdulmateen.pos_offline.data.repository
 
 import com.abdulmateen.pos_offline.data.database.dao.OrderDao
-import com.abdulmateen.pos_offline.data.database.entities.CartWithItemsViewTable
 import com.abdulmateen.pos_offline.data.mappers.toOrder
 import com.abdulmateen.pos_offline.data.mappers.toOrderEntity
 import com.abdulmateen.pos_offline.data.mappers.toOrderItemEntity
@@ -16,12 +15,37 @@ class OrderRepositoryImpl(
 ): OrderRepository {
 
     override suspend fun checkout(
-        cart: CartWithItemsViewTable
+        cartItems: List<com.abdulmateen.pos_offline.domain.models.CartItem>,
+        subTotal: Double,
+        discount: Double,
+        tax: Double,
+        total: Double,
+        customerName: String?,
+        customerPhone: String?,
+        paymentMethod: String
     ) {
-        orderDao.checkout(
-            cart = cart,
-            paymentMethod = "CASH"
+        val orderEntity = com.abdulmateen.pos_offline.data.database.entities.OrderEntity(
+            customerName = customerName,
+            customerPhone = customerPhone,
+            subTotal = subTotal,
+            discount = discount,
+            tax = tax,
+            total = total,
+            paymentMethod = paymentMethod,
+            paymentStatus = "PAID"
         )
+        val orderItems = cartItems.map {
+            com.abdulmateen.pos_offline.data.database.entities.OrderItemEntity(
+                orderId = 0,
+                productId = it.productId,
+                productName = it.productName,
+                sku = it.sku,
+                quantity = it.quantity,
+                price = it.price,
+                discount = it.discount
+            )
+        }
+        orderDao.createOrder(orderEntity, orderItems)
     }
 
     override suspend fun addOrderItem(orderItem: OrderItem) {
@@ -49,11 +73,13 @@ class OrderRepositoryImpl(
     }
 
     override suspend fun getOrderById(orderId: Long): Order? {
-//        return orderDao.getOrderById(orderId).toOrder()
         return orderDao.getOrderById(orderId)?.toOrder()
     }
 
-    override suspend fun getAllOrders(): Flow<List<Order>> =
+    override fun getAllOrders(): Flow<List<Order>> =
         orderDao.getAllOrders().map { orderEntities -> orderEntities.map { it.toOrder() } }
+
+    override fun getOrderWithItems(orderId: Long): Flow<com.abdulmateen.pos_offline.data.database.entities.OrderWithItems?> =
+        orderDao.getOrderWithItems(orderId)
 
 }

@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import com.stevdza_san.library.component.CountryPickerDialog
 import com.stevdza_san.library.domain.Country
 import org.jetbrains.compose.resources.painterResource
@@ -60,32 +61,65 @@ fun OutlinedTF(
 ){
     OutlinedTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { input ->
+            when (keyboardType) {
+                KeyboardType.Decimal, KeyboardType.Number -> {
+                    if (input.isEmpty() || input.toDoubleOrNull() != null || (input.count { it == '.' } <= 1 && input.all { it.isDigit() || it == '.' })) {
+                        onValueChange(input)
+                    }
+                }
+                KeyboardType.Phone -> {
+                    if (input.all { it.isDigit() || it == '+' || it == '-' || it == '(' || it == ')' || it == ' ' }) {
+                        onValueChange(input)
+                    }
+                }
+                else -> onValueChange(input)
+            }
+        },
         modifier = modifier,
-        placeholder = { Text(text = placeholder) },
-        label = { Text(text = placeholder) },
+        placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
+        label = { Text(text = placeholder, style = MaterialTheme.typography.labelMedium) },
         isError = hasError,
         supportingText = {
             if (hasError) {
-                Text(text = errorMessage)
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = singleLine,
         leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon
+        trailingIcon = trailingIcon,
+        shape = MaterialTheme.shapes.medium,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        ),
+        textStyle = MaterialTheme.typography.bodyLarge
     )
 }
 
 @Preview
 @Composable
 fun OutlinedTFPreview() {
-    OutlinedTF(
-        value = "",
-        onValueChange = {},
-        modifier = Modifier.fillMaxWidth()
+    POSOfflineTheme(
+        content = {
+            OutlinedTF(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                placeholder = "Product Name"
+            )
+        }
     )
 }
+
 @Composable
 fun SearchField(
     value: String,
@@ -101,19 +135,29 @@ fun SearchField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier,
-        placeholder = { Text(text = placeholder) },
-        label = { Text(text = placeholder) },
+        placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
+        label = { Text(text = placeholder, style = MaterialTheme.typography.labelMedium) },
         isError = hasError,
         supportingText = {
             if (hasError) {
-                Text(text = errorMessage)
+                Text(text = errorMessage, style = MaterialTheme.typography.labelSmall)
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = singleLine,
         leadingIcon = {
-            Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-        }
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        shape = MaterialTheme.shapes.medium,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+        ),
+        textStyle = MaterialTheme.typography.bodyLarge
     )
 }
 

@@ -56,7 +56,11 @@ import com.abdulmateen.pos_offline.feature.dashboard.presentation.DashboardScree
 import com.abdulmateen.pos_offline.feature.expense.presentation.ExpenseScreenRoot
 import com.abdulmateen.pos_offline.feature.profile.presentation.ProfileScreenRoot
 import com.abdulmateen.pos_offline.feature.settings.presentation.SettingsScreenRoot
+import com.abdulmateen.pos_offline.feature.credit.presentation.CreditScreenRoot
+import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderHistoryScreenRoot
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.History
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.stringResource
@@ -292,6 +296,12 @@ fun NavHostPane(
         composable<MainScreenRoutes.Expenses> {
             ExpenseScreenRoot()
         }
+        composable<MainScreenRoutes.Credits> {
+            CreditScreenRoot()
+        }
+        composable<MainScreenRoutes.OrderHistory> {
+            OrderHistoryScreenRoot(onBackClick = { navController.popBackStack() })
+        }
         composable<MainScreenRoutes.Profile>() {
             ProfileScreenRoot()
         }
@@ -336,6 +346,20 @@ fun BottomNavBar(
             icon = { Icon(imageVector = Icons.AutoMirrored.Filled.ReceiptLong, "expenses") },
             label = { Text(text = "Expenses") },
             onClick = { navController.navigate(MainScreenRoutes.Expenses) }
+        )
+
+        NavigationBarItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Credits::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.CreditCard, "credits") },
+            label = { Text(text = "Credits") },
+            onClick = { navController.navigate(MainScreenRoutes.Credits) }
+        )
+
+        NavigationBarItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.OrderHistory::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.History, "history") },
+            label = { Text(text = "Orders") },
+            onClick = { navController.navigate(MainScreenRoutes.OrderHistory) }
         )
 
 
@@ -389,6 +413,20 @@ fun SideNavBar(
         )
 
         NavigationRailItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Credits::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.CreditCard, contentDescription = "credits") },
+            label = { Text(text = "Credits") },
+            onClick = { navController.navigate(MainScreenRoutes.Credits) }
+        )
+
+        NavigationRailItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.OrderHistory::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.History, contentDescription = "history") },
+            label = { Text(text = "Orders") },
+            onClick = { navController.navigate(MainScreenRoutes.OrderHistory) }
+        )
+
+        NavigationRailItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Person, "profile") },
             label = { Text(text = stringResource(Res.string.profile)) },
@@ -417,6 +455,12 @@ sealed interface MainScreenRoutes {
 
     @Serializable
     data object Expenses : MainScreenRoutes
+
+    @Serializable
+    data object Credits : MainScreenRoutes
+
+    @Serializable
+    data object OrderHistory : MainScreenRoutes
 
     @Serializable
     data object Profile : MainScreenRoutes

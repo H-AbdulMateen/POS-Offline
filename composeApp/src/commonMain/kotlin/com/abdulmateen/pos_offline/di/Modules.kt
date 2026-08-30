@@ -47,7 +47,11 @@ import com.abdulmateen.pos_offline.feature.profile.presentation.ProfileViewModel
 import com.abdulmateen.pos_offline.feature.settings.presentation.SettingsViewModel
 import com.abdulmateen.pos_offline.domain.repository.ExpenseRepository
 import com.abdulmateen.pos_offline.data.repository.ExpenseRepositoryImpl
+import com.abdulmateen.pos_offline.domain.repository.CreditRepository
+import com.abdulmateen.pos_offline.data.repository.CreditRepositoryImpl
 import com.abdulmateen.pos_offline.feature.expense.presentation.ExpenseViewModel
+import com.abdulmateen.pos_offline.feature.credit.presentation.CreditViewModel
+import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderHistoryViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -62,7 +66,12 @@ val sharedModule = module {
     single {
         val builder = get<DatabaseFactory>().create()
             .setDriver(BundledSQLiteDriver())
-            .addMigrations(MyAppDatabase.MIGRATION_3_4)
+            .addMigrations(
+                MyAppDatabase.MIGRATION_3_4,
+                MyAppDatabase.MIGRATION_4_5,
+                MyAppDatabase.MIGRATION_5_6,
+                MyAppDatabase.MIGRATION_6_7
+            )
             
         builder.build()
     }
@@ -74,6 +83,7 @@ val sharedModule = module {
     single { get<MyAppDatabase>().dashboardDao() }
     single { get<MyAppDatabase>().employeeDao() }
     single { get<MyAppDatabase>().expenseDao() }
+    single { get<MyAppDatabase>().creditDao() }
 
     singleOf(::KtorUserDataSource).bind<RemoteUserDataSource>()
     singleOf(::DataStoreManagerImpl).bind<DataStoreManager>()
@@ -83,6 +93,7 @@ val sharedModule = module {
     singleOf(::OrderRepositoryImpl).bind<OrderRepository>()
     singleOf(::DashboardRepositoryImpl).bind<DashboardRepository>()
     singleOf(::ExpenseRepositoryImpl).bind<ExpenseRepository>()
+    singleOf(::CreditRepositoryImpl).bind<CreditRepository>()
 
     single {
         ProductUseCases(
@@ -114,9 +125,20 @@ val sharedModule = module {
     viewModelOf(::SignUpViewModel)
     viewModelOf(::InventoryViewModel)
     viewModelOf(::DashboardViewModel)
-    viewModelOf(::OrderViewModel)
+    single {
+        OrderViewModel(
+            productUseCases = get(),
+            cartUseCases = get(),
+            dataStoreManager = get(),
+            repository = get(),
+            creditRepository = get(),
+            orderRepository = get()
+        )
+    }
     viewModelOf(::SettingsViewModel)
     viewModelOf(::ProfileViewModel)
     viewModelOf(::ExpenseViewModel)
+    viewModelOf(::CreditViewModel)
+    viewModelOf(::OrderHistoryViewModel)
 
 }

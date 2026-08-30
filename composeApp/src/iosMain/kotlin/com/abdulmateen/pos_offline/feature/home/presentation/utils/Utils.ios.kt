@@ -98,6 +98,10 @@ actual fun printPdf(invoiceByteArray: ByteArray, fileName: String) {
     // Basic implementation for iOS if needed
 }
 
+actual fun isPrinterAvailable(): Boolean {
+    return true
+}
+
 @OptIn(ExperimentalForeignApi::class)
 fun NSData.toByteArray(): ByteArray {
     return this.bytes?.let { bytesPointer ->

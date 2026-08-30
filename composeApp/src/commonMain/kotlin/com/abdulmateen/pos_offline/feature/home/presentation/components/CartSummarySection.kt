@@ -155,9 +155,12 @@ fun CartSummarySection(
             tax = uiState.tax,
             totalAmount = uiState.total,
             onDismiss = { showCheckoutDialog = false },
-            onConfirm = {
+            onConfirm = { name, phone ->
                 showCheckoutDialog = false
-                uiAction(OrderUiAction.ClearCart)
+                uiAction(OrderUiAction.Checkout(name, phone))
+            },
+            onConfirmCredit = { name, phone, paid ->
+                uiAction(OrderUiAction.CreateCredit(name, phone, paid))
             }
         )
     }

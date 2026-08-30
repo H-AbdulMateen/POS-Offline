@@ -112,3 +112,11 @@ actual fun printPdf(invoiceByteArray: ByteArray, fileName: String) {
     }
     document.close()
 }
+
+actual fun isPrinterAvailable(): Boolean {
+    return try {
+        javax.print.PrintServiceLookup.lookupPrintServices(null, null).isNotEmpty()
+    } catch (e: Exception) {
+        false
+    }
+}

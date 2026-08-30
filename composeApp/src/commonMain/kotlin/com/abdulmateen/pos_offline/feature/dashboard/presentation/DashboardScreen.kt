@@ -1,5 +1,6 @@
 package com.abdulmateen.pos_offline.feature.dashboard.presentation
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -144,18 +145,25 @@ fun SummaryCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = containerColor.copy(alpha = 0.1f))
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = containerColor.copy(alpha = 0.08f)),
+        border = BorderStroke(1.dp, containerColor.copy(alpha = 0.2f))
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(text = title, style = MaterialTheme.typography.labelMedium, color = containerColor)
+            Text(
+                text = title, 
+                style = MaterialTheme.typography.labelMedium, 
+                color = containerColor,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.ExtraBold,
                 color = containerColor
             )
         }

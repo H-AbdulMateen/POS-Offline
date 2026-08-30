@@ -16,3 +16,5 @@ expect fun generateInvoiceInPdf(
 expect fun saveInvoiceFile(invoiceByteArray: ByteArray, fileName: String)
 
 expect fun printPdf(invoiceByteArray: ByteArray, fileName: String)
+
+expect fun isPrinterAvailable(): Boolean

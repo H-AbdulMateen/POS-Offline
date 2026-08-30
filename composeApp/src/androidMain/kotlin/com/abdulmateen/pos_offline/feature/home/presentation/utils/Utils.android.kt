@@ -113,3 +113,10 @@ actual fun printPdf(invoiceByteArray: ByteArray, fileName: String) {
     val printAdapter = PdfDocumentAdapter(invoiceByteArray, fileName)
     printManager.print(fileName, printAdapter, PrintAttributes.Builder().build())
 }
+
+actual fun isPrinterAvailable(): Boolean {
+    // In Android, printing is handled by the system print spooler, 
+    // which is always available if the device supports it.
+    // A more thorough check could be done via PrintManager.
+    return true
+}

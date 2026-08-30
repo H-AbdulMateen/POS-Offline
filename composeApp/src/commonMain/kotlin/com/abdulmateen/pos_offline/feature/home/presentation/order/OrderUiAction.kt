@@ -16,5 +16,6 @@ sealed class OrderUiAction {
     data object ApplyTax: OrderUiAction()
     data class UpdateTaxField(val tax: String): OrderUiAction()
     object RemoveCartItem: OrderUiAction()
-    object Checkout: OrderUiAction()
+    data class Checkout(val customerName: String?, val customerPhone: String?): OrderUiAction()
+    data class CreateCredit(val customerName: String, val phoneNumber: String?, val paidAmount: Double): OrderUiAction()
 }

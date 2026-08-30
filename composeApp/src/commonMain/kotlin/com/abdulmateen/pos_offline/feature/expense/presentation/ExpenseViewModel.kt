@@ -40,7 +40,7 @@ class ExpenseViewModel(
     val uiState: StateFlow<ExpenseUiState> = _selectedMonth.flatMapLatest { date ->
         val startOfMonth = LocalDate(date.year, date.month, 1)
         val endOfMonth = startOfMonth.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
-        
+
         val start = LocalDateTime(startOfMonth.year, startOfMonth.month, startOfMonth.day, 0, 0)
             .toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
         val end = LocalDateTime(endOfMonth.year, endOfMonth.month, endOfMonth.day, 23, 59, 59)

@@ -10,6 +10,8 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
@@ -74,6 +76,22 @@ fun DrawerContentSheet(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Expenses::class) } == true
         ) {
             navController.navigate(MainScreenRoutes.Expenses) { launchSingleTop = true }
+            closeDrawer()
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        DrawerItem("Credits",
+            icon = Icons.Default.CreditCard,
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Credits::class) } == true
+        ) {
+            navController.navigate(MainScreenRoutes.Credits) { launchSingleTop = true }
+            closeDrawer()
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        DrawerItem("Orders",
+            icon = Icons.Default.History,
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.OrderHistory::class) } == true
+        ) {
+            navController.navigate(MainScreenRoutes.OrderHistory) { launchSingleTop = true }
             closeDrawer()
         }
         Spacer(modifier = Modifier.height(16.dp))
