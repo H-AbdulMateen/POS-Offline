@@ -13,4 +13,5 @@ interface DashboardRepository {
     fun getTopSellingProducts(): Flow<List<TopProduct>>
     fun getRevenueByCategory(): Flow<List<CategoryRevenue>>
     fun getRecentOrders(): Flow<List<OrderEntity>>
+    fun getTotalReturns(): Flow<Double?>
 }

@@ -22,10 +22,13 @@ class DashboardViewModel(
         repository.getTotalStock(),
         repository.getTopSellingProducts(),
         repository.getRevenueByCategory(),
-        repository.getRecentOrders()
+        repository.getRecentOrders(),
+        repository.getTotalReturns()
     ) { array ->
+        val revenue = array[0] as? Double ?: 0.0
+        val returns = array[7] as? Double ?: 0.0
         DashboardUiState(
-            totalRevenue = array[0] as? Double ?: 0.0,
+            totalRevenue = revenue - returns,
             totalOrders = array[1] as Int,
             totalProducts = array[2] as Int,
             totalStock = array[3] as? Double ?: 0.0,

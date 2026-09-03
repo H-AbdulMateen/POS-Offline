@@ -15,6 +15,7 @@ import com.abdulmateen.pos_offline.data.database.dao.EmployeeDao
 import com.abdulmateen.pos_offline.data.database.dao.ExpenseDao
 import com.abdulmateen.pos_offline.data.database.dao.OrderDao
 import com.abdulmateen.pos_offline.data.database.dao.ProductDao
+import com.abdulmateen.pos_offline.data.database.dao.ReturnDao
 import com.abdulmateen.pos_offline.data.database.dao.UnitDao
 import com.abdulmateen.pos_offline.data.database.entities.CartEntity
 import com.abdulmateen.pos_offline.data.database.entities.CartItemEntity
@@ -25,6 +26,8 @@ import com.abdulmateen.pos_offline.data.database.entities.ExpenseEntity
 import com.abdulmateen.pos_offline.data.database.entities.OrderEntity
 import com.abdulmateen.pos_offline.data.database.entities.OrderItemEntity
 import com.abdulmateen.pos_offline.data.database.entities.ProductEntity
+import com.abdulmateen.pos_offline.data.database.entities.ReturnEntity
+import com.abdulmateen.pos_offline.data.database.entities.ReturnItemEntity
 import com.abdulmateen.pos_offline.data.database.entities.UnitEntity
 
 @Database(
@@ -38,9 +41,11 @@ import com.abdulmateen.pos_offline.data.database.entities.UnitEntity
         OrderItemEntity::class,
         EmployeeEntity::class,
         ExpenseEntity::class,
-        CreditEntity::class
+        CreditEntity::class,
+        ReturnEntity::class,
+        ReturnItemEntity::class
     ],
-    version = 7
+    version = 8
 )
 @TypeConverters(ExpenseTypeConverter::class)
 @ConstructedBy(MyAppDatabaseConstructor::class)
@@ -54,6 +59,7 @@ abstract class MyAppDatabase : RoomDatabase() {
     abstract fun employeeDao(): EmployeeDao
     abstract fun expenseDao(): ExpenseDao
     abstract fun creditDao(): CreditDao
+    abstract fun returnDao(): ReturnDao
 
 
 
@@ -81,6 +87,13 @@ abstract class MyAppDatabase : RoomDatabase() {
         val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(connection: SQLiteConnection) {
                 connection.execSQL("ALTER TABLE orders ADD COLUMN customerPhone TEXT")
+            }
+        }
+
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `returns` (`returnId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderId` INTEGER NOT NULL, `totalReturnAmount` REAL NOT NULL, `reason` TEXT, `createdAt` INTEGER NOT NULL)")
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `return_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `returnId` INTEGER NOT NULL, `productId` INTEGER NOT NULL, `quantity` REAL NOT NULL, `amount` REAL NOT NULL)")
             }
         }
     }

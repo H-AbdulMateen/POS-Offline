@@ -64,4 +64,12 @@ interface ProductDao {
 """)
     suspend fun reduceStock(productId: Long, qty: Double)
 
+    @Query(
+        """
+            UPDATE products
+            SET stock = stock + :qty
+            WHERE productId = :productId
+""")
+    suspend fun increaseStock(productId: Long, qty: Double)
+
 }

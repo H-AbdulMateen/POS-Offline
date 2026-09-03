@@ -58,9 +58,11 @@ import com.abdulmateen.pos_offline.feature.profile.presentation.ProfileScreenRoo
 import com.abdulmateen.pos_offline.feature.settings.presentation.SettingsScreenRoot
 import com.abdulmateen.pos_offline.feature.credit.presentation.CreditScreenRoot
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderHistoryScreenRoot
+import com.abdulmateen.pos_offline.feature.return_module.presentation.ReturnScreenRoot
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.AssignmentReturn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.stringResource
@@ -302,6 +304,9 @@ fun NavHostPane(
         composable<MainScreenRoutes.OrderHistory> {
             OrderHistoryScreenRoot(onBackClick = { navController.popBackStack() })
         }
+        composable<MainScreenRoutes.Returns> {
+            ReturnScreenRoot()
+        }
         composable<MainScreenRoutes.Profile>() {
             ProfileScreenRoot()
         }
@@ -360,6 +365,13 @@ fun BottomNavBar(
             icon = { Icon(imageVector = Icons.Default.History, "history") },
             label = { Text(text = "Orders") },
             onClick = { navController.navigate(MainScreenRoutes.OrderHistory) }
+        )
+
+        NavigationBarItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Returns::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.AssignmentReturn, "returns") },
+            label = { Text(text = "Returns") },
+            onClick = { navController.navigate(MainScreenRoutes.Returns) }
         )
 
 
@@ -427,6 +439,13 @@ fun SideNavBar(
         )
 
         NavigationRailItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Returns::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.AssignmentReturn, contentDescription = "returns") },
+            label = { Text(text = "Returns") },
+            onClick = { navController.navigate(MainScreenRoutes.Returns) }
+        )
+
+        NavigationRailItem(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Person, "profile") },
             label = { Text(text = stringResource(Res.string.profile)) },
@@ -461,6 +480,9 @@ sealed interface MainScreenRoutes {
 
     @Serializable
     data object OrderHistory : MainScreenRoutes
+
+    @Serializable
+    data object Returns : MainScreenRoutes
 
     @Serializable
     data object Profile : MainScreenRoutes

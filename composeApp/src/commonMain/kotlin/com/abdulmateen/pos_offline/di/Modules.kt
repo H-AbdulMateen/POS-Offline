@@ -49,9 +49,12 @@ import com.abdulmateen.pos_offline.domain.repository.ExpenseRepository
 import com.abdulmateen.pos_offline.data.repository.ExpenseRepositoryImpl
 import com.abdulmateen.pos_offline.domain.repository.CreditRepository
 import com.abdulmateen.pos_offline.data.repository.CreditRepositoryImpl
+import com.abdulmateen.pos_offline.domain.repository.ReturnRepository
+import com.abdulmateen.pos_offline.data.repository.ReturnRepositoryImpl
 import com.abdulmateen.pos_offline.feature.expense.presentation.ExpenseViewModel
 import com.abdulmateen.pos_offline.feature.credit.presentation.CreditViewModel
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderHistoryViewModel
+import com.abdulmateen.pos_offline.feature.return_module.presentation.ReturnViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -70,7 +73,8 @@ val sharedModule = module {
                 MyAppDatabase.MIGRATION_3_4,
                 MyAppDatabase.MIGRATION_4_5,
                 MyAppDatabase.MIGRATION_5_6,
-                MyAppDatabase.MIGRATION_6_7
+                MyAppDatabase.MIGRATION_6_7,
+                MyAppDatabase.MIGRATION_7_8
             )
             
         builder.build()
@@ -84,6 +88,7 @@ val sharedModule = module {
     single { get<MyAppDatabase>().employeeDao() }
     single { get<MyAppDatabase>().expenseDao() }
     single { get<MyAppDatabase>().creditDao() }
+    single { get<MyAppDatabase>().returnDao() }
 
     singleOf(::KtorUserDataSource).bind<RemoteUserDataSource>()
     singleOf(::DataStoreManagerImpl).bind<DataStoreManager>()
@@ -94,6 +99,7 @@ val sharedModule = module {
     singleOf(::DashboardRepositoryImpl).bind<DashboardRepository>()
     singleOf(::ExpenseRepositoryImpl).bind<ExpenseRepository>()
     singleOf(::CreditRepositoryImpl).bind<CreditRepository>()
+    singleOf(::ReturnRepositoryImpl).bind<com.abdulmateen.pos_offline.domain.repository.ReturnRepository>()
 
     single {
         ProductUseCases(
@@ -138,6 +144,7 @@ val sharedModule = module {
     viewModelOf(::SettingsViewModel)
     viewModelOf(::ProfileViewModel)
     viewModelOf(::ExpenseViewModel)
+    viewModelOf(::ReturnViewModel)
     viewModelOf(::CreditViewModel)
     viewModelOf(::OrderHistoryViewModel)
 
