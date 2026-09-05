@@ -31,6 +31,7 @@ fun App(
             if (!uiState.isCheckingAuth) {
                 AppNavGraph(
                     isLoggedIn = uiState.isLoggedIn,
+                    isSetupCompleted = uiState.isSetupCompleted,
                     toggleDarkTheme = {
                         isDarkTheme = !isDarkTheme
                     },

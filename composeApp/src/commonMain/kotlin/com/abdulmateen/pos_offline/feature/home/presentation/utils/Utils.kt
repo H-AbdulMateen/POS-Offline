@@ -10,7 +10,9 @@ expect fun generateInvoiceInPdf(
     total: Double,
     paidAmount: Double,
     change: Double,
-    paymentType: String
+    paymentType: String,
+    businessName: String,
+    currencySymbol: String
 ): ByteArray
 
 expect fun saveInvoiceFile(invoiceByteArray: ByteArray, fileName: String)

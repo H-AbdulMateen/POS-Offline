@@ -23,7 +23,9 @@ actual fun generateInvoiceInPdf(
     total: Double,
     paidAmount: Double,
     change: Double,
-    paymentType: String
+    paymentType: String,
+    businessName: String,
+    currencySymbol: String
 ): ByteArray {
     val pdfDocument = PdfDocument()
     val pageInfo =
@@ -35,20 +37,26 @@ actual fun generateInvoiceInPdf(
     paint.color = Color.BLACK
     paint.textSize = 12f
 
-    canvas.drawText("Invoice", 100f, 50f, paint)
-    canvas.drawText("Payment Type: $paymentType", 100f, 70f, paint)
+    paint.isFakeBoldText = true
+    paint.textSize = 18f
+    canvas.drawText(businessName, 100f, 50f, paint)
+    
+    paint.isFakeBoldText = false
+    paint.textSize = 12f
+    canvas.drawText("Invoice", 100f, 75f, paint)
+    canvas.drawText("Payment Type: $paymentType", 100f, 95f, paint)
 
-    canvas.drawText("Order Date:", 100f, 100f, paint)
-    canvas.drawText(java.util.Date().toString(), 200f, 100f, paint)
+    canvas.drawText("Order Date:", 100f, 120f, paint)
+    canvas.drawText(java.util.Date().toString(), 200f, 120f, paint)
 
     paint.isFakeBoldText = true
-    canvas.drawText("Product", 100f, 130f, paint)
-    canvas.drawText("Qty", 300f, 130f, paint)
-    canvas.drawText("Price", 350f, 130f, paint)
-    canvas.drawText("Total", 450f, 130f, paint)
+    canvas.drawText("Product", 100f, 150f, paint)
+    canvas.drawText("Qty", 300f, 150f, paint)
+    canvas.drawText("Price ($currencySymbol)", 350f, 150f, paint)
+    canvas.drawText("Total ($currencySymbol)", 450f, 150f, paint)
     paint.isFakeBoldText = false
 
-    var yPosition = 150f
+    var yPosition = 170f
     cartItems.forEach { item ->
         canvas.drawText(item.productName, 100f, yPosition, paint)
         canvas.drawText(item.quantity.toString(), 300f, yPosition, paint)
@@ -59,26 +67,26 @@ actual fun generateInvoiceInPdf(
 
     yPosition += 20f
     canvas.drawText("Sub Total:", 350f, yPosition, paint)
-    canvas.drawText("%.2f".format(subTotal), 450f, yPosition, paint)
+    canvas.drawText("$currencySymbol %.2f".format(subTotal), 450f, yPosition, paint)
     yPosition += 20f
     canvas.drawText("Discount:", 350f, yPosition, paint)
-    canvas.drawText("%.2f".format(discount), 450f, yPosition, paint)
+    canvas.drawText("$currencySymbol %.2f".format(discount), 450f, yPosition, paint)
     yPosition += 20f
     canvas.drawText("Tax:", 350f, yPosition, paint)
-    canvas.drawText("%.2f".format(tax), 450f, yPosition, paint)
+    canvas.drawText("$currencySymbol %.2f".format(tax), 450f, yPosition, paint)
     yPosition += 20f
     
     paint.isFakeBoldText = true
     canvas.drawText("Total:", 350f, yPosition, paint)
-    canvas.drawText("%.2f".format(total), 450f, yPosition, paint)
+    canvas.drawText("$currencySymbol %.2f".format(total), 450f, yPosition, paint)
     paint.isFakeBoldText = false
     yPosition += 20f
     
     canvas.drawText("Paid Amount:", 350f, yPosition, paint)
-    canvas.drawText("%.2f".format(paidAmount), 450f, yPosition, paint)
+    canvas.drawText("$currencySymbol %.2f".format(paidAmount), 450f, yPosition, paint)
     yPosition += 20f
     canvas.drawText("Change:", 350f, yPosition, paint)
-    canvas.drawText("%.2f".format(change), 450f, yPosition, paint)
+    canvas.drawText("$currencySymbol %.2f".format(change), 450f, yPosition, paint)
 
     pdfDocument.finishPage(page)
 

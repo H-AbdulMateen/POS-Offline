@@ -106,8 +106,8 @@ fun CreditScreen(
                         TableCell("Date", 1f, isHeader = true)
                         TableCell("Customer", 2f, isHeader = true)
                         TableCell("Phone", 1.5f, isHeader = true)
-                        TableCell("Total", 1.2f, isHeader = true, textAlign = TextAlign.End)
-                        TableCell("Remaining", 1.2f, isHeader = true, textAlign = TextAlign.End, isLast = true)
+                        TableCell("Total (${uiState.currencySymbol})", 1.2f, isHeader = true, textAlign = TextAlign.End)
+                        TableCell("Remaining (${uiState.currencySymbol})", 1.2f, isHeader = true, textAlign = TextAlign.End, isLast = true)
                     }
 
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -116,6 +116,7 @@ fun CreditScreen(
                         items(uiState.credits) { credit ->
                             CreditTableRow(
                                 credit = credit,
+                                currencySymbol = uiState.currencySymbol,
                                 onClick = { showReceivePaymentDialog = credit }
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
@@ -129,6 +130,7 @@ fun CreditScreen(
     if (showReceivePaymentDialog != null) {
         ReceivePaymentDialog(
             credit = showReceivePaymentDialog!!,
+            currencySymbol = uiState.currencySymbol,
             onDismiss = { showReceivePaymentDialog = null },
             onConfirm = { amount ->
                 onReceivePayment(showReceivePaymentDialog!!, amount)
@@ -149,7 +151,7 @@ fun CreditScreen(
 }
 
 @Composable
-fun CreditTableRow(credit: CreditEntity, onClick: () -> Unit) {
+fun CreditTableRow(credit: CreditEntity, currencySymbol: String, onClick: () -> Unit) {
     val date = remember(credit.date) {
         val localDateTime = Instant.fromEpochMilliseconds(credit.date)
             .toLocalDateTime(TimeZone.currentSystemDefault())
@@ -168,8 +170,8 @@ fun CreditTableRow(credit: CreditEntity, onClick: () -> Unit) {
         TableCell(date, 1f)
         TableCell(credit.customerName, 2f)
         TableCell(credit.phoneNumber ?: "-", 1.5f)
-        TableCell("Rs ${credit.totalAmount}", 1.2f, textAlign = TextAlign.End)
-        TableCell("Rs ${credit.remainingAmount}", 1.2f, textAlign = TextAlign.End, isLast = true)
+        TableCell("$currencySymbol ${credit.totalAmount}", 1.2f, textAlign = TextAlign.End)
+        TableCell("$currencySymbol ${credit.remainingAmount}", 1.2f, textAlign = TextAlign.End, isLast = true)
     }
 }
 
@@ -195,8 +197,9 @@ fun RowScope.TableCell(
             style = if (isHeader) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodySmall,
             fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
             textAlign = textAlign,
-            color = if (!isHeader && text.startsWith("Rs") && !text.contains("Total")) {
-                 if ((text.replace("Rs ", "").toDoubleOrNull() ?: 0.0) > 0) MaterialTheme.colorScheme.error else Color(0xFF2E7D32)
+            color = if (!isHeader && (text.contains("$") || text.contains("PKR") || text.contains("INR") || text.contains("€") || text.contains("£") || text.contains("¥")) && !text.contains("Total")) {
+                 val amountStr = text.split(" ").lastOrNull() ?: "0"
+                 if ((amountStr.toDoubleOrNull() ?: 0.0) > 0) MaterialTheme.colorScheme.error else Color(0xFF2E7D32)
             } else Color.Unspecified
         )
         if (!isLast) {
@@ -211,6 +214,7 @@ fun RowScope.TableCell(
 @Composable
 fun ReceivePaymentDialog(
     credit: CreditEntity,
+    currencySymbol: String,
     onDismiss: () -> Unit,
     onConfirm: (Double) -> Unit
 ) {
@@ -232,7 +236,7 @@ fun ReceivePaymentDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Customer: ${credit.customerName}")
-                Text("Remaining: Rs ${credit.remainingAmount}", fontWeight = FontWeight.Bold)
+                Text("Remaining: $currencySymbol ${credit.remainingAmount}", fontWeight = FontWeight.Bold)
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { input ->

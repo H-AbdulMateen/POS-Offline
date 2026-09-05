@@ -55,6 +55,7 @@ import com.abdulmateen.pos_offline.feature.expense.presentation.ExpenseViewModel
 import com.abdulmateen.pos_offline.feature.credit.presentation.CreditViewModel
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderHistoryViewModel
 import com.abdulmateen.pos_offline.feature.return_module.presentation.ReturnViewModel
+import com.abdulmateen.pos_offline.feature.setup.presentation.SetupViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -130,7 +131,7 @@ val sharedModule = module {
     viewModelOf(::LoginViewModel)
     viewModelOf(::SignUpViewModel)
     viewModelOf(::InventoryViewModel)
-    viewModelOf(::DashboardViewModel)
+    single { DashboardViewModel(get(), get()) }
     single {
         OrderViewModel(
             productUseCases = get(),
@@ -144,8 +145,9 @@ val sharedModule = module {
     viewModelOf(::SettingsViewModel)
     viewModelOf(::ProfileViewModel)
     viewModelOf(::ExpenseViewModel)
-    viewModelOf(::ReturnViewModel)
-    viewModelOf(::CreditViewModel)
-    viewModelOf(::OrderHistoryViewModel)
+    single { ReturnViewModel(get(), get(), get()) }
+    single { CreditViewModel(get(), get()) }
+    single { OrderHistoryViewModel(get(), get()) }
+    viewModelOf(::SetupViewModel)
 
 }

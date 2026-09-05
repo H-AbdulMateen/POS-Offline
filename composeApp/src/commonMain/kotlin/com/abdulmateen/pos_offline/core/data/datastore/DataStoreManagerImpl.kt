@@ -50,7 +50,7 @@ class DataStoreManagerImpl(
             dataStore
                 .data
                 .map {
-                    it[stringPreferencesKey(key)] ?: "error"
+                    it[stringPreferencesKey(key)] ?: ""
                 }
         }.first()
     }

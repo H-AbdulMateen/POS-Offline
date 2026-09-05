@@ -46,6 +46,7 @@ class OrderViewModel(
             getCartItemsCount()
             loadCartItems()
             calculateSubTotal()
+            loadSettings()
             if (uiState.value.categoryList.isNotEmpty() && uiState.value.unitList.isNotEmpty()) {
                 loadProducts()
             }
@@ -363,6 +364,19 @@ class OrderViewModel(
                     )
                 }
             }.launchIn(viewModelScope)
+        }
+    }
+
+    private fun loadSettings() {
+        viewModelScope.launch {
+            val businessName = dataStoreManager.getStringValue(PrefKeys.BUSINESS_NAME)
+            val currencySymbol = dataStoreManager.getStringValue(PrefKeys.CURRENCY_SYMBOL)
+            _uiState.update {
+                it.copy(
+                    businessName = businessName,
+                    currencySymbol = currencySymbol.ifEmpty { "$" }
+                )
+            }
         }
     }
 

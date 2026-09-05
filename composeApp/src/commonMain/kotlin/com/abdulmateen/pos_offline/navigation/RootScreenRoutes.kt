@@ -13,5 +13,6 @@ sealed interface RootScreenRoutes{
     @Serializable
     data object Cart: RootScreenRoutes
 
-
+    @Serializable
+    data object Setup: RootScreenRoutes
 }

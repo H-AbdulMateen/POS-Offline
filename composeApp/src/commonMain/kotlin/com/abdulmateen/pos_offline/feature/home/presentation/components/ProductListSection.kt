@@ -31,6 +31,7 @@ import pos_offline.composeapp.generated.resources.add
 fun ProductListSection(
     modifier: Modifier = Modifier,
     list: List<Product>,
+    currencySymbol: String = "$",
     onAddToCart: (Product) -> Unit
 ) {
     LazyColumn(modifier = modifier) {
@@ -59,7 +60,7 @@ fun ProductListSection(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Rs ${item.price}",
+                            text = "$currencySymbol ${item.price}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold

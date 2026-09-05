@@ -29,7 +29,9 @@ data class OrderUiState(
     val discount: Double = 0.0,
     val tax: Double = 0.0,
     val isDiscountDialogVisible: Boolean = false,
-    val isTaxDialogVisible: Boolean = false
+    val isTaxDialogVisible: Boolean = false,
+    val businessName: String = "",
+    val currencySymbol: String = "$"
 ) {
     val total: Double get() = subTotal - discount + tax
 }

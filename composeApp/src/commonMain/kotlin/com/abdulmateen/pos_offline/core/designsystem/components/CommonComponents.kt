@@ -31,7 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import pos_offline.composeapp.generated.resources.Res
-import pos_offline.composeapp.generated.resources.compose_multiplatform
+import pos_offline.composeapp.generated.resources.tally_trades_logo
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -40,7 +40,7 @@ fun LogoImage(
     modifier: Modifier = Modifier
 ){
     Image(
-        painter = painterResource(resource = Res.drawable.compose_multiplatform),
+        painter = painterResource(resource = Res.drawable.tally_trades_logo),
         contentDescription = null,
         modifier = modifier
     )

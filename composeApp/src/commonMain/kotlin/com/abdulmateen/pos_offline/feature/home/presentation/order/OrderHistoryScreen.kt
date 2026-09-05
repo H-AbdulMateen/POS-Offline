@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -102,7 +103,7 @@ fun OrderHistoryScreen(
                     ) {
                         OrderHeaderCell("Date", 1.2f)
                         OrderHeaderCell("Customer Details", 2f)
-                        OrderHeaderCell("Total Amount", 1.2f, textAlign = TextAlign.End, isLast = true)
+                        OrderHeaderCell("Total (${uiState.currencySymbol})", 1.2f, textAlign = TextAlign.End, isLast = true)
                     }
 
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -111,6 +112,7 @@ fun OrderHistoryScreen(
                         items(uiState.orders) { order ->
                             OrderHistoryRow(
                                 order = order,
+                                currencySymbol = uiState.currencySymbol,
                                 onClick = { onOrderClick(order) }
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
@@ -124,6 +126,8 @@ fun OrderHistoryScreen(
     if (uiState.selectedOrderDetails != null) {
         OrderDetailDialog(
             orderDetails = uiState.selectedOrderDetails,
+            businessName = uiState.businessName,
+            currencySymbol = uiState.currencySymbol,
             onDismiss = onDismissDetails
         )
     }
@@ -132,6 +136,8 @@ fun OrderHistoryScreen(
 @Composable
 fun OrderDetailDialog(
     orderDetails: com.abdulmateen.pos_offline.data.database.entities.OrderWithItems,
+    businessName: String,
+    currencySymbol: String,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
@@ -158,7 +164,9 @@ fun OrderDetailDialog(
                     total = orderDetails.order.total,
                     paidAmount = orderDetails.order.total,
                     change = 0.0,
-                    paymentType = orderDetails.order.paymentMethod
+                    paymentType = orderDetails.order.paymentMethod,
+                    businessName = businessName,
+                    currencySymbol = currencySymbol
                 )
                 com.abdulmateen.pos_offline.feature.home.presentation.utils.printPdf(invoiceData, fileName)
             }) {
@@ -208,13 +216,13 @@ fun OrderDetailDialog(
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Text(
-                                    text = "${item.quantity} x Rs ${item.price}", 
+                                    text = "${item.quantity} x $currencySymbol ${item.price}", 
                                     style = MaterialTheme.typography.labelMedium, 
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             Text(
-                                text = "Rs ${item.price * item.quantity}", 
+                                text = "$currencySymbol ${item.price * item.quantity}", 
                                 style = MaterialTheme.typography.bodyMedium, 
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.align(Alignment.CenterVertically)
@@ -227,18 +235,18 @@ fun OrderDetailDialog(
                 HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                DetailRow("Subtotal", "Rs ${orderDetails.order.subTotal}")
+                DetailRow("Subtotal", "$currencySymbol ${orderDetails.order.subTotal}")
                 if (orderDetails.order.discount != null && orderDetails.order.discount > 0.0) {
-                    DetailRow("Discount", "- Rs ${orderDetails.order.discount}", valueColor = MaterialTheme.colorScheme.error)
+                    DetailRow("Discount", "- $currencySymbol ${orderDetails.order.discount}", valueColor = MaterialTheme.colorScheme.error)
                 }
                 if (orderDetails.order.tax != null && orderDetails.order.tax > 0.0) {
-                    DetailRow("Tax", "+ Rs ${orderDetails.order.tax}")
+                    DetailRow("Tax", "+ $currencySymbol ${orderDetails.order.tax}")
                 }
                 
                 Spacer(modifier = Modifier.height(4.dp))
                 DetailRow(
                     label = "Total Amount", 
-                    value = "Rs ${orderDetails.order.total}", 
+                    value = "$currencySymbol ${orderDetails.order.total}", 
                     isBold = true,
                     labelStyle = MaterialTheme.typography.titleMedium,
                     valueStyle = MaterialTheme.typography.titleMedium,
@@ -256,8 +264,8 @@ fun DetailRow(
     label: String, 
     value: String, 
     isBold: Boolean = false,
-    labelStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodySmall,
-    valueStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodySmall,
+    labelStyle: TextStyle = MaterialTheme.typography.bodySmall,
+    valueStyle: TextStyle = MaterialTheme.typography.bodySmall,
     valueColor: Color = Color.Unspecified
 ) {
     Row(
@@ -306,7 +314,7 @@ fun RowScope.OrderHeaderCell(
 }
 
 @Composable
-fun OrderHistoryRow(order: Order, onClick: () -> Unit) {
+fun OrderHistoryRow(order: Order, currencySymbol: String, onClick: () -> Unit) {
     val date = remember(order.createdAt) {
         val localDateTime = kotlin.time.Instant.fromEpochMilliseconds(order.createdAt)
             .toLocalDateTime(TimeZone.currentSystemDefault())
@@ -334,7 +342,7 @@ fun OrderHistoryRow(order: Order, onClick: () -> Unit) {
             )
             if (!order.customerPhone.isNullOrBlank()) {
                 Text(
-                    text = order.customerPhone, 
+                    text = order.customerPhone,
                     style = MaterialTheme.typography.labelMedium, 
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -342,7 +350,7 @@ fun OrderHistoryRow(order: Order, onClick: () -> Unit) {
         }
         VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant, modifier = Modifier.fillMaxHeight())
         OrderTableCell(
-            text = "Rs ${order.total}", 
+            text = "$currencySymbol ${order.total}", 
             weight = 1.2f, 
             textAlign = TextAlign.End, 
             isLast = true,
@@ -358,7 +366,7 @@ fun RowScope.OrderTableCell(
     weight: Float,
     textAlign: TextAlign = TextAlign.Start,
     isLast: Boolean = false,
-    style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodySmall,
+    style: TextStyle = MaterialTheme.typography.bodySmall,
     color: Color = Color.Unspecified
 ) {
     Row(

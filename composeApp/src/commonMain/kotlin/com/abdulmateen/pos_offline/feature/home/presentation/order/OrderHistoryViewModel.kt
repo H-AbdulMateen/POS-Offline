@@ -4,24 +4,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.domain.models.Order
 import com.abdulmateen.pos_offline.domain.repository.OrderRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import com.abdulmateen.pos_offline.core.domain.DataStoreManager
+import com.abdulmateen.pos_offline.core.domain.PrefKeys
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 data class OrderHistoryUiState(
     val orders: List<Order> = emptyList(),
     val selectedOrderDetails: com.abdulmateen.pos_offline.data.database.entities.OrderWithItems? = null,
+    val businessName: String = "",
+    val currencySymbol: String = "$",
     val isLoading: Boolean = false
 )
 
 class OrderHistoryViewModel(
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     private val _selectedOrderId = MutableStateFlow<Long?>(null)
@@ -40,17 +38,25 @@ class OrderHistoryViewModel(
                 it.customerPhone?.contains(query) == true
             }
         }
-        Triple(filteredOrders.sortedByDescending { it.createdAt }, selectedId, query)
-    }.flatMapLatest { (filteredOrders, selectedId, _) ->
+        val sortedOrders = filteredOrders.sortedByDescending { it.createdAt }
+        val businessName = dataStoreManager.getStringValue(PrefKeys.BUSINESS_NAME)
+        val currencySymbol = dataStoreManager.getStringValue(PrefKeys.CURRENCY_SYMBOL).ifEmpty { "$" }
+
         if (selectedId != null) {
             orderRepository.getOrderWithItems(selectedId).map { details ->
                 OrderHistoryUiState(
-                    orders = filteredOrders,
-                    selectedOrderDetails = details
+                    orders = sortedOrders,
+                    selectedOrderDetails = details,
+                    businessName = businessName,
+                    currencySymbol = currencySymbol
                 )
-            }
+            }.first()
         } else {
-            flowOf(OrderHistoryUiState(orders = filteredOrders))
+            OrderHistoryUiState(
+                orders = sortedOrders,
+                businessName = businessName,
+                currencySymbol = currencySymbol
+            )
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), OrderHistoryUiState())
 

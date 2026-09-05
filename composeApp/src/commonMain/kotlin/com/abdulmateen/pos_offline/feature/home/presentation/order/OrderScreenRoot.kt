@@ -30,9 +30,10 @@ import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
+import com.abdulmateen.pos_offline.core.designsystem.components.LogoImage
 import com.abdulmateen.pos_offline.core.designsystem.components.layouts.LoadingSection
 import pos_offline.composeapp.generated.resources.Res
-import pos_offline.composeapp.generated.resources.compose_multiplatform
+import pos_offline.composeapp.generated.resources.tally_trades_logo
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.domain.models.Product
@@ -113,6 +114,7 @@ fun OrderScreen(
                         ProductListSection(
                             modifier = Modifier.fillMaxWidth(),
                             list = productList,
+                            currencySymbol = uiState.currencySymbol,
                             onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
                         )
                     }
@@ -138,6 +140,7 @@ fun OrderScreen(
                             ProductListSection(
                                 modifier = Modifier.fillMaxWidth(),
                                 list = productList,
+                                currencySymbol = uiState.currencySymbol,
                                 onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
                             )
                         }
@@ -160,6 +163,7 @@ fun OrderScreen(
                             ProductListSection(
                                 modifier = Modifier.fillMaxWidth(),
                                 list = productList,
+                                currencySymbol = uiState.currencySymbol,
                                 onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
                             )
                     }
@@ -185,6 +189,7 @@ fun OrderScreen(
                             ProductListSection(
                                 modifier = Modifier.fillMaxWidth(),
                                 list = productList,
+                                currencySymbol = uiState.currencySymbol,
                                 onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
                             )
                         }
@@ -216,6 +221,7 @@ fun OrderScreen(
                             ProductListSection(
                                 modifier = Modifier.fillMaxWidth(),
                                 list = productList,
+                                currencySymbol = uiState.currencySymbol,
                                 onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
                             )
                         }
@@ -242,11 +248,7 @@ private fun TopAppBarOrder(
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
-                Image(
-                    painter = painterResource(resource = Res.drawable.compose_multiplatform),
-                    contentDescription = "LogoImage",
-                    modifier = Modifier.size(48.dp)
-                )
+            LogoImage(modifier = Modifier.size(48.dp))
         },
         title = {
             Text(

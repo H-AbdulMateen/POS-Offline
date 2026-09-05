@@ -75,7 +75,8 @@ fun DashboardScreen(
                         if (deviceConfiguration != DeviceConfiguration.MOBILE_PORTRAIT) {
                             CategoryRevenueChart(
                                 modifier = Modifier.weight(1f),
-                                categoryRevenue = uiState.revenueByCategory
+                                categoryRevenue = uiState.revenueByCategory,
+                                currencySymbol = uiState.currencySymbol
                             )
                         }
                     }
@@ -85,13 +86,14 @@ fun DashboardScreen(
                     item {
                         CategoryRevenueChart(
                             modifier = Modifier.fillMaxWidth(),
-                            categoryRevenue = uiState.revenueByCategory
+                            categoryRevenue = uiState.revenueByCategory,
+                            currencySymbol = uiState.currencySymbol
                         )
                     }
                 }
 
                 item {
-                    RecentOrdersSection(uiState.recentOrders)
+                    RecentOrdersSection(uiState.recentOrders, uiState.currencySymbol)
                 }
             }
         }
@@ -116,7 +118,7 @@ fun SummaryCards(uiState: DashboardUiState, deviceConfiguration: DeviceConfigura
                     val index = rowIndex * columns + colIndex
                     if (index < 4) {
                         val (title, value, color) = when (index) {
-                            0 -> Triple("Total Revenue", "$${uiState.totalRevenue}", MaterialTheme.colorScheme.primary)
+                            0 -> Triple("Total Revenue", "${uiState.currencySymbol} ${uiState.totalRevenue}", MaterialTheme.colorScheme.primary)
                             1 -> Triple("Total Orders", "${uiState.totalOrders}", MaterialTheme.colorScheme.secondary)
                             2 -> Triple("Products", "${uiState.totalProducts}", MaterialTheme.colorScheme.tertiary)
                             else -> Triple("Total Stock", "${uiState.totalStock}", MaterialTheme.colorScheme.error)
@@ -213,7 +215,8 @@ fun TopProductsChart(
 @Composable
 fun CategoryRevenueChart(
     modifier: Modifier = Modifier,
-    categoryRevenue: List<CategoryRevenue>
+    categoryRevenue: List<CategoryRevenue>,
+    currencySymbol: String
 ) {
     Card(
         modifier = modifier,
@@ -233,7 +236,7 @@ fun CategoryRevenueChart(
                     ) {
                         Text(text = category.categoryName, style = MaterialTheme.typography.bodySmall)
                         Text(
-                            text = "$${category.revenue}",
+                            text = "$currencySymbol ${category.revenue}",
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -245,7 +248,7 @@ fun CategoryRevenueChart(
 }
 
 @Composable
-fun RecentOrdersSection(orders: List<OrderEntity>) {
+fun RecentOrdersSection(orders: List<OrderEntity>, currencySymbol: String) {
     Text(text = "Recent Orders", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
     Spacer(modifier = Modifier.height(8.dp))
     Card(
@@ -266,7 +269,7 @@ fun RecentOrdersSection(orders: List<OrderEntity>) {
                             Text(text = order.paymentMethod, style = MaterialTheme.typography.labelSmall)
                         }
                         Text(
-                            text = "$${order.total}",
+                            text = "$currencySymbol ${order.total}",
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )

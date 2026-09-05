@@ -7,6 +7,8 @@ import com.abdulmateen.pos_offline.data.database.entities.ReturnItemEntity
 import com.abdulmateen.pos_offline.domain.models.Order
 import com.abdulmateen.pos_offline.domain.repository.OrderRepository
 import com.abdulmateen.pos_offline.domain.repository.ReturnRepository
+import com.abdulmateen.pos_offline.core.domain.DataStoreManager
+import com.abdulmateen.pos_offline.core.domain.PrefKeys
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -14,12 +16,14 @@ data class ReturnUiState(
     val orders: List<Order> = emptyList(),
     val selectedOrder: com.abdulmateen.pos_offline.data.database.entities.OrderWithItems? = null,
     val returns: List<ReturnEntity> = emptyList(),
+    val currencySymbol: String = "$",
     val isLoading: Boolean = false
 )
 
 class ReturnViewModel(
     private val orderRepository: OrderRepository,
-    private val returnRepository: ReturnRepository
+    private val returnRepository: ReturnRepository,
+    private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     private val _selectedOrderId = MutableStateFlow<Long?>(null)
@@ -29,8 +33,9 @@ class ReturnViewModel(
         _searchQuery,
         _selectedOrderId,
         orderRepository.getAllOrders(),
-        returnRepository.getAllReturns()
-    ) { query, selectedId, orders, returns ->
+        returnRepository.getAllReturns(),
+        flow { emit(dataStoreManager.getStringValue(PrefKeys.CURRENCY_SYMBOL)) }
+    ) { query, selectedId, orders, returns, symbol ->
         val filteredOrders = if (query.isEmpty()) {
             orders
         } else {
@@ -41,17 +46,19 @@ class ReturnViewModel(
             }
         }
         val sortedOrders = filteredOrders.sortedByDescending { it.createdAt }
+        val currencySymbol = symbol.ifEmpty { "$" }
         
         if (selectedId != null) {
             orderRepository.getOrderWithItems(selectedId).map { details ->
                 ReturnUiState(
                     orders = sortedOrders,
                     selectedOrder = details,
-                    returns = returns
+                    returns = returns,
+                    currencySymbol = currencySymbol
                 )
             }.first()
         } else {
-            ReturnUiState(orders = sortedOrders, returns = returns)
+            ReturnUiState(orders = sortedOrders, returns = returns, currencySymbol = currencySymbol)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReturnUiState())
 

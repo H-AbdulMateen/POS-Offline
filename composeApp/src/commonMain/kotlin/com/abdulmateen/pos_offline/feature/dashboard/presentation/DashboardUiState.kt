@@ -12,5 +12,6 @@ data class DashboardUiState(
     val topSellingProducts: List<TopProduct> = emptyList(),
     val revenueByCategory: List<CategoryRevenue> = emptyList(),
     val recentOrders: List<OrderEntity> = emptyList(),
+    val currencySymbol: String = "$",
     val isLoading: Boolean = false
 )

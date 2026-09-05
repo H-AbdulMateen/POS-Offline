@@ -157,6 +157,11 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "pos_offline"
             packageVersion = "1.0.0"
+            // Set the icon for the packaged application
+            val iconPath = "src/commonMain/composeResources/drawable/tally_trades_logo.png"
+            linux.iconFile.set(project.file(iconPath))
+            windows.iconFile.set(project.file(iconPath))
+            macOS.iconFile.set(project.file(iconPath))
         }
     }
 }

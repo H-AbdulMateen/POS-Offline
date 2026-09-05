@@ -4,34 +4,42 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.data.database.entities.CreditEntity
 import com.abdulmateen.pos_offline.domain.repository.CreditRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
+import com.abdulmateen.pos_offline.core.domain.DataStoreManager
+import com.abdulmateen.pos_offline.core.domain.PrefKeys
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 data class CreditUiState(
     val credits: List<CreditEntity> = emptyList(),
+    val currencySymbol: String = "$",
     val isLoading: Boolean = false
 )
 
 class CreditViewModel(
-    private val creditRepository: CreditRepository
+    private val creditRepository: CreditRepository,
+    private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<CreditUiState> = _searchQuery.flatMapLatest { query ->
-        if (query.isEmpty()) {
+        val creditsFlow = if (query.isEmpty()) {
             creditRepository.getAllCredits()
         } else {
             creditRepository.searchCredits(query)
         }
-    }.flatMapLatest { credits ->
-        MutableStateFlow(CreditUiState(credits = credits))
+        
+        combine(
+            creditsFlow,
+            flow { emit(dataStoreManager.getStringValue(PrefKeys.CURRENCY_SYMBOL)) }
+        ) { credits, symbol ->
+            CreditUiState(
+                credits = credits,
+                currencySymbol = symbol.ifEmpty { "$" }
+            )
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreditUiState())
 
     fun updateSearchQuery(query: String) {

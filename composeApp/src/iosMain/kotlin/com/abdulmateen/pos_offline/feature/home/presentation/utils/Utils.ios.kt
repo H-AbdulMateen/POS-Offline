@@ -37,7 +37,9 @@ actual fun generateInvoiceInPdf(
     total: Double,
     paidAmount: Double,
     change: Double,
-    paymentType: String
+    paymentType: String,
+    businessName: String,
+    currencySymbol: String
 ): ByteArray {
     val pdfData = NSMutableData()
     val pageSize = CGRectMake(0.0, 0.0, 612.0, 792.0)
@@ -47,20 +49,21 @@ actual fun generateInvoiceInPdf(
 
     val context = UIGraphicsGetCurrentContext()
 
-    val productsText = cartItems.joinToString("\n") { "${it.productName} x ${it.quantity} = ${it.price}" }
+    val productsText = cartItems.joinToString("\n") { "${it.productName} x ${it.quantity} = $currencySymbol ${it.price}" }
     val text = """
+        $businessName
         Invoice
         Payment Type: $paymentType
         Order Date: ${platform.Foundation.NSDate()}
         
         $productsText
         
-        Sub Total: $subTotal
-        Discount: $discount
-        Tax: $tax
-        Total: $total
-        Paid: $paidAmount
-        Change: $change
+        Sub Total: $currencySymbol $subTotal
+        Discount: $currencySymbol $discount
+        Tax: $currencySymbol $tax
+        Total: $currencySymbol $total
+        Paid: $currencySymbol $paidAmount
+        Change: $currencySymbol $change
     """.trimIndent()
 
     val paragraphStyle = NSMutableParagraphStyle().apply { NSTextAlignmentLeft }

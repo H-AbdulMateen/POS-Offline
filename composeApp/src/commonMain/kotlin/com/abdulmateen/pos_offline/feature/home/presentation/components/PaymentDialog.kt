@@ -42,6 +42,8 @@ fun PaymentDialog(
     discount: Double,
     tax: Double,
     totalAmount: Double,
+    businessName: String,
+    currencySymbol: String,
     onDismiss: () -> Unit,
     onConfirm: (String?, String?) -> Unit,
     onConfirmCredit: (String, String?, Double) -> Unit
@@ -94,7 +96,9 @@ fun PaymentDialog(
                                 total = totalAmount,
                                 paidAmount = paid,
                                 change = change,
-                                paymentType = paymentType
+                                paymentType = paymentType,
+                                businessName = businessName,
+                                currencySymbol = currencySymbol
                             )
                             saveInvoiceFile(invoiceData, fileName)
                             onConfirm(customerName.takeIf { it.isNotBlank() }, phoneNumber.takeIf { it.isNotBlank() })
@@ -118,7 +122,9 @@ fun PaymentDialog(
                                     total = totalAmount,
                                     paidAmount = paid,
                                     change = change,
-                                    paymentType = paymentType
+                                    paymentType = paymentType,
+                                    businessName = businessName,
+                                    currencySymbol = currencySymbol
                                 )
                                 printPdf(invoiceData, fileName)
                                 onConfirm(customerName.takeIf { it.isNotBlank() }, phoneNumber.takeIf { it.isNotBlank() })
@@ -140,7 +146,7 @@ fun PaymentDialog(
         title = { Text("Proceed to Payment") },
         text = {
             Column {
-                Text("Total: Rs $totalAmount", fontWeight = FontWeight.Bold)
+                Text("Total: $currencySymbol $totalAmount", fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
                 Text("Select Payment Type")
                 Spacer(Modifier.height(4.dp))
@@ -192,9 +198,9 @@ fun PaymentDialog(
                     val change = paidAmount.toDoubleOrNull()?.minus(totalAmount)
                     if (change != null) {
                         if (change >= 0) {
-                            Text("Change: Rs ${round(change * 100) / 100.0}")
+                            Text("Change: $currencySymbol ${round(change * 100) / 100.0}")
                         } else {
-                            Text("Remaining (Credit): Rs ${round(-change * 100) / 100.0}", color = MaterialTheme.colorScheme.error)
+                            Text("Remaining (Credit): $currencySymbol ${round(-change * 100) / 100.0}", color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }
@@ -215,6 +221,8 @@ fun PaymentDialogPreview(){
                 discount = 0.0,
                 tax = 0.0,
                 totalAmount = 100.0,
+                businessName = "My Business",
+                currencySymbol = "$",
                 onDismiss = {},
                 onConfirm = { _, _ -> },
                 onConfirmCredit = { _, _, _ -> }
@@ -234,6 +242,8 @@ fun PaymentDialogPreviewDark(){
                 discount = 0.0,
                 tax = 0.0,
                 totalAmount = 100.0,
+                businessName = "My Business",
+                currencySymbol = "$",
                 onDismiss = {},
                 onConfirm = { _, _ -> },
                 onConfirmCredit = { _, _, _ -> }

@@ -94,7 +94,7 @@ fun ReturnScreen(
                         ReturnHeaderCell("Date", 1.2f)
                         ReturnHeaderCell("Order #", 1f)
                         ReturnHeaderCell("Customer", 2f)
-                        ReturnHeaderCell("Total", 1.2f, textAlign = TextAlign.End, isLast = true)
+                        ReturnHeaderCell("Total (${uiState.currencySymbol})", 1.2f, textAlign = TextAlign.End, isLast = true)
                     }
 
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -103,6 +103,7 @@ fun ReturnScreen(
                         items(uiState.orders) { order ->
                             ReturnOrderRow(
                                 order = order,
+                                currencySymbol = uiState.currencySymbol,
                                 onClick = { onOrderClick(order) }
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
@@ -132,14 +133,14 @@ fun ReturnScreen(
                         ReturnHeaderCell("Date", 1.2f)
                         ReturnHeaderCell("Order #", 1f)
                         ReturnHeaderCell("Reason", 2f)
-                        ReturnHeaderCell("Refund", 1.2f, textAlign = TextAlign.End, isLast = true)
+                        ReturnHeaderCell("Refund (${uiState.currencySymbol})", 1.2f, textAlign = TextAlign.End, isLast = true)
                     }
 
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         items(uiState.returns) { returnEntry ->
-                            RecentReturnRow(returnEntry = returnEntry)
+                            RecentReturnRow(returnEntry = returnEntry, currencySymbol = uiState.currencySymbol)
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }
                     }
@@ -151,6 +152,7 @@ fun ReturnScreen(
     if (uiState.selectedOrder != null) {
         ReturnItemsDialog(
             orderDetails = uiState.selectedOrder,
+            currencySymbol = uiState.currencySymbol,
             onDismiss = onDismissDetails,
             onConfirmReturn = onProcessReturn
         )
@@ -160,6 +162,7 @@ fun ReturnScreen(
 @Composable
 fun ReturnItemsDialog(
     orderDetails: com.abdulmateen.pos_offline.data.database.entities.OrderWithItems,
+    currencySymbol: String,
     onDismiss: () -> Unit,
     onConfirmReturn: (String?, List<com.abdulmateen.pos_offline.data.database.entities.OrderItemEntity>) -> Unit
 ) {
@@ -208,9 +211,9 @@ fun ReturnItemsDialog(
                             )
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(text = item.productName, style = MaterialTheme.typography.bodySmall)
-                                Text(text = "${item.quantity} x Rs ${item.price}", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                                Text(text = "${item.quantity} x $currencySymbol ${item.price}", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
                             }
-                            Text(text = "Rs ${item.price * item.quantity}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                            Text(text = "$currencySymbol ${item.price * item.quantity}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
                         }
                     }
                 }
@@ -228,7 +231,7 @@ fun ReturnItemsDialog(
 }
 
 @Composable
-fun RecentReturnRow(returnEntry: com.abdulmateen.pos_offline.data.database.entities.ReturnEntity) {
+fun RecentReturnRow(returnEntry: com.abdulmateen.pos_offline.data.database.entities.ReturnEntity, currencySymbol: String) {
     val date = remember(returnEntry.createdAt) {
         val localDateTime = kotlin.time.Instant.fromEpochMilliseconds(returnEntry.createdAt)
             .toLocalDateTime(TimeZone.currentSystemDefault())
@@ -248,12 +251,12 @@ fun RecentReturnRow(returnEntry: com.abdulmateen.pos_offline.data.database.entit
         ReturnTableCell(date, 1.2f)
         ReturnTableCell("#${returnEntry.orderId}", 1f)
         ReturnTableCell(returnEntry.reason ?: "-", 2f)
-        ReturnTableCell("Rs ${returnEntry.totalReturnAmount}", 1.2f, textAlign = TextAlign.End, isLast = true)
+        ReturnTableCell("$currencySymbol ${returnEntry.totalReturnAmount}", 1.2f, textAlign = TextAlign.End, isLast = true)
     }
 }
 
 @Composable
-fun ReturnOrderRow(order: Order, onClick: () -> Unit) {
+fun ReturnOrderRow(order: Order, currencySymbol: String, onClick: () -> Unit) {
     val date = remember(order.createdAt) {
         val localDateTime = kotlin.time.Instant.fromEpochMilliseconds(order.createdAt)
             .toLocalDateTime(TimeZone.currentSystemDefault())
@@ -280,7 +283,7 @@ fun ReturnOrderRow(order: Order, onClick: () -> Unit) {
             }
         }
         VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant, modifier = Modifier.fillMaxHeight())
-        ReturnTableCell("Rs ${order.total}", 1.2f, textAlign = TextAlign.End, isLast = true)
+        ReturnTableCell("$currencySymbol ${order.total}", 1.2f, textAlign = TextAlign.End, isLast = true)
     }
 }
 

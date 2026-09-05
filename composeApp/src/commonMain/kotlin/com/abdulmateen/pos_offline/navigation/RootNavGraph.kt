@@ -10,19 +10,34 @@ import com.abdulmateen.pos_offline.feature.auth.navigation.AuthNavGraph
 import com.abdulmateen.pos_offline.feature.main.MainScreenRoot
 import com.abdulmateen.pos_offline.feature.home.presentation.CartScreenRoot
 import com.abdulmateen.pos_offline.feature.home.presentation.product_detail.ProductDetailScreenRoot
+import com.abdulmateen.pos_offline.feature.setup.presentation.SetupScreenRoot
 
 @Composable
 fun AppNavGraph(
     isLoggedIn: Boolean,
+    isSetupCompleted: Boolean,
     toggleDarkTheme: () -> Unit,
     isDarkTheme: Boolean
 ){
     val navController = rememberNavController()
+    val startDestination = when {
+        !isSetupCompleted -> RootScreenRoutes.Setup
+//        !isLoggedIn -> RootScreenRoutes.AuthGraph
+        else -> RootScreenRoutes.Main
+    }
     NavHost(
         navController = navController,
-//        startDestination = if (isLoggedIn) RootScreenRoutes.Main else RootScreenRoutes.AuthGraph
-        startDestination = RootScreenRoutes.Main
+        startDestination = startDestination
     ){
+        composable<RootScreenRoutes.Setup> {
+            SetupScreenRoot(
+                onSetupComplete = {
+                    navController.navigate(RootScreenRoutes.Main) {
+                        popUpTo(RootScreenRoutes.Setup) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable<RootScreenRoutes.AuthGraph>{
             AuthNavGraph(
                 navigateToMain = {

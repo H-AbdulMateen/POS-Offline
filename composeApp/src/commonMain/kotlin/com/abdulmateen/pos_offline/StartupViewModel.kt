@@ -39,11 +39,13 @@ class StartupViewModel(
 
     private suspend fun observeSession(){
         val authInfo = dataStoreManager.getBoolValue(PrefKeys.IS_LOGGED_IN)
+        val setupCompleted = dataStoreManager.getBoolValue(PrefKeys.IS_SETUP_COMPLETED)
         _uiState.update {
             it.copy(
                 isReady = true,
                 isCheckingAuth = false,
-                isLoggedIn = authInfo
+                isLoggedIn = authInfo,
+                isSetupCompleted = setupCompleted
             )
         }
     }

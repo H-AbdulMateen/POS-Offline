@@ -6,12 +6,9 @@ import com.abdulmateen.pos_offline.data.database.dao.ExpenseBreakdown
 import com.abdulmateen.pos_offline.data.database.entities.ExpenseCategory
 import com.abdulmateen.pos_offline.data.database.entities.ExpenseEntity
 import com.abdulmateen.pos_offline.domain.repository.ExpenseRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
+import com.abdulmateen.pos_offline.core.domain.DataStoreManager
+import com.abdulmateen.pos_offline.core.domain.PrefKeys
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import kotlin.time.Clock
@@ -23,11 +20,13 @@ data class ExpenseUiState @OptIn(ExperimentalTime::class) constructor(
     val profitLoss: Double = 0.0,
     val breakdown: List<ExpenseBreakdown> = emptyList(),
     val recentExpenses: List<ExpenseEntity> = emptyList(),
-    val selectedMonth: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    val selectedMonth: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
+    val currencySymbol: String = "$"
 )
 
 class ExpenseViewModel(
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
     @OptIn(ExperimentalTime::class)
     private val _selectedMonth = MutableStateFlow(
@@ -50,15 +49,17 @@ class ExpenseViewModel(
             expenseRepository.getTotalRevenueInRange(start, end),
             expenseRepository.getTotalExpensesInRange(start, end),
             expenseRepository.getExpenseBreakdownInRange(start, end),
-            expenseRepository.getAllExpenses()
-        ) { revenue, expenses, breakdown, allExpenses ->
+            expenseRepository.getAllExpenses(),
+            flow { emit(dataStoreManager.getStringValue(PrefKeys.CURRENCY_SYMBOL)) }
+        ) { revenue, expenses, breakdown, allExpenses, currency ->
             ExpenseUiState(
                 totalRevenue = revenue,
                 totalExpenses = expenses,
                 profitLoss = revenue - expenses,
                 breakdown = breakdown,
                 recentExpenses = allExpenses.filter { it.date in start..end },
-                selectedMonth = startOfMonth
+                selectedMonth = startOfMonth,
+                currencySymbol = currency.ifEmpty { "$" }
             )
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ExpenseUiState())

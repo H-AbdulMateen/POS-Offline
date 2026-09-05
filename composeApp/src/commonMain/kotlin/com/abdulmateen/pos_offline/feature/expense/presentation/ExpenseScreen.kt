@@ -124,11 +124,11 @@ fun ExpenseScreen(
                     ) {
                         Column {
                             Text("Revenue", style = MaterialTheme.typography.bodySmall)
-                            Text("Rs ${uiState.totalRevenue}", fontWeight = FontWeight.Bold)
+                            Text("${uiState.currencySymbol} ${uiState.totalRevenue}", fontWeight = FontWeight.Bold)
                         }
                         Column {
                             Text("Expenses", style = MaterialTheme.typography.bodySmall)
-                            Text("Rs ${uiState.totalExpenses}", fontWeight = FontWeight.Bold)
+                            Text("${uiState.currencySymbol} ${uiState.totalExpenses}", fontWeight = FontWeight.Bold)
                         }
                     }
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -138,7 +138,7 @@ fun ExpenseScreen(
                     ) {
                         Text("Profit/Loss", fontWeight = FontWeight.Bold)
                         Text(
-                            text = "Rs ${uiState.profitLoss}",
+                            text = "${uiState.currencySymbol} ${uiState.profitLoss}",
                             fontWeight = FontWeight.Bold,
                             color = if (uiState.profitLoss >= 0) Color(0xFF2E7D32) else Color(0xFFC62828)
                         )
@@ -181,7 +181,7 @@ fun ExpenseScreen(
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         items(uiState.recentExpenses) { expense ->
-                            ExpenseTableRow(expense)
+                            ExpenseTableRow(expense, uiState.currencySymbol)
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }
                         
@@ -214,7 +214,7 @@ fun ExpenseScreen(
                             style = MaterialTheme.typography.titleSmall
                         )
                         Text(
-                            text = "Rs ${uiState.totalExpenses}",
+                            text = "${uiState.currencySymbol} ${uiState.totalExpenses}",
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.End,
                             color = MaterialTheme.colorScheme.error,
@@ -279,7 +279,7 @@ fun RowScope.TableHeaderCell(
 }
 
 @Composable
-fun ExpenseTableRow(expense: ExpenseEntity) {
+fun ExpenseTableRow(expense: ExpenseEntity, currencySymbol: String) {
     val date = remember(expense.date) {
         val localDateTime = kotlin.time.Instant.fromEpochMilliseconds(expense.date)
             .toLocalDateTime(TimeZone.currentSystemDefault())
@@ -297,7 +297,7 @@ fun ExpenseTableRow(expense: ExpenseEntity) {
         TableCell(date, 1f)
         TableCell(expense.paidTo ?: "-", 2f)
         TableCell(expense.category.name, 1.5f)
-        TableCell("${expense.amount}", 1.2f, isLast = true, textAlign = TextAlign.End)
+        TableCell("$currencySymbol ${expense.amount}", 1.2f, isLast = true, textAlign = TextAlign.End)
     }
 }
 

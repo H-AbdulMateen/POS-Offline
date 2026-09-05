@@ -154,6 +154,8 @@ fun CartSummarySection(
             discount = uiState.discount,
             tax = uiState.tax,
             totalAmount = uiState.total,
+            businessName = uiState.businessName,
+            currencySymbol = uiState.currencySymbol,
             onDismiss = { showCheckoutDialog = false },
             onConfirm = { name, phone ->
                 showCheckoutDialog = false

@@ -25,7 +25,9 @@ actual fun generateInvoiceInPdf(
     total: Double,
     paidAmount: Double,
     change: Double,
-    paymentType: String
+    paymentType: String,
+    businessName: String,
+    currencySymbol: String
 ): ByteArray {
     val document = PDDocument()
     val page = PDPage()
@@ -33,8 +35,12 @@ actual fun generateInvoiceInPdf(
 
     val contentStream = PDPageContentStream(document, page)
     contentStream.beginText()
-    contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12f)
+    contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 18f)
     contentStream.newLineAtOffset(100f, 750f)
+    contentStream.showText(businessName)
+    contentStream.newLineAtOffset(0f, -25f)
+    
+    contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12f)
     contentStream.showText("Invoice")
     contentStream.newLineAtOffset(0f, -20f)
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA), 12f)
@@ -48,9 +54,9 @@ actual fun generateInvoiceInPdf(
     contentStream.newLineAtOffset(200f, 0f)
     contentStream.showText("Qty")
     contentStream.newLineAtOffset(50f, 0f)
-    contentStream.showText("Price")
+    contentStream.showText("Price ($currencySymbol)")
     contentStream.newLineAtOffset(100f, 0f)
-    contentStream.showText("Total")
+    contentStream.showText("Total ($currencySymbol)")
     contentStream.newLineAtOffset(-350f, -20f)
     
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA), 12f)
@@ -66,20 +72,20 @@ actual fun generateInvoiceInPdf(
     }
     
     contentStream.newLineAtOffset(250f, -20f)
-    contentStream.showText("Sub Total: %.2f".format(subTotal))
+    contentStream.showText("Sub Total: $currencySymbol %.2f".format(subTotal))
     contentStream.newLineAtOffset(0f, -20f)
-    contentStream.showText("Discount: %.2f".format(discount))
+    contentStream.showText("Discount: $currencySymbol %.2f".format(discount))
     contentStream.newLineAtOffset(0f, -20f)
-    contentStream.showText("Tax: %.2f".format(tax))
+    contentStream.showText("Tax: $currencySymbol %.2f".format(tax))
     contentStream.newLineAtOffset(0f, -20f)
     
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12f)
-    contentStream.showText("Total: %.2f".format(total))
+    contentStream.showText("Total: $currencySymbol %.2f".format(total))
     contentStream.newLineAtOffset(0f, -20f)
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA), 12f)
-    contentStream.showText("Paid: %.2f".format(paidAmount))
+    contentStream.showText("Paid: $currencySymbol %.2f".format(paidAmount))
     contentStream.newLineAtOffset(0f, -20f)
-    contentStream.showText("Change: %.2f".format(change))
+    contentStream.showText("Change: $currencySymbol %.2f".format(change))
     
     contentStream.endText()
     contentStream.close()
