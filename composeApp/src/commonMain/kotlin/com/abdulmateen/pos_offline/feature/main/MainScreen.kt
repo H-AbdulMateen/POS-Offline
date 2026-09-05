@@ -1,17 +1,7 @@
 package com.abdulmateen.pos_offline.feature.main
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.DarkMode
@@ -21,21 +11,10 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -104,18 +83,11 @@ fun MainScreen(
     val navController = rememberNavController()
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+    
     when(deviceConfiguration){
-        DeviceConfiguration.MOBILE_PORTRAIT -> {
-            MainScreenScaffold(
-                navController = navController,
-                navigateToCart = navigateToCart,
-                onLogoutClick = onLogoutClick,
-                toggleDarkTheme = toggleDarkTheme,
-                isDarkTheme = isDarkTheme
-            )
-        }
+        DeviceConfiguration.MOBILE_PORTRAIT,
         DeviceConfiguration.MOBILE_LANDSCAPE,
-             -> {
+        DeviceConfiguration.TABLET_PORTRAIT -> {
             MainScreenScaffoldWithDrawer(
                 navController = navController,
                 navigateToCart = navigateToCart,
@@ -123,15 +95,6 @@ fun MainScreen(
                 toggleDarkTheme = toggleDarkTheme,
                 isDarkTheme = isDarkTheme,
                 itemsCount = itemsCount
-            )
-        }
-        DeviceConfiguration.TABLET_PORTRAIT -> {
-            MainScreenScaffold(
-                navController = navController,
-                navigateToCart = navigateToCart,
-                onLogoutClick = onLogoutClick,
-                toggleDarkTheme = toggleDarkTheme,
-                isDarkTheme = isDarkTheme
             )
         }
         DeviceConfiguration.TABLET_LANDSCAPE,
@@ -147,50 +110,18 @@ fun MainScreen(
                     modifier = Modifier.fillMaxWidth().weight(.1f)
                 ){
                     NavHostPane(
-                        navigateToCart = navigateToCart,
-                        onLogoutClick = onLogoutClick,
                         navController = navController,
+                        navigateToCart = navigateToCart,
                         toggleDarkTheme = toggleDarkTheme,
-                        isDarkTheme = isDarkTheme
+                        isDarkTheme = isDarkTheme,
+                        onLogoutClick = onLogoutClick
                     )
                 }
             }
-
         }
     }
 }
 
-@Composable
-fun MainScreenScaffold(
-    navController: NavHostController,
-    navigateToCart: () -> Unit,
-    onLogoutClick: () -> Unit,
-    toggleDarkTheme: () -> Unit,
-    isDarkTheme: Boolean
-){
-    Scaffold(
-        bottomBar = {
-            BottomNavBar(
-                hierarchy = navController.currentBackStackEntryAsState().value?.destination?.hierarchy,
-                navController = navController
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier.fillMaxSize()
-                .consumeWindowInsets(WindowInsets.navigationBars)
-                .padding(bottom = paddingValues.calculateBottomPadding())
-        ) {
-            NavHostPane(
-                navigateToCart = navigateToCart,
-                onLogoutClick = onLogoutClick,
-                navController = navController,
-                toggleDarkTheme = toggleDarkTheme,
-                isDarkTheme = isDarkTheme
-            )
-        }
-    }
-}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreenScaffoldWithDrawer(
@@ -203,14 +134,28 @@ fun MainScreenScaffoldWithDrawer(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    val title = when {
+        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Home::class) } == true -> stringResource(Res.string.home)
+        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true -> stringResource(Res.string.inventory)
+        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Dashboard::class) } == true -> stringResource(Res.string.dashboard)
+        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Expenses::class) } == true -> "Expenses"
+        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Credits::class) } == true -> "Credits"
+        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.OrderHistory::class) } == true -> "Order History"
+        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Returns::class) } == true -> "Returns"
+        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true -> stringResource(Res.string.profile)
+        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Settings::class) } == true -> stringResource(Res.string.settings)
+        else -> stringResource(Res.string.app_name)
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = false,
         drawerContent = {
             DrawerContentSheet(
                 navController = navController,
-                hierarchy = navController.currentBackStackEntryAsState().value?.destination?.hierarchy,
+                hierarchy = currentDestination?.hierarchy,
                 onLogoutClick = onLogoutClick,
                 toggleDarkTheme = toggleDarkTheme,
                 isDarkTheme = isDarkTheme,
@@ -227,7 +172,7 @@ fun MainScreenScaffoldWithDrawer(
                         }
                     },
                     title = {
-                        Text(text = stringResource(Res.string.app_name))
+                        Text(text = title)
                     },
                     actions = {
                         Row {
@@ -238,7 +183,7 @@ fun MainScreenScaffoldWithDrawer(
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
                                 imageVector = if(isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                                contentDescription = "Search",
+                                contentDescription = "Theme Toggle",
                                 modifier = Modifier.size(24.dp)
                                     .clickable(
                                         onClick = toggleDarkTheme
@@ -252,31 +197,27 @@ fun MainScreenScaffoldWithDrawer(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .consumeWindowInsets(WindowInsets.navigationBars)
                     .padding(paddingValues)
             ) {
                 NavHostPane(
-                    navigateToCart = navigateToCart,
-                    onLogoutClick = onLogoutClick,
                     navController = navController,
+                    navigateToCart = navigateToCart,
                     toggleDarkTheme = toggleDarkTheme,
-                    isDarkTheme = isDarkTheme
+                    isDarkTheme = isDarkTheme,
+                    onLogoutClick = onLogoutClick
                 )
             }
         }
     }
 }
 
-
-
-
 @Composable
 fun NavHostPane(
-    navigateToCart: () -> Unit,
-    onLogoutClick: () -> Unit,
     navController: NavHostController,
+    navigateToCart: () -> Unit,
     toggleDarkTheme: () -> Unit,
-    isDarkTheme: Boolean
+    isDarkTheme: Boolean,
+    onLogoutClick: () -> Unit
 ){
     NavHost(
         navController = navController,
@@ -315,81 +256,9 @@ fun NavHostPane(
                 onLogoutClick = onLogoutClick
             )
         }
-
     }
 }
 
-@Composable
-fun BottomNavBar(
-    hierarchy: Sequence<NavDestination>?,
-    navController: NavController
-) {
-    NavigationBar {
-        NavigationBarItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Home::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.Home, "home") },
-            label = { Text(text = stringResource(Res.string.home)) },
-            onClick = { navController.navigate(MainScreenRoutes.Home) }
-        )
-
-        NavigationBarItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Dashboard::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.Dashboard, "dashboard") },
-            label = { Text(text = stringResource(Res.string.dashboard)) },
-            onClick = { navController.navigate(MainScreenRoutes.Dashboard) }
-        )
-
-        NavigationBarItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.Inventory, "inventory") },
-            label = { Text(text = stringResource(Res.string.inventory)) },
-            onClick = { navController.navigate(MainScreenRoutes.Inventory) }
-        )
-
-        NavigationBarItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Expenses::class) } == true,
-            icon = { Icon(imageVector = Icons.AutoMirrored.Filled.ReceiptLong, "expenses") },
-            label = { Text(text = "Expenses") },
-            onClick = { navController.navigate(MainScreenRoutes.Expenses) }
-        )
-
-        NavigationBarItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Credits::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.CreditCard, "credits") },
-            label = { Text(text = "Credits") },
-            onClick = { navController.navigate(MainScreenRoutes.Credits) }
-        )
-
-        NavigationBarItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.OrderHistory::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.History, "history") },
-            label = { Text(text = "Orders") },
-            onClick = { navController.navigate(MainScreenRoutes.OrderHistory) }
-        )
-
-        NavigationBarItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Returns::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.AssignmentReturn, "returns") },
-            label = { Text(text = "Returns") },
-            onClick = { navController.navigate(MainScreenRoutes.Returns) }
-        )
-
-
-
-        NavigationBarItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.Person, "profile") },
-            label = { Text(text = stringResource(Res.string.profile)) },
-            onClick = { navController.navigate(MainScreenRoutes.Profile) }
-        )
-        NavigationBarItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Settings::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.Settings, "settings") },
-            label = { Text(text = stringResource(Res.string.settings)) },
-            onClick = { navController.navigate(MainScreenRoutes.Settings) }
-        )
-    }
-}
 @Composable
 fun SideNavBar(
     hierarchy: Sequence<NavDestination>?,
