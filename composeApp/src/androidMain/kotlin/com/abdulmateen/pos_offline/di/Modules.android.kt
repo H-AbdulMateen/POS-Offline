@@ -3,13 +3,17 @@ package com.abdulmateen.pos_offline.di
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.abdulmateen.pos_offline.core.data.datastore.createDataStore
+import com.abdulmateen.pos_offline.core.data.export.AndroidDataExporter
 import com.abdulmateen.pos_offline.core.data.filestorage.ImageStorage
+import com.abdulmateen.pos_offline.core.domain.DataStoreManager
+import com.abdulmateen.pos_offline.core.domain.export.DataExporter
 import com.abdulmateen.pos_offline.data.database.DatabaseFactory
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 actual val platformModule: Module = module {
@@ -17,5 +21,5 @@ actual val platformModule: Module = module {
     single<HttpClientEngine> { OkHttp.create() }
     single { DatabaseFactory(androidApplication()) }
     single { ImageStorage(context = androidContext()) }
-
+    single { AndroidDataExporter(androidContext()) }.bind<DataExporter>()
 }

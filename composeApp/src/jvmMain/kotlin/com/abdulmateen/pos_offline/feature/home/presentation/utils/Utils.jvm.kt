@@ -105,6 +105,14 @@ actual fun saveInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
     }
 }
 
+actual fun shareInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
+    val file = File(System.getProperty("java.io.tmpdir"), fileName)
+    file.writeBytes(invoiceByteArray)
+    if (java.awt.Desktop.isDesktopSupported()) {
+        java.awt.Desktop.getDesktop().open(file)
+    }
+}
+
 actual fun printPdf(invoiceByteArray: ByteArray, fileName: String) {
     val document = Loader.loadPDF(invoiceByteArray)
     val job = PrinterJob.getPrinterJob()

@@ -34,15 +34,14 @@ class OrderViewModel(
     private val productUseCases: ProductUseCases,
     private val cartUseCases: CartUseCases,
     private val dataStoreManager: DataStoreManager,
-    private val repository: InventoryRepository, //TODO: Remove this before go to release
     private val creditRepository: CreditRepository,
     private val orderRepository: OrderRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OrderUiState())
     val uiState: StateFlow<OrderUiState> = _uiState
         .onStart {
-            loadCategories() //TODO: Remove this before go to release
-            loadUnits() //TODO: Remove this before go to release
+//            loadCategories() //TODO: Remove this before go to release
+//            loadUnits() //TODO: Remove this before go to release
             getCartItemsCount()
             loadCartItems()
             calculateSubTotal()
@@ -343,29 +342,29 @@ class OrderViewModel(
         }
     }
 
-    private fun loadCategories() {
-        viewModelScope.launch {
-            repository.getAllCategories().onEach { categories ->
-                _uiState.update {
-                    it.copy(
-                        categoryList = categories
-                    )
-                }
-            }.launchIn(viewModelScope)
-        }
-    }
-
-    private fun loadUnits(){
-        viewModelScope.launch {
-            repository.getAllUnits().onEach { units ->
-                _uiState.update {
-                    it.copy(
-                        unitList = units
-                    )
-                }
-            }.launchIn(viewModelScope)
-        }
-    }
+//    private fun loadCategories() {
+//        viewModelScope.launch {
+//            repository.getAllCategories().onEach { categories ->
+//                _uiState.update {
+//                    it.copy(
+//                        categoryList = categories
+//                    )
+//                }
+//            }.launchIn(viewModelScope)
+//        }
+//    }
+//
+//    private fun loadUnits(){
+//        viewModelScope.launch {
+//            repository.getAllUnits().onEach { units ->
+//                _uiState.update {
+//                    it.copy(
+//                        unitList = units
+//                    )
+//                }
+//            }.launchIn(viewModelScope)
+//        }
+//    }
 
     private fun loadSettings() {
         viewModelScope.launch {

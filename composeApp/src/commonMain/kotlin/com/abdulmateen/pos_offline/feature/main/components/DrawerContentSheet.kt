@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.AssignmentReturn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -101,6 +102,14 @@ fun DrawerContentSheet(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Returns::class) } == true
         ) {
             navController.navigate(MainScreenRoutes.Returns) { launchSingleTop = true }
+            closeDrawer()
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        DrawerItem("Reports",
+            icon = Icons.Default.Assessment,
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Reports::class) } == true
+        ) {
+            navController.navigate(MainScreenRoutes.Reports) { launchSingleTop = true }
             closeDrawer()
         }
         Spacer(modifier = Modifier.height(16.dp))

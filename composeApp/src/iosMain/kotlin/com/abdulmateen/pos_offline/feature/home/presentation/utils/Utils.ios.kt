@@ -97,6 +97,10 @@ actual fun saveInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
     }
 }
 
+actual fun shareInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
+    // Basic sharing logic for iOS
+}
+
 actual fun printPdf(invoiceByteArray: ByteArray, fileName: String) {
     // Basic implementation for iOS if needed
 }

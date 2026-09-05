@@ -19,6 +19,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.domain.models.Order
+import com.abdulmateen.pos_offline.feature.home.presentation.utils.generateInvoiceInPdf
+import com.abdulmateen.pos_offline.feature.home.presentation.utils.printPdf
+import com.abdulmateen.pos_offline.feature.home.presentation.utils.shareInvoiceFile
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
@@ -168,9 +171,38 @@ fun OrderDetailDialog(
                     businessName = businessName,
                     currencySymbol = currencySymbol
                 )
-                com.abdulmateen.pos_offline.feature.home.presentation.utils.printPdf(invoiceData, fileName)
+                printPdf(invoiceData, fileName)
             }) {
                 Text("Print")
+            }
+            Button(onClick = {
+                val fileName = "invoice_${orderDetails.order.orderId}.pdf"
+                val invoiceData = generateInvoiceInPdf(
+                    cartItems = orderDetails.items.map { 
+                        com.abdulmateen.pos_offline.domain.models.CartItem(
+                            productId = it.productId,
+                            productName = it.productName,
+                            sku = it.sku,
+                            quantity = it.quantity,
+                            price = it.price * it.quantity,
+                            discount = it.discount,
+                            unitPrice = it.price,
+                            imagePath = it.imagePath
+                        )
+                    },
+                    subTotal = orderDetails.order.subTotal,
+                    discount = orderDetails.order.discount ?: 0.0,
+                    tax = orderDetails.order.tax ?: 0.0,
+                    total = orderDetails.order.total,
+                    paidAmount = orderDetails.order.total,
+                    change = 0.0,
+                    paymentType = orderDetails.order.paymentMethod,
+                    businessName = businessName,
+                    currencySymbol = currencySymbol
+                )
+                shareInvoiceFile(invoiceData, fileName)
+            }) {
+                Text("Share")
             }
         },
         dismissButton = {

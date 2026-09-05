@@ -56,6 +56,9 @@ import com.abdulmateen.pos_offline.feature.credit.presentation.CreditViewModel
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderHistoryViewModel
 import com.abdulmateen.pos_offline.feature.return_module.presentation.ReturnViewModel
 import com.abdulmateen.pos_offline.feature.setup.presentation.SetupViewModel
+import com.abdulmateen.pos_offline.domain.repository.ReportRepository
+import com.abdulmateen.pos_offline.data.repository.ReportRepositoryImpl
+import com.abdulmateen.pos_offline.feature.reports.presentation.ReportsViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -77,6 +80,7 @@ val sharedModule = module {
                 MyAppDatabase.MIGRATION_6_7,
                 MyAppDatabase.MIGRATION_7_8
             )
+            .fallbackToDestructiveMigration(dropAllTables = true)
             
         builder.build()
     }
@@ -101,6 +105,7 @@ val sharedModule = module {
     singleOf(::ExpenseRepositoryImpl).bind<ExpenseRepository>()
     singleOf(::CreditRepositoryImpl).bind<CreditRepository>()
     singleOf(::ReturnRepositoryImpl).bind<com.abdulmateen.pos_offline.domain.repository.ReturnRepository>()
+    singleOf(::ReportRepositoryImpl).bind<ReportRepository>()
 
     single {
         ProductUseCases(
@@ -137,7 +142,6 @@ val sharedModule = module {
             productUseCases = get(),
             cartUseCases = get(),
             dataStoreManager = get(),
-            repository = get(),
             creditRepository = get(),
             orderRepository = get()
         )
@@ -148,6 +152,6 @@ val sharedModule = module {
     single { ReturnViewModel(get(), get(), get()) }
     single { CreditViewModel(get(), get()) }
     single { OrderHistoryViewModel(get(), get()) }
+    viewModelOf(::ReportsViewModel)
     viewModelOf(::SetupViewModel)
-
 }

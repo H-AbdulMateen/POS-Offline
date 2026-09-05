@@ -28,6 +28,7 @@ import com.abdulmateen.pos_offline.feature.home.presentation.utils.generateInvoi
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.isPrinterAvailable
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.printPdf
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.saveInvoiceFile
+import com.abdulmateen.pos_offline.feature.home.presentation.utils.shareInvoiceFile
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -82,6 +83,31 @@ fun PaymentDialog(
                     ) {
                         Text("Confirm Credit")
                     }
+                    Button(
+                        onClick = {
+                            val paid = paidAmount.toDoubleOrNull() ?: 0.0
+                            val change = (paid - totalAmount).coerceAtLeast(0.0)
+                            val fileName = "invoice_${Clock.System.now().toEpochMilliseconds()}.pdf"
+                            val invoiceData = generateInvoiceInPdf(
+                                cartItems = cartItems,
+                                subTotal = subTotal,
+                                discount = discount,
+                                tax = tax,
+                                total = totalAmount,
+                                paidAmount = paid,
+                                change = change,
+                                paymentType = paymentType,
+                                businessName = businessName,
+                                currencySymbol = currencySymbol
+                            )
+                            shareInvoiceFile(invoiceData, fileName)
+                            onConfirmCredit(customerName, phoneNumber.takeIf { it.isNotBlank() }, paid)
+                        },
+                        enabled = customerName.isNotEmpty(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Confirm & Share")
+                    }
                 } else {
                     Button(
                         onClick = {
@@ -107,6 +133,31 @@ fun PaymentDialog(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Confirm & View")
+                    }
+                    Button(
+                        onClick = {
+                            val paid = paidAmount.toDoubleOrNull() ?: 0.0
+                            val change = (paid - totalAmount).coerceAtLeast(0.0)
+                            val fileName = "invoice_${Clock.System.now().toEpochMilliseconds()}.pdf"
+                            val invoiceData = generateInvoiceInPdf(
+                                cartItems = cartItems,
+                                subTotal = subTotal,
+                                discount = discount,
+                                tax = tax,
+                                total = totalAmount,
+                                paidAmount = paid,
+                                change = change,
+                                paymentType = paymentType,
+                                businessName = businessName,
+                                currencySymbol = currencySymbol
+                            )
+                            shareInvoiceFile(invoiceData, fileName)
+                            onConfirm(customerName.takeIf { it.isNotBlank() }, phoneNumber.takeIf { it.isNotBlank() })
+                        },
+                        enabled = paidAmount.toDoubleOrNull()?.let { it >= totalAmount } ?: false,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Confirm & Share")
                     }
                     Button(
                         onClick = {
@@ -189,7 +240,7 @@ fun PaymentDialog(
                             paidAmount = input
                         }
                     },
-                    label = { Text("Amount Paid") },
+                    label = { Text(if (paymentType == "Credit") "Amount Paid (Optional)" else "Amount Paid") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory
@@ -147,6 +148,7 @@ fun MainScreenScaffoldWithDrawer(
         currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Returns::class) } == true -> "Returns"
         currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true -> stringResource(Res.string.profile)
         currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Settings::class) } == true -> stringResource(Res.string.settings)
+        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Reports::class) } == true -> "Reports"
         else -> stringResource(Res.string.app_name)
     }
 
@@ -256,6 +258,9 @@ fun NavHostPane(
                 onLogoutClick = onLogoutClick
             )
         }
+        composable<MainScreenRoutes.Reports> {
+            com.abdulmateen.pos_offline.feature.reports.presentation.ReportsScreenRoot()
+        }
     }
 }
 
@@ -326,6 +331,12 @@ fun SideNavBar(
             label = { Text(text = stringResource(Res.string.settings)) },
             onClick = { navController.navigate(MainScreenRoutes.Settings) }
         )
+        NavigationRailItem(
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Reports::class) } == true,
+            icon = { Icon(imageVector = Icons.Default.Assessment, "reports") },
+            label = { Text(text = "Reports") },
+            onClick = { navController.navigate(MainScreenRoutes.Reports) }
+        )
     }
 }
 
@@ -358,6 +369,9 @@ sealed interface MainScreenRoutes {
 
     @Serializable
     data object Settings : MainScreenRoutes
+
+    @Serializable
+    data object Reports : MainScreenRoutes
 }
 
 @Preview

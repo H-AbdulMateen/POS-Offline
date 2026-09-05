@@ -36,5 +36,5 @@ interface InventoryRepository {
 
     suspend fun reduceStock(productId: Long, qty: Double)
 
-
+    suspend fun initializeDefaults()
 }

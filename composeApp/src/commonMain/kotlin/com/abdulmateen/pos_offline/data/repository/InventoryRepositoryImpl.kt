@@ -20,15 +20,12 @@ import com.abdulmateen.pos_offline.domain.models.Category
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.domain.models.ProductDetail
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
 class InventoryRepositoryImpl(
@@ -109,17 +106,10 @@ class InventoryRepositoryImpl(
     override fun getAllProducts(): Flow<List<Product>> =
         productDao.getAllProducts()
             .map { productEntities ->
-                if (productEntities.isNotEmpty()) {
-                    supervisorScope {
-                        productEntities.map { productEntity ->
-                            async { productEntity.toProduct(imageStorage = imageStorage) }
-                        }.awaitAll()
-                    }
-                } else {
-                    supervisorScope {
-                        insertPrepopulatedProducts()
-                        emptyList()
-                    }
+                supervisorScope {
+                    productEntities.map { productEntity ->
+                        async { productEntity.toProduct(imageStorage = imageStorage) }
+                    }.awaitAll()
                 }
             }
 
@@ -158,10 +148,6 @@ class InventoryRepositoryImpl(
     }
 
     override fun getAllCategories(): Flow<List<Category>> {
-        CoroutineScope(Dispatchers.IO).launch {
-            insertPrepopulatedCategories()
-        }
-
         return categoryDao.getAllCategories()
             .map { categoryEntities -> categoryEntities.map { it.toCategory() } }
     }
@@ -195,15 +181,8 @@ class InventoryRepositoryImpl(
     override fun getAllUnits(): Flow<List<ItemUnit>> {
         return unitDao.getAllUnits()
             .map { unitEntities ->
-                if (unitEntities.isNotEmpty()) {
-                    unitEntities.map { it.toUnit() }
-                }else{
-                    supervisorScope {
-                        insertPrepopulatedUnits()
-                        emptyList()
-                    }
-                }
-                }
+                unitEntities.map { it.toUnit() }
+            }
     }
 
     override fun getUnitById(unitId: Long): Flow<ItemUnit?> {
@@ -219,8 +198,24 @@ class InventoryRepositoryImpl(
         productDao.reduceStock(productId = productId, qty = qty)
     }
 
+    override suspend fun initializeDefaults() {
+        val currentUnits = unitDao.getAllUnits().first()
+        if (currentUnits.isEmpty()) {
+            insertPrepopulatedUnits()
+        }
+
+        val currentCategories = categoryDao.getAllCategories().first()
+        if (currentCategories.isEmpty()) {
+            insertPrepopulatedCategories()
+        }
+        
+        val currentProducts = productDao.getAllProducts().first()
+        if (currentProducts.isEmpty()) {
+            insertPrepopulatedProducts()
+        }
+    }
+
     private suspend fun insertPrepopulatedProducts() {
-        // Insert prepopulated products here
         productDao.upsertList(
             listOf(
                 ProductEntity(
@@ -346,8 +341,8 @@ class InventoryRepositoryImpl(
             )
         )
     }
+
     private suspend fun insertPrepopulatedCategories() {
-        // Insert prepopulated categories here
         categoryDao.upsertList(
             listOf(
                 CategoryEntity(categoryId = 1, name = "Clothing"),
@@ -363,7 +358,6 @@ class InventoryRepositoryImpl(
     }
 
     private suspend fun insertPrepopulatedUnits() {
-        // Insert prepopulated units here
         unitDao.upsertList(
             listOf(
                 UnitEntity(unitId = 1, name = "Kilogram", symbol = "kg"),

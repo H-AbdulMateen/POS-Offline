@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.core.domain.PrefKeys
+import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +14,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class StartupViewModel(
-    private val dataStoreManager: DataStoreManager
+    private val dataStoreManager: DataStoreManager,
+    private val inventoryRepository: InventoryRepository
 ): ViewModel() {
     private val _uiState = MutableStateFlow(LoadingUiState())
     private var hasLoadedInitialData: Boolean = false
@@ -38,6 +40,7 @@ class StartupViewModel(
     }
 
     private suspend fun observeSession(){
+        inventoryRepository.initializeDefaults()
         val authInfo = dataStoreManager.getBoolValue(PrefKeys.IS_LOGGED_IN)
         val setupCompleted = dataStoreManager.getBoolValue(PrefKeys.IS_SETUP_COMPLETED)
         _uiState.update {

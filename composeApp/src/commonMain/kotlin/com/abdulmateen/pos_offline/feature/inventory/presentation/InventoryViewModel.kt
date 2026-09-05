@@ -39,6 +39,7 @@ import pos_offline.composeapp.generated.resources.category_added
 import pos_offline.composeapp.generated.resources.product_added
 import pos_offline.composeapp.generated.resources.unit_added
 import kotlin.collections.map
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class InventoryViewModel constructor(
@@ -63,7 +64,7 @@ class InventoryViewModel constructor(
 
     init {
         viewModelScope.launch {
-            _searchProductQuery.debounce(600)
+            _searchProductQuery.debounce(600.milliseconds)
                 .distinctUntilChanged()
                 .mapLatest { query ->
                     _uiState.update {

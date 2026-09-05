@@ -68,7 +68,7 @@ fun SetupScreen(
             LogoImage(modifier = Modifier.size(100.dp))
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Welcome to ${stringResource(Res.string.app_name)})",
+                text = "Welcome to ${stringResource(Res.string.app_name)}",
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold
             )
