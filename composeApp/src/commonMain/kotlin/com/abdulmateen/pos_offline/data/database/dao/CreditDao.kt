@@ -15,6 +15,9 @@ interface CreditDao {
     @Query("SELECT * FROM credits ORDER BY lastUpdated DESC")
     fun getAllCredits(): Flow<List<CreditEntity>>
 
+    @Query("SELECT * FROM credits ORDER BY lastUpdated DESC LIMIT :limit OFFSET :offset")
+    fun getCreditsPaged(limit: Int, offset: Int): Flow<List<CreditEntity>>
+
     @Query("SELECT * FROM credits WHERE creditId = :creditId")
     suspend fun getCreditById(creditId: Long): CreditEntity?
 

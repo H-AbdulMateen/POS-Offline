@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -34,7 +35,8 @@ fun ReturnScreenRoot() {
         onSearchQueryChange = viewModel::updateSearchQuery,
         onOrderClick = { viewModel.selectOrder(it.orderId) },
         onDismissDetails = { viewModel.selectOrder(null) },
-        onProcessReturn = viewModel::processReturn
+        onProcessReturn = viewModel::processReturn,
+        onLoadNextPage = viewModel::loadNextOrders
     )
 }
 
@@ -45,7 +47,8 @@ fun ReturnScreen(
     onSearchQueryChange: (String) -> Unit,
     onOrderClick: (Order) -> Unit,
     onDismissDetails: () -> Unit,
-    onProcessReturn: (String?, List<com.abdulmateen.pos_offline.data.database.entities.OrderItemEntity>) -> Unit
+    onProcessReturn: (String?, List<com.abdulmateen.pos_offline.data.database.entities.OrderItemEntity>) -> Unit,
+    onLoadNextPage: () -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -99,7 +102,25 @@ fun ReturnScreen(
 
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    val listState = rememberLazyListState()
+                    val shouldLoadNext = remember {
+                        derivedStateOf {
+                            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                                ?: return@derivedStateOf false
+                            lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 5
+                        }
+                    }
+
+                    LaunchedEffect(shouldLoadNext.value) {
+                        if (shouldLoadNext.value && !uiState.isLoading && !uiState.isEndReached) {
+                            onLoadNextPage()
+                        }
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        state = listState
+                    ) {
                         items(uiState.orders) { order ->
                             ReturnOrderRow(
                                 order = order,
@@ -107,6 +128,17 @@ fun ReturnScreen(
                                 onClick = { onOrderClick(order) }
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                        }
+
+                        item {
+                            if (uiState.isLoading) {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
                         }
                     }
                 }

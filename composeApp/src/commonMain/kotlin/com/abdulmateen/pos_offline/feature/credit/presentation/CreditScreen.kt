@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Payment
@@ -37,6 +38,7 @@ fun CreditScreenRoot() {
         uiState = uiState,
         onReceivePayment = viewModel::receivePayment,
         onSearchQueryChange = viewModel::updateSearchQuery,
+        onLoadNextPage = viewModel::loadNextCredits,
         onAddCredit = viewModel::addCredit
     )
 }
@@ -46,6 +48,7 @@ fun CreditScreen(
     uiState: CreditUiState,
     onReceivePayment: (CreditEntity, Double) -> Unit,
     onSearchQueryChange: (String) -> Unit,
+    onLoadNextPage: () -> Unit = {},
     onAddCredit: (String, String?, Double, Double) -> Unit
 ) {
     var showReceivePaymentDialog by remember { mutableStateOf<CreditEntity?>(null) }
@@ -112,7 +115,25 @@ fun CreditScreen(
 
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    val listState = rememberLazyListState()
+                    val shouldLoadNext = remember {
+                        derivedStateOf {
+                            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                                ?: return@derivedStateOf false
+                            lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 5
+                        }
+                    }
+
+                    LaunchedEffect(shouldLoadNext.value) {
+                        if (shouldLoadNext.value && !uiState.isLoading && !uiState.isEndReached) {
+                            onLoadNextPage()
+                        }
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        state = listState
+                    ) {
                         items(uiState.credits) { credit ->
                             CreditTableRow(
                                 credit = credit,
@@ -120,6 +141,17 @@ fun CreditScreen(
                                 onClick = { showReceivePaymentDialog = credit }
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                        }
+                        
+                        item {
+                            if (uiState.isLoading) {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
                         }
                     }
                 }

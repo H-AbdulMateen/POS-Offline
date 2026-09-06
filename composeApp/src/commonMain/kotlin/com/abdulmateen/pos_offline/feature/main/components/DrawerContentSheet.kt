@@ -112,14 +112,14 @@ fun DrawerContentSheet(
             navController.navigate(MainScreenRoutes.Reports) { launchSingleTop = true }
             closeDrawer()
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        DrawerItem(stringResource(Res.string.profile),
-            icon = Icons.Default.Person,
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true
-        ) {
-            navController.navigate(MainScreenRoutes.Profile) { launchSingleTop = true }
-            closeDrawer()
-        }
+//        Spacer(modifier = Modifier.height(16.dp))
+//        DrawerItem(stringResource(Res.string.profile),
+//            icon = Icons.Default.Person,
+//            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true
+//        ) {
+//            navController.navigate(MainScreenRoutes.Profile) { launchSingleTop = true }
+//            closeDrawer()
+//        }
         Spacer(modifier = Modifier.height(16.dp))
         DrawerItem(
             title = stringResource(Res.string.settings),
@@ -153,15 +153,15 @@ fun DrawerContentSheet(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        DrawerItem(
-            title = stringResource(Res.string.logout),
-            icon = Icons.AutoMirrored.Filled.ExitToApp,
-            selected = false,
-            isDanger = true
-        ) {
-            onLogoutClick()
-            closeDrawer()
-        }
+//        DrawerItem(
+//            title = stringResource(Res.string.logout),
+//            icon = Icons.AutoMirrored.Filled.ExitToApp,
+//            selected = false,
+//            isDanger = true
+//        ) {
+//            onLogoutClick()
+//            closeDrawer()
+//        }
         Spacer(modifier = Modifier.height(16.dp))
 
     }

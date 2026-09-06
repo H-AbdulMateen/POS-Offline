@@ -84,5 +84,6 @@ data class InventoryUiState(
 
     val itemExpiryDate: String = "",
     val showDeleteDialog: Boolean = false,
-    val selectedProduct: ProductDetail? = null
+    val selectedProduct: ProductDetail? = null,
+    val isEndReached: Boolean = false
 )

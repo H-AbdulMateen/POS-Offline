@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -42,6 +43,7 @@ fun OrderHistoryScreenRoot(
         onSearchQueryChange = viewModel::updateSearchQuery,
         onOrderClick = { viewModel.selectOrder(it.orderId) },
         onDismissDetails = { viewModel.selectOrder(null) },
+        onLoadNextPage = viewModel::loadNextOrders,
         onBackClick = onBackClick
     )
 }
@@ -53,6 +55,7 @@ fun OrderHistoryScreen(
     onSearchQueryChange: (String) -> Unit,
     onOrderClick: (Order) -> Unit,
     onDismissDetails: () -> Unit,
+    onLoadNextPage: () -> Unit,
     onBackClick: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -111,7 +114,27 @@ fun OrderHistoryScreen(
 
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    val listState = rememberLazyListState()
+                    
+                    val shouldLoadNext = remember {
+                        derivedStateOf {
+                            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                                ?: return@derivedStateOf false
+                            
+                            lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 5
+                        }
+                    }
+                    
+                    LaunchedEffect(shouldLoadNext.value) {
+                        if (shouldLoadNext.value && !uiState.isLoading && !uiState.isEndReached) {
+                            onLoadNextPage()
+                        }
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        state = listState
+                    ) {
                         items(uiState.orders) { order ->
                             OrderHistoryRow(
                                 order = order,
@@ -120,6 +143,23 @@ fun OrderHistoryScreen(
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }
+
+                        item {
+                            if (uiState.isLoading) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
+                    }
+                    
+                    LaunchedEffect(uiState.orders.size) {
+                        // Very simple scroll-to-end detection could be done with listState
                     }
                 }
             }
@@ -451,6 +491,7 @@ private fun OrderHistoryScreenPreview() {
                 onSearchQueryChange = {},
                 onOrderClick = {},
                 onDismissDetails = {},
+                onLoadNextPage = {},
                 onBackClick = {}
             )
         }

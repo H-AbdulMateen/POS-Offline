@@ -39,6 +39,9 @@ interface OrderDao {
     @Query("SELECT * FROM orders")
     fun getAllOrders(): Flow<List<OrderEntity>>
 
+    @Query("SELECT * FROM orders ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
+    fun getOrdersPaged(limit: Int, offset: Int): Flow<List<OrderEntity>>
+
 
     @Transaction
     suspend fun updateOrder(
@@ -66,6 +69,9 @@ interface OrderDao {
 
     @Query("SELECT SUM(total) FROM orders WHERE createdAt >= :start AND createdAt <= :end")
     fun getTotalRevenueInRange(start: Long, end: Long): Flow<Double?>
+
+    @Query("SELECT * FROM orders WHERE createdAt >= :start AND createdAt <= :end ORDER BY createdAt DESC")
+    fun getOrdersInRange(start: Long, end: Long): Flow<List<OrderEntity>>
 
 
     @Transaction

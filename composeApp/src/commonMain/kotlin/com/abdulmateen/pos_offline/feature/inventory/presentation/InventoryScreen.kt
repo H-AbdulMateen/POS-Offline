@@ -43,6 +43,7 @@ fun InventoryScreenRoot(){
         uiState = uiState,
         uiAction = viewModel::uiAction,
         onSearchProductQueryChange = viewModel::onSearchProductQueryChange,
+        onLoadNextPage = viewModel::loadNextProducts,
         searchProductQuery = searchProductQuery,
         snackbarHostState = snackBarState
     )
@@ -66,6 +67,7 @@ fun InventoryScreen(
     searchProductQuery: String,
     uiState: com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiState = _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiState(),
     onSearchProductQueryChange: (String) -> Unit,
+    onLoadNextPage: () -> Unit = {},
     uiAction: (com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction) -> Unit,
     snackbarHostState: SnackbarHostState
 ){
@@ -111,7 +113,8 @@ fun InventoryScreen(
                     }else {
                         _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.InventoryTable(
                             uiAction = uiAction,
-                            uiState = uiState
+                            uiState = uiState,
+                            onLoadNextPage = onLoadNextPage
                         )
                     }
                 }
@@ -141,7 +144,8 @@ fun InventoryScreen(
                     }else {
                         _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.InventoryTable(
                             uiAction = uiAction,
-                            uiState = uiState
+                            uiState = uiState,
+                            onLoadNextPage = onLoadNextPage
                         )
                     }
                 }

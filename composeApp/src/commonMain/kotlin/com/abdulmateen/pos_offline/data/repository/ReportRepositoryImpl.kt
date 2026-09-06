@@ -17,8 +17,8 @@ class ReportRepositoryImpl(
     private val dataExporter: DataExporter
 ) : ReportRepository {
 
-    override suspend fun exportSalesReport(): String? {
-        val orders = orderDao.getAllOrders().first()
+    override suspend fun exportSalesReport(startDate: Long, endDate: Long): String? {
+        val orders = orderDao.getOrdersInRange(startDate, endDate).first()
         val headers = listOf("Order ID", "Date", "Customer", "Subtotal", "Discount", "Tax", "Total", "Payment Method")
         val data = orders.map { order ->
             val date = Instant.fromEpochMilliseconds(order.createdAt)
@@ -40,8 +40,8 @@ class ReportRepositoryImpl(
         return dataExporter.exportToCsv("sales_report_$timestamp", headers, data)
     }
 
-    override suspend fun exportExpenseReport(): String? {
-        val expenses = expenseDao.getAllExpenses().first()
+    override suspend fun exportExpenseReport(startDate: Long, endDate: Long): String? {
+        val expenses = expenseDao.getExpensesInRange(startDate, endDate).first()
         val headers = listOf("Expense ID", "Date", "Paid To", "Category", "Amount", "Description")
         val data = expenses.map { expense ->
             val date = Instant.fromEpochMilliseconds(expense.date)

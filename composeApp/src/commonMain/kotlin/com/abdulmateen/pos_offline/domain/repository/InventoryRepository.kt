@@ -13,6 +13,7 @@ interface InventoryRepository {
     suspend fun updateProduct(product: ProductDetail)
     suspend fun deleteProduct(productId: Long): Boolean
     fun getAllProducts(): Flow<List<Product>>
+    fun getProductsPaged(limit: Int, offset: Int): Flow<List<Product>>
     fun getProductById(productId: Long): Flow<ProductDetail?>
     fun searchProduct(query: String): Flow<List<Product>>
 
@@ -29,7 +30,6 @@ interface InventoryRepository {
     suspend fun insertUnit(unit: ItemUnit): Result<String, DataError.Local>
     suspend fun updateUnit(unit: ItemUnit)
     suspend fun deleteUnit(unit: ItemUnit)
-
     fun getAllUnits(): Flow<List<ItemUnit>>
     fun getUnitById(unitId: Long): Flow<ItemUnit?>
     suspend fun clearUnits()

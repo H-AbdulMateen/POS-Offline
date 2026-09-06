@@ -9,7 +9,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.abdulmateen.pos_offline.core.designsystem.components.WheelDateTimePickerDialog
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -22,7 +26,9 @@ fun ReportsScreenRoot() {
         uiState = uiState,
         onExportSales = viewModel::exportSales,
         onExportExpenses = viewModel::exportExpenses,
-        onClearMessage = viewModel::clearMessage
+        onClearMessage = viewModel::clearMessage,
+        onStartDateChange = viewModel::updateStartDate,
+        onEndDateChange = viewModel::updateEndDate
     )
 }
 
@@ -31,9 +37,13 @@ fun ReportsScreen(
     uiState: ReportsUiState,
     onExportSales: () -> Unit,
     onExportExpenses: () -> Unit,
-    onClearMessage: () -> Unit
+    onClearMessage: () -> Unit,
+    onStartDateChange: (LocalDate) -> Unit,
+    onEndDateChange: (LocalDate) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    var showStartDatePicker by remember { mutableStateOf(false) }
+    var showEndDatePicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.exportMessage) {
         uiState.exportMessage?.let {
@@ -58,11 +68,48 @@ fun ReportsScreen(
             )
             
             Text(
-                text = "Generate and download your business reports in CSV format.",
+                text = "Generate and download your business reports in CSV format. Range is limited to 30 days for optimal performance.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.Start)
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "Export Date Range", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { showStartDatePicker = true },
+                            modifier = Modifier.weight(1f),
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("From", style = MaterialTheme.typography.labelSmall)
+                                Text(uiState.startDate.toString(), style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                        OutlinedButton(
+                            onClick = { showEndDatePicker = true },
+                            modifier = Modifier.weight(1f),
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("To", style = MaterialTheme.typography.labelSmall)
+                                Text(uiState.endDate.toString(), style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -86,6 +133,22 @@ fun ReportsScreen(
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp)
         )
     }
+
+    WheelDateTimePickerDialog(
+        showDatePicker = showStartDatePicker,
+        toggleDatePicker = { showStartDatePicker = it },
+        onDateSelection = { instant ->
+            onStartDateChange(instant.toLocalDateTime(TimeZone.currentSystemDefault()).date)
+        }
+    )
+
+    WheelDateTimePickerDialog(
+        showDatePicker = showEndDatePicker,
+        toggleDatePicker = { showEndDatePicker = it },
+        onDateSelection = { instant ->
+            onEndDateChange(instant.toLocalDateTime(TimeZone.currentSystemDefault()).date)
+        }
+    )
 }
 
 @Composable
@@ -134,7 +197,9 @@ private fun ReportsScreenPreview() {
                 uiState = ReportsUiState(),
                 onExportSales = {},
                 onExportExpenses = {},
-                onClearMessage = {}
+                onClearMessage = {},
+                onStartDateChange = {},
+                onEndDateChange = {}
             )
         }
     )

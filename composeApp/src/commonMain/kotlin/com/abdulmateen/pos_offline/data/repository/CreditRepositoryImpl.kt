@@ -11,6 +11,7 @@ class CreditRepositoryImpl(
     override suspend fun upsertCredit(credit: CreditEntity) = creditDao.upsertCredit(credit)
     override suspend fun deleteCredit(credit: CreditEntity) = creditDao.deleteCredit(credit)
     override fun getAllCredits(): Flow<List<CreditEntity>> = creditDao.getAllCredits()
+    override fun getCreditsPaged(limit: Int, offset: Int): Flow<List<CreditEntity>> = creditDao.getCreditsPaged(limit, offset)
     override suspend fun getCreditById(creditId: Long): CreditEntity? = creditDao.getCreditById(creditId)
     override fun searchCredits(name: String): Flow<List<CreditEntity>> = creditDao.searchCreditsByCustomer(name)
 }

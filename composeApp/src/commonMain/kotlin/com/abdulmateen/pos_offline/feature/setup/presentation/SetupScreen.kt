@@ -83,7 +83,7 @@ fun SetupScreen(
             OutlinedTF(
                 value = uiState.email,
                 onValueChange = onEmailChange,
-                placeholder = "Gmail Address (for backup)",
+                placeholder = "Gmail Address",
                 modifier = Modifier.fillMaxWidth(),
                 hasError = uiState.emailError != null,
                 errorMessage = uiState.emailError ?: ""

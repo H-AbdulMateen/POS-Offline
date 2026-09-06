@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -41,7 +42,8 @@ fun ExpenseScreenRoot() {
         onAddExpense = viewModel::addExpense,
         onAddRevenue = viewModel::addRevenue,
         onPreviousMonth = viewModel::previousMonth,
-        onNextMonth = viewModel::nextMonth
+        onNextMonth = viewModel::nextMonth,
+        onLoadNextPage = viewModel::loadNextExpenses
     )
 }
 
@@ -51,7 +53,8 @@ fun ExpenseScreen(
     onAddExpense: (Double, String, ExpenseCategory, String?, Long?) -> Unit,
     onAddRevenue: (Double, String) -> Unit,
     onPreviousMonth: () -> Unit,
-    onNextMonth: () -> Unit
+    onNextMonth: () -> Unit,
+    onLoadNextPage: () -> Unit = {}
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var showAddRevenueDialog by remember { mutableStateOf(false) }
@@ -176,8 +179,24 @@ fun ExpenseScreen(
 
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
+                    val listState = rememberLazyListState()
+                    val shouldLoadNext = remember {
+                        derivedStateOf {
+                            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                                ?: return@derivedStateOf false
+                            lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 5
+                        }
+                    }
+
+                    LaunchedEffect(shouldLoadNext.value) {
+                        if (shouldLoadNext.value && !uiState.isLoading && !uiState.isEndReached) {
+                            onLoadNextPage()
+                        }
+                    }
+
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
+                        state = listState,
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         items(uiState.recentExpenses) { expense ->
@@ -185,7 +204,18 @@ fun ExpenseScreen(
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }
                         
-                        if (uiState.recentExpenses.isEmpty()) {
+                        item {
+                            if (uiState.isLoading) {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
+                        
+                        if (uiState.recentExpenses.isEmpty() && !uiState.isLoading) {
                             item {
                                 Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
                                     Text(text = "No expenses recorded for this month", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)

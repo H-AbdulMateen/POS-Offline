@@ -27,6 +27,9 @@ interface ProductDao {
     @Query("SELECT * FROM products ORDER BY name ASC")
     fun getAllProducts(): Flow<List<ProductEntity>>
 
+    @Query("SELECT * FROM products ORDER BY name ASC LIMIT :limit OFFSET :offset")
+    fun getProductsPaged(limit: Int, offset: Int): Flow<List<ProductEntity>>
+
     @Query("DELETE FROM products WHERE productId = :productId")
     suspend fun delete(productId: Long)
 

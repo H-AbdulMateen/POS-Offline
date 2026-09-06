@@ -10,6 +10,7 @@ interface ExpenseRepository {
     suspend fun updateExpense(expense: ExpenseEntity)
     suspend fun deleteExpense(expense: ExpenseEntity)
     fun getAllExpenses(): Flow<List<ExpenseEntity>>
+    fun getExpensesPaged(limit: Int, offset: Int): Flow<List<ExpenseEntity>>
     fun getTotalExpensesInRange(start: Long, end: Long): Flow<Double>
     fun getExpenseBreakdownInRange(start: Long, end: Long): Flow<List<ExpenseBreakdown>>
 

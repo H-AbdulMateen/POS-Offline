@@ -7,6 +7,7 @@ interface CreditRepository {
     suspend fun upsertCredit(credit: CreditEntity): Long
     suspend fun deleteCredit(credit: CreditEntity)
     fun getAllCredits(): Flow<List<CreditEntity>>
+    fun getCreditsPaged(limit: Int, offset: Int): Flow<List<CreditEntity>>
     suspend fun getCreditById(creditId: Long): CreditEntity?
     fun searchCredits(name: String): Flow<List<CreditEntity>>
 }

@@ -24,5 +24,6 @@ interface OrderRepository {
     suspend fun deleteOrder(orderId: Long)
     suspend fun getOrderById(orderId: Long): Order?
     fun getAllOrders(): Flow<List<Order>>
+    fun getOrdersPaged(limit: Int, offset: Int): Flow<List<Order>>
     fun getOrderWithItems(orderId: Long): Flow<com.abdulmateen.pos_offline.data.database.entities.OrderWithItems?>
 }

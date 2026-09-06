@@ -24,6 +24,12 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses ORDER BY date DESC")
     fun getAllExpenses(): Flow<List<ExpenseEntity>>
 
+    @Query("SELECT * FROM expenses ORDER BY date DESC LIMIT :limit OFFSET :offset")
+    fun getExpensesPaged(limit: Int, offset: Int): Flow<List<ExpenseEntity>>
+
+    @Query("SELECT * FROM expenses WHERE date >= :start AND date <= :end ORDER BY date DESC")
+    fun getExpensesInRange(start: Long, end: Long): Flow<List<ExpenseEntity>>
+
     @Query("SELECT SUM(amount) FROM expenses WHERE date >= :start AND date <= :end")
     fun getTotalExpensesInRange(start: Long, end: Long): Flow<Double?>
 

@@ -73,7 +73,6 @@ class InventoryRepositoryImpl(
             val imagePath = product.photoBytes?.let { imageBytes ->
                 imageStorage.saveImage(imageBytes)
             }
-
             productDao.insertOrUpdate(
                 ProductEntity(
                     productId = product.productId,
@@ -91,6 +90,7 @@ class InventoryRepositoryImpl(
             )
         }
     }
+
 
     override suspend fun deleteProduct(productId: Long): Boolean {
         try {
@@ -113,6 +113,15 @@ class InventoryRepositoryImpl(
                 }
             }
 
+    override fun getProductsPaged(limit: Int, offset: Int): Flow<List<Product>> =
+        productDao.getProductsPaged(limit, offset)
+            .map { productEntities ->
+                supervisorScope {
+                    productEntities.map { productEntity ->
+                        async { productEntity.toProduct(imageStorage = imageStorage) }
+                    }.awaitAll()
+                }
+            }
     override fun searchProduct(query: String): Flow<List<Product>> {
         return productDao.filterProductsByQuery(name = query).map { productEntities ->
             productEntities.map { productEntity ->
@@ -184,6 +193,7 @@ class InventoryRepositoryImpl(
                 unitEntities.map { it.toUnit() }
             }
     }
+
 
     override fun getUnitById(unitId: Long): Flow<ItemUnit?> {
         return unitDao.getUnitById(unitId)

@@ -14,7 +14,8 @@ import kotlin.time.ExperimentalTime
 data class CreditUiState(
     val credits: List<CreditEntity> = emptyList(),
     val currencySymbol: String = "$",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isEndReached: Boolean = false
 )
 
 class CreditViewModel(
@@ -22,25 +23,63 @@ class CreditViewModel(
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
+    private val _uiState = MutableStateFlow(CreditUiState())
+    val uiState: StateFlow<CreditUiState> = _uiState.asStateFlow()
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<CreditUiState> = _searchQuery.flatMapLatest { query ->
-        val creditsFlow = if (query.isEmpty()) {
-            creditRepository.getAllCredits()
-        } else {
-            creditRepository.searchCredits(query)
+    private var currentPage = 0
+    private val pageSize = 20
+
+    init {
+        loadNextCredits()
+        observeDataStore()
+        observeSearch()
+    }
+
+    private fun observeDataStore() {
+        viewModelScope.launch {
+            val symbol = dataStoreManager.getStringValue(PrefKeys.CURRENCY_SYMBOL)
+            _uiState.update { it.copy(currencySymbol = symbol.ifEmpty { "$" }) }
         }
-        
-        combine(
-            creditsFlow,
-            flow { emit(dataStoreManager.getStringValue(PrefKeys.CURRENCY_SYMBOL)) }
-        ) { credits, symbol ->
-            CreditUiState(
-                credits = credits,
-                currencySymbol = symbol.ifEmpty { "$" }
-            )
+    }
+
+    private fun observeSearch() {
+        viewModelScope.launch {
+            _searchQuery.debounce(300).collect { query ->
+                if (query.isEmpty()) {
+                    currentPage = 0
+                    _uiState.update { it.copy(credits = emptyList(), isEndReached = false) }
+                    loadNextCredits()
+                } else {
+                    creditRepository.searchCredits(query).collect { credits ->
+                        _uiState.update { 
+                            it.copy(
+                                credits = credits,
+                                isEndReached = true // Disable pagination during search
+                            )
+                        }
+                    }
+                }
+            }
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreditUiState())
+    }
+
+    fun loadNextCredits() {
+        if (_uiState.value.isLoading || _uiState.value.isEndReached || _searchQuery.value.isNotEmpty()) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            creditRepository.getCreditsPaged(pageSize, currentPage * pageSize).firstOrNull()?.let { newCredits ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        credits = it.credits + newCredits,
+                        isEndReached = newCredits.size < pageSize
+                    )
+                }
+                currentPage++
+            } ?: _uiState.update { it.copy(isLoading = false) }
+        }
+    }
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query

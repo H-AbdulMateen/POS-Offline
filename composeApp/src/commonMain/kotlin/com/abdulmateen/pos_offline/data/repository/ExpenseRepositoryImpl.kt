@@ -19,6 +19,7 @@ class ExpenseRepositoryImpl(
     override suspend fun updateExpense(expense: ExpenseEntity) = expenseDao.updateExpense(expense)
     override suspend fun deleteExpense(expense: ExpenseEntity) = expenseDao.deleteExpense(expense)
     override fun getAllExpenses(): Flow<List<ExpenseEntity>> = expenseDao.getAllExpenses()
+    override fun getExpensesPaged(limit: Int, offset: Int): Flow<List<ExpenseEntity>> = expenseDao.getExpensesPaged(limit, offset)
     override fun getTotalExpensesInRange(start: Long, end: Long): Flow<Double> = 
         expenseDao.getTotalExpensesInRange(start, end).map { it ?: 0.0 }
     override fun getExpenseBreakdownInRange(start: Long, end: Long): Flow<List<ExpenseBreakdown>> = 

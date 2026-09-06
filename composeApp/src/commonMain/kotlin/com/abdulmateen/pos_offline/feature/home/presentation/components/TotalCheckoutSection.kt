@@ -93,7 +93,7 @@ fun TotalSectionRow(
             fontSize = 11.sp
         )
         Text(
-            text = "$$value",
+            text = "$value",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
@@ -136,7 +136,7 @@ fun TotalSectionRowWithEdit(
                 )
             }
             Text(
-                text = "$$value",
+                text = "$value",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )

@@ -26,6 +26,7 @@ class ReturnRepositoryImpl(
     }
 
     override fun getAllReturns(): Flow<List<ReturnEntity>> = returnDao.getAllReturns()
+    override fun getReturnsPaged(limit: Int, offset: Int): Flow<List<ReturnEntity>> = returnDao.getReturnsPaged(limit, offset)
 
     override fun getItemsForReturn(returnId: Long): Flow<List<ReturnItemEntity>> = 
         returnDao.getItemsForReturn(returnId)

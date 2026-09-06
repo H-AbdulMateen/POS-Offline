@@ -18,6 +18,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,6 +62,9 @@ class InventoryViewModel constructor(
 
     private val _searchProductQuery = MutableStateFlow("")
     val searchProductQuery: StateFlow<String> = _searchProductQuery.asStateFlow()
+
+    private var currentPage = 0
+    private val pageSize = 20
 
     init {
         viewModelScope.launch {
@@ -503,20 +507,27 @@ class InventoryViewModel constructor(
     }
 
     private fun loadProducts() {
+        currentPage = 0
+        _uiState.update { it.copy(productList = emptyList(), isEndReached = false) }
+        loadNextProducts()
+    }
+
+    fun loadNextProducts() {
+        if (_uiState.value.isLoading || _uiState.value.isEndReached || _searchProductQuery.value.isNotEmpty()) return
+
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    isLoading = true
-                )
-            }
-            productUseCases.getProductUiList().map { products ->
+            _uiState.update { it.copy(isLoading = true) }
+            repository.getProductsPaged(pageSize, currentPage * pageSize).firstOrNull()?.let { products ->
+                val uiProducts = products.map { it.toProductUi() }
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        productList = products
+                        productList = it.productList + uiProducts,
+                        isEndReached = products.size < pageSize
                     )
                 }
-            }.launchIn(viewModelScope)
+                currentPage++
+            } ?: _uiState.update { it.copy(isLoading = false) }
         }
     }
 

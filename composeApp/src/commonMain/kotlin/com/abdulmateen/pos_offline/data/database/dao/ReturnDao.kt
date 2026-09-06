@@ -19,6 +19,9 @@ interface ReturnDao {
     @Query("SELECT * FROM returns ORDER BY createdAt DESC")
     fun getAllReturns(): Flow<List<ReturnEntity>>
 
+    @Query("SELECT * FROM returns ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
+    fun getReturnsPaged(limit: Int, offset: Int): Flow<List<ReturnEntity>>
+
     @Query("SELECT * FROM return_items WHERE returnId = :returnId")
     fun getItemsForReturn(returnId: Long): Flow<List<ReturnItemEntity>>
 

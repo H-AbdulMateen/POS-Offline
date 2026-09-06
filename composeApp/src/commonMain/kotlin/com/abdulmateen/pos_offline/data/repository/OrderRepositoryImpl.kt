@@ -79,6 +79,9 @@ class OrderRepositoryImpl(
     override fun getAllOrders(): Flow<List<Order>> =
         orderDao.getAllOrders().map { orderEntities -> orderEntities.map { it.toOrder() } }
 
+    override fun getOrdersPaged(limit: Int, offset: Int): Flow<List<Order>> =
+        orderDao.getOrdersPaged(limit, offset).map { orderEntities -> orderEntities.map { it.toOrder() } }
+
     override fun getOrderWithItems(orderId: Long): Flow<com.abdulmateen.pos_offline.data.database.entities.OrderWithItems?> =
         orderDao.getOrderWithItems(orderId)
 

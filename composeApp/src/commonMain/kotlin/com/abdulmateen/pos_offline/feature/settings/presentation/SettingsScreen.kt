@@ -160,17 +160,17 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = {
-                    doLogoutUser()
-                    onLogoutClick()
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text(text = stringResource(Res.string.logout), modifier = Modifier.padding(vertical = 8.dp))
-            }
+//            Button(
+//                onClick = {
+//                    doLogoutUser()
+//                    onLogoutClick()
+//                },
+//                modifier = Modifier.fillMaxWidth(),
+//                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+//                shape = MaterialTheme.shapes.medium
+//            ) {
+//                Text(text = stringResource(Res.string.logout), modifier = Modifier.padding(vertical = 8.dp))
+//            }
         }
     }
 }

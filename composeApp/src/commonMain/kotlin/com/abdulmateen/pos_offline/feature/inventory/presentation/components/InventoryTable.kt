@@ -12,8 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
@@ -27,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,8 +64,26 @@ import pos_offline.composeapp.generated.resources.stock
 fun InventoryTable(
     modifier: Modifier = Modifier,
     uiAction: (com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction) -> Unit,
-    uiState: com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiState
+    uiState: com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiState,
+    onLoadNextPage: () -> Unit = {}
 ) {
+    val listState = rememberLazyListState()
+
+    val shouldLoadNext = remember {
+        derivedStateOf {
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf false
+
+            lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 5
+        }
+    }
+
+    LaunchedEffect(shouldLoadNext.value) {
+        if (shouldLoadNext.value && !uiState.isLoading && !uiState.isEndReached) {
+            onLoadNextPage()
+        }
+    }
+
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
@@ -84,6 +104,8 @@ fun InventoryTable(
             Spacer(modifier = Modifier.height(4.dp))
 
             LazyColumn(
+                modifier = Modifier.weight(1f),
+                state = listState,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(items = uiState.productList.sortedBy { product -> product.name }, key = { it.productId }) { item ->
@@ -180,6 +202,18 @@ fun InventoryTable(
                                     0.05f
                                 )
                             }
+                        }
+                    }
+                }
+                item {
+                    if (uiState.isLoading) {
+                        androidx.compose.foundation.layout.Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = androidx.compose.ui.Alignment.Center
+                        ) {
+                            androidx.compose.material3.CircularProgressIndicator()
                         }
                     }
                 }
