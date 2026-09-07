@@ -1,4 +1,4 @@
-package com.abdulmateen.pos_offline
+package com.abdulmateen.pos_offline.android
 
 import android.app.Application
 import com.abdulmateen.pos_offline.di.initKoin

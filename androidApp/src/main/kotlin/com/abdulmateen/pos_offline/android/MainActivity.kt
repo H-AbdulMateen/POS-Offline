@@ -1,16 +1,13 @@
-package com.abdulmateen.pos_offline
+package com.abdulmateen.pos_offline.android
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.abdulmateen.pos_offline.App
 
 class MainActivity : ComponentActivity() {
     var shouldShowSplashScreen = true

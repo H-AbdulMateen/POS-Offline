@@ -6,8 +6,9 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import org.jetbrains.compose.resources.painterResource
 import pos_offline.composeapp.generated.resources.Res
-import pos_offline.composeapp.generated.resources.tally_trades_logo
+import pos_offline.composeapp.generated.resources.compose_multiplatform
 import com.abdulmateen.pos_offline.di.initKoin
+import pos_offline.composeapp.generated.resources.tally_trades_logo
 
 fun main(){
     initKoin()

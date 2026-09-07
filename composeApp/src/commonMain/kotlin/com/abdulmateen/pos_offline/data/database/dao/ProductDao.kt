@@ -2,6 +2,7 @@ package com.abdulmateen.pos_offline.data.database.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import com.abdulmateen.pos_offline.data.database.entities.ProductEntity
 import com.abdulmateen.pos_offline.data.database.entities.ProductWithCategoryAndUnit
@@ -36,6 +37,7 @@ interface ProductDao {
     @Query("DELETE FROM products WHERE productId = :productId")
     suspend fun deleteById(productId: Long)
 
+    @Transaction
     @Query("SELECT * FROM products WHERE productId = :productId")
     fun getProductById(productId: Long): Flow<ProductWithCategoryAndUnit?>
 

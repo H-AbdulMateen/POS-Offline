@@ -33,7 +33,6 @@ import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
 import com.abdulmateen.pos_offline.core.designsystem.components.LogoImage
 import com.abdulmateen.pos_offline.core.designsystem.components.layouts.LoadingSection
 import pos_offline.composeapp.generated.resources.Res
-import pos_offline.composeapp.generated.resources.tally_trades_logo
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.domain.models.Product
