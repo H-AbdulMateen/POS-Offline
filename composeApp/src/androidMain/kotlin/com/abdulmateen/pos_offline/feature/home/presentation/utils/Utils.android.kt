@@ -11,9 +11,10 @@ import androidx.core.content.FileProvider
 import com.abdulmateen.pos_offline.MyApplication
 import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.feature.home.presentation.PdfViewerActivity
+import com.abdulmateen.pos_offline.feature.home.presentation.utils.PdfDocumentAdapter
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileOutputStream
+import java.util.Date
 
 actual fun generateInvoiceInPdf(
     cartItems: List<CartItem>,
@@ -47,7 +48,7 @@ actual fun generateInvoiceInPdf(
     canvas.drawText("Payment Type: $paymentType", 100f, 95f, paint)
 
     canvas.drawText("Order Date:", 100f, 120f, paint)
-    canvas.drawText(java.util.Date().toString(), 200f, 120f, paint)
+    canvas.drawText(Date().toString(), 200f, 120f, paint)
 
     paint.isFakeBoldText = true
     canvas.drawText("Product", 100f, 150f, paint)

@@ -1,5 +1,6 @@
 package com.abdulmateen.pos_offline
 
+import co.touchlab.kermit.Logger
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
@@ -22,8 +23,10 @@ class StartupViewModel(
     val uiState = _uiState
         .onStart {
             if (!hasLoadedInitialData) {
-                observeSession()
                 hasLoadedInitialData = true
+                viewModelScope.launch {
+                    observeSession()
+                }
             }
         }
         .stateIn(
@@ -32,24 +35,30 @@ class StartupViewModel(
             initialValue = LoadingUiState()
         )
 
-    init {
-        viewModelScope.launch {
-//            delay(1000L)
-         observeSession()
-        }
-    }
-
     private suspend fun observeSession(){
-        inventoryRepository.initializeDefaults()
-        val authInfo = dataStoreManager.getBoolValue(PrefKeys.IS_LOGGED_IN)
-        val setupCompleted = dataStoreManager.getBoolValue(PrefKeys.IS_SETUP_COMPLETED)
-        _uiState.update {
-            it.copy(
-                isReady = true,
-                isCheckingAuth = false,
-                isLoggedIn = authInfo,
-                isSetupCompleted = setupCompleted
-            )
+        Logger.d("StartupViewModel: Starting session observation...")
+        try {
+            Logger.d("StartupViewModel: Initializing inventory defaults...")
+            inventoryRepository.initializeDefaults()
+            
+            Logger.d("StartupViewModel: Fetching auth info from DataStore...")
+//            val authInfo = dataStoreManager.getBoolValue(PrefKeys.IS_LOGGED_IN)
+            
+            Logger.d("StartupViewModel: Fetching setup status...")
+            val setupCompleted = dataStoreManager.getBoolValue(PrefKeys.IS_SETUP_COMPLETED)
+            
+//            Logger.d("StartupViewModel: Session observation complete. Auth: $authInfo, Setup: $setupCompleted")
+            _uiState.update {
+                it.copy(
+                    isReady = true,
+                    isCheckingAuth = false,
+                    isLoggedIn = false,
+                    isSetupCompleted = setupCompleted
+                )
+            }
+        } catch (e: Exception) {
+            Logger.e("StartupViewModel: Error during observeSession", e)
+            _uiState.update { it.copy(isCheckingAuth = false) }
         }
     }
 }

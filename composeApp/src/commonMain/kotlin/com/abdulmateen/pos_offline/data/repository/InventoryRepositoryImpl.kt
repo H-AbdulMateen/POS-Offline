@@ -209,20 +209,31 @@ class InventoryRepositoryImpl(
     }
 
     override suspend fun initializeDefaults() {
+        Logger.d("InventoryRepository: Initializing defaults...")
+        
+        Logger.d("InventoryRepository: Fetching units...")
         val currentUnits = unitDao.getAllUnits().first()
+        Logger.d("InventoryRepository: Units found: ${currentUnits.size}")
         if (currentUnits.isEmpty()) {
+            Logger.d("InventoryRepository: Inserting prepopulated units...")
             insertPrepopulatedUnits()
+            Logger.d("InventoryRepository: Prepopulated units inserted.")
         }
 
+        Logger.d("InventoryRepository: Fetching categories...")
         val currentCategories = categoryDao.getAllCategories().first()
+        Logger.d("InventoryRepository: Categories found: ${currentCategories.size}")
         if (currentCategories.isEmpty()) {
+            Logger.d("InventoryRepository: Inserting prepopulated categories...")
             insertPrepopulatedCategories()
+            Logger.d("InventoryRepository: Prepopulated categories inserted.")
         }
         
+        Logger.d("InventoryRepository: Fetching products...")
         val currentProducts = productDao.getAllProducts().first()
-        if (currentProducts.isEmpty()) {
-            insertPrepopulatedProducts()
-        }
+        Logger.d("InventoryRepository: Products found: ${currentProducts.size}")
+        
+        Logger.d("InventoryRepository: Initialization defaults complete.")
     }
 
     private suspend fun insertPrepopulatedProducts() {

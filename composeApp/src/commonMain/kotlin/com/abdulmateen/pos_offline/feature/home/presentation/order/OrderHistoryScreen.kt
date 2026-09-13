@@ -19,6 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.domain.models.Order
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.generateInvoiceInPdf
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.printPdf
@@ -188,7 +189,7 @@ fun OrderDetailDialog(
         confirmButton = {
             Button(onClick = {
                 val fileName = "invoice_${orderDetails.order.orderId}.pdf"
-                val invoiceData = com.abdulmateen.pos_offline.feature.home.presentation.utils.generateInvoiceInPdf(
+                val invoiceData = generateInvoiceInPdf(
                     cartItems = orderDetails.items.map { 
                         com.abdulmateen.pos_offline.domain.models.CartItem(
                             productId = it.productId,
@@ -218,8 +219,8 @@ fun OrderDetailDialog(
             Button(onClick = {
                 val fileName = "invoice_${orderDetails.order.orderId}.pdf"
                 val invoiceData = generateInvoiceInPdf(
-                    cartItems = orderDetails.items.map { 
-                        com.abdulmateen.pos_offline.domain.models.CartItem(
+                    cartItems = orderDetails.items.map {
+                        CartItem(
                             productId = it.productId,
                             productName = it.productName,
                             sku = it.sku,

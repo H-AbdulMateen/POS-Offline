@@ -488,7 +488,7 @@ class InventoryViewModel constructor(
                 )
             ).onSuccess {
                 _uiState.update {
-                    _eventChannel.send(_root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryEvents.OnSuccess(Res.string.category_added))
+                    _eventChannel.send(InventoryEvents.OnSuccess(Res.string.category_added))
                     it.copy(
                         categoryName = "",
                         categoryErrorResult = null,

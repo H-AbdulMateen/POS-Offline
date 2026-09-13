@@ -66,9 +66,7 @@ kotlin {
             implementation(libs.bundles.coil)
             implementation(libs.compose.navigation)
             // DataStore library
-            implementation(libs.androidx.datastore)
-            // The Preferences DataStore library
-            implementation(libs.androidx.datastore.preferences)
+            implementation(libs.androidx.datastore.preferences.core)
 //            room
             implementation(libs.androidx.room.runtime)
             implementation(libs.sqlite.bundled)
@@ -152,19 +150,31 @@ dependencies {
     debugImplementation(compose.uiTooling)
 }
 
-compose.desktop {
+compose.desktop {;
     application {
         mainClass = "com.abdulmateen.pos_offline.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
-            packageName = "pos_offline"
+            packageName = "TallyTrades"
             packageVersion = "1.0.0"
+
+            // IMPORTANT: DataStore/Protobuf requires sun.misc.Unsafe
+            modules("jdk.unsupported")
             // Set the icon for the packaged application
-            val iconPath = "src/commonMain/composeResources/drawable/tally_trades_logo.png"
+            val iconPath = project.file("packaging/windows/tally_trades_logo.ico")
+            windows {
+                iconFile.set(iconPath)
+                shortcut = true
+                menuGroup = "TallyTrades"
+            }
             linux.iconFile.set(project.file(iconPath))
             windows.iconFile.set(project.file(iconPath))
             macOS.iconFile.set(project.file(iconPath))
+            
+            buildTypes.release.proguard {
+                isEnabled.set(false)
+            }
         }
     }
 }

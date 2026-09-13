@@ -146,7 +146,7 @@ fun MainScreenScaffoldWithDrawer(
         currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Credits::class) } == true -> "Credits"
         currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.OrderHistory::class) } == true -> "Order History"
         currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Returns::class) } == true -> "Returns"
-        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true -> stringResource(Res.string.profile)
+//        currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true -> stringResource(Res.string.profile)
         currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Settings::class) } == true -> stringResource(Res.string.settings)
         currentDestination?.hierarchy?.any { it.hasRoute(MainScreenRoutes.Reports::class) } == true -> "Reports"
         else -> stringResource(Res.string.app_name)
@@ -250,9 +250,9 @@ fun NavHostPane(
         composable<MainScreenRoutes.Returns> {
             ReturnScreenRoot()
         }
-        composable<MainScreenRoutes.Profile>() {
-            ProfileScreenRoot()
-        }
+//        composable<MainScreenRoutes.Profile>() {
+//            ProfileScreenRoot()
+//        }
         composable<MainScreenRoutes.Settings>() {
             SettingsScreenRoot(
                 onLogoutClick = onLogoutClick
