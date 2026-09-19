@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.abdulmateen.pos_offline.core.designsystem.UiText
 import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.domain.models.Category
+import com.abdulmateen.pos_offline.domain.models.Customer
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.domain.models.Product
 import org.jetbrains.compose.resources.StringResource
@@ -31,7 +32,9 @@ data class OrderUiState(
     val isDiscountDialogVisible: Boolean = false,
     val isTaxDialogVisible: Boolean = false,
     val businessName: String = "",
-    val currencySymbol: String = "$"
+    val currencySymbol: String = "$",
+    val customerList: List<Customer> = emptyList(),
+    val selectedCustomer: Customer? = null
 ) {
     val total: Double get() = subTotal - discount + tax
 }

@@ -17,6 +17,7 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -28,7 +29,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.abdulmateen.pos_offline.core.designsystem.components.CartBadgeBox
+import com.abdulmateen.pos_offline.core.designsystem.components.LogoImage
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.feature.main.components.DrawerContentSheet
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderScreenRoot
@@ -39,10 +42,13 @@ import com.abdulmateen.pos_offline.feature.settings.presentation.SettingsScreenR
 import com.abdulmateen.pos_offline.feature.credit.presentation.CreditScreenRoot
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderHistoryScreenRoot
 import com.abdulmateen.pos_offline.feature.return_module.presentation.ReturnScreenRoot
+import com.abdulmateen.pos_offline.feature.customer.presentation.CustomerScreenRoot
+import com.abdulmateen.pos_offline.feature.customer.presentation.CustomerLedgerScreenRoot
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.AssignmentReturn
+import androidx.compose.material.icons.filled.People
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.stringResource
@@ -107,6 +113,7 @@ fun MainScreen(
                     hierarchy = navController.currentBackStackEntryAsState().value?.destination?.hierarchy,
                     navController = navController
                 )
+                VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                 Box(
                     modifier = Modifier.fillMaxWidth().weight(.1f)
                 ){
@@ -261,6 +268,20 @@ fun NavHostPane(
         composable<MainScreenRoutes.Reports> {
             com.abdulmateen.pos_offline.feature.reports.presentation.ReportsScreenRoot()
         }
+        composable<MainScreenRoutes.Customers> {
+            CustomerScreenRoot(
+                onCustomerClick = { customerId ->
+                    navController.navigate(MainScreenRoutes.CustomerLedger(customerId))
+                }
+            )
+        }
+        composable<MainScreenRoutes.CustomerLedger> { backStackEntry ->
+            val route = backStackEntry.toRoute<MainScreenRoutes.CustomerLedger>()
+            CustomerLedgerScreenRoot(
+                customerId = route.customerId,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
     }
 }
 
@@ -291,54 +312,74 @@ fun SideNavBar(
             onClick = { navController.navigate(MainScreenRoutes.Inventory) }
         )
 
-        NavigationRailItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Expenses::class) } == true,
-            icon = { Icon(imageVector = Icons.AutoMirrored.Filled.ReceiptLong, "expenses") },
-            label = { Text(text = "Expenses") },
-            onClick = { navController.navigate(MainScreenRoutes.Expenses) }
-        )
+            NavigationRailItem(
+                selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Customers::class) } == true,
+                icon = { Icon(imageVector = Icons.Default.People, "customers") },
+                label = { Text(text = "Customers") },
+                onClick = { navController.navigate(MainScreenRoutes.Customers) }
+            )
 
-        NavigationRailItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Credits::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.CreditCard, contentDescription = "credits") },
-            label = { Text(text = "Credits") },
-            onClick = { navController.navigate(MainScreenRoutes.Credits) }
-        )
 
-        NavigationRailItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.OrderHistory::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.History, contentDescription = "history") },
-            label = { Text(text = "Orders") },
-            onClick = { navController.navigate(MainScreenRoutes.OrderHistory) }
-        )
+            Spacer(modifier = Modifier.height(12.dp))
 
-        NavigationRailItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Returns::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.AssignmentReturn, contentDescription = "returns") },
-            label = { Text(text = "Returns") },
-            onClick = { navController.navigate(MainScreenRoutes.Returns) }
-        )
+            NavigationRailItem(
+                selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Expenses::class) } == true,
+                icon = { Icon(imageVector = Icons.AutoMirrored.Filled.ReceiptLong, "expenses") },
+                label = { Text(text = "Expenses") },
+                onClick = { navController.navigate(MainScreenRoutes.Expenses) }
+            )
 
-        NavigationRailItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Profile::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.Person, "profile") },
-            label = { Text(text = stringResource(Res.string.profile)) },
-            onClick = { navController.navigate(MainScreenRoutes.Profile) }
-        )
-        NavigationRailItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Settings::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.Settings, "settings") },
-            label = { Text(text = stringResource(Res.string.settings)) },
-            onClick = { navController.navigate(MainScreenRoutes.Settings) }
-        )
-        NavigationRailItem(
-            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Reports::class) } == true,
-            icon = { Icon(imageVector = Icons.Default.Assessment, "reports") },
-            label = { Text(text = "Reports") },
-            onClick = { navController.navigate(MainScreenRoutes.Reports) }
-        )
+            NavigationRailItem(
+                selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Credits::class) } == true,
+                icon = { Icon(imageVector = Icons.Default.CreditCard, contentDescription = "credits") },
+                label = { Text(text = "Credits") },
+                onClick = { navController.navigate(MainScreenRoutes.Credits) }
+            )
+
+            NavigationRailItem(
+                selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.OrderHistory::class) } == true,
+                icon = { Icon(imageVector = Icons.Default.History, contentDescription = "history") },
+                label = { Text(text = "Orders") },
+                onClick = { navController.navigate(MainScreenRoutes.OrderHistory) }
+            )
+
+            NavigationRailItem(
+                selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Returns::class) } == true,
+                icon = { Icon(imageVector = Icons.Default.AssignmentReturn, contentDescription = "returns") },
+                label = { Text(text = "Returns") },
+                onClick = { navController.navigate(MainScreenRoutes.Returns) }
+            )
+
+            NavigationRailItem(
+                selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Reports::class) } == true,
+                icon = { Icon(imageVector = Icons.Default.Assessment, "reports") },
+                label = { Text(text = "Reports") },
+                onClick = { navController.navigate(MainScreenRoutes.Reports) }
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+//            NavigationRailItem(
+//                selected = false,
+//                icon = {
+//                    Icon(
+//                        imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+//                        contentDescription = "Theme"
+//                    )
+//                },
+//                label = { Text(text = if (isDarkTheme) "Light" else "Dark") },
+//                onClick = toggleDarkTheme
+//            )
+
+            NavigationRailItem(
+                selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Settings::class) } == true,
+                icon = { Icon(imageVector = Icons.Default.Settings, "settings") },
+                label = { Text(text = stringResource(Res.string.settings)) },
+                onClick = { navController.navigate(MainScreenRoutes.Settings) }
+            )
+        }
     }
-}
+
 
 
 
@@ -372,6 +413,12 @@ sealed interface MainScreenRoutes {
 
     @Serializable
     data object Reports : MainScreenRoutes
+
+    @Serializable
+    data object Customers : MainScreenRoutes
+
+    @Serializable
+    data class CustomerLedger(val customerId: Long) : MainScreenRoutes
 }
 
 @Preview

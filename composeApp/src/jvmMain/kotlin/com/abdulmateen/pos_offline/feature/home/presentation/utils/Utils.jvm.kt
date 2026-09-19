@@ -106,8 +106,12 @@ actual fun saveInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
 }
 
 actual fun shareInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
+    shareFile(invoiceByteArray, fileName, "application/pdf")
+}
+
+actual fun shareFile(bytes: ByteArray, fileName: String, mimeType: String) {
     val file = File(System.getProperty("java.io.tmpdir"), fileName)
-    file.writeBytes(invoiceByteArray)
+    file.writeBytes(bytes)
     if (java.awt.Desktop.isDesktopSupported()) {
         java.awt.Desktop.getDesktop().open(file)
     }

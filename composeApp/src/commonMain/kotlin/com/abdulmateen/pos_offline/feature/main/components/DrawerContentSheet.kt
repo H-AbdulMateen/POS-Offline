@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.AssignmentReturn
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
@@ -70,6 +71,14 @@ fun DrawerContentSheet(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Inventory::class) } == true
         ) {
             navController.navigate(MainScreenRoutes.Inventory) { launchSingleTop = true }
+            closeDrawer()
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        DrawerItem("Customers",
+            icon = Icons.Default.People,
+            selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Customers::class) } == true
+        ) {
+            navController.navigate(MainScreenRoutes.Customers) { launchSingleTop = true }
             closeDrawer()
         }
         Spacer(modifier = Modifier.height(16.dp))

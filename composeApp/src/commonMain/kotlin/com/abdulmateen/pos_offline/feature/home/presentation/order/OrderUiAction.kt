@@ -1,6 +1,7 @@
 package com.abdulmateen.pos_offline.feature.home.presentation.order
 
 import com.abdulmateen.pos_offline.domain.models.Product
+import com.abdulmateen.pos_offline.domain.models.Customer
 
 sealed class OrderUiAction {
     data class OnSearchProduct(val query: String) : OrderUiAction()
@@ -18,4 +19,5 @@ sealed class OrderUiAction {
     object RemoveCartItem: OrderUiAction()
     data class Checkout(val customerName: String?, val customerPhone: String?): OrderUiAction()
     data class CreateCredit(val customerName: String, val phoneNumber: String?, val paidAmount: Double): OrderUiAction()
+    data class SelectCustomer(val customer: Customer?): OrderUiAction()
 }

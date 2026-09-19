@@ -10,6 +10,7 @@ import kotlin.time.ExperimentalTime
 data class OrderEntity(
     @PrimaryKey(autoGenerate = true)
     val orderId: Long = 0,
+    val customerId: Long? = null,
     val customerName: String?,
     val customerPhone: String? = null,
     val subTotal: Double,

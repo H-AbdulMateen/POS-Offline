@@ -117,21 +117,25 @@ actual fun saveInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
 }
 
 actual fun shareInvoiceFile(invoiceByteArray: ByteArray, fileName: String) {
+    shareFile(invoiceByteArray, fileName, "application/pdf")
+}
+
+actual fun shareFile(bytes: ByteArray, fileName: String, mimeType: String) {
     val context = MyApplication.instance.applicationContext
     val file = File(context.cacheDir, fileName)
-    file.writeBytes(invoiceByteArray)
+    file.writeBytes(bytes)
     val uri = FileProvider.getUriForFile(
         context,
         "${context.packageName}.provider",
         file
     )
     val intent = Intent(Intent.ACTION_SEND).apply {
-        type = "application/pdf"
+        type = mimeType
         putExtra(Intent.EXTRA_STREAM, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
-    context.startActivity(Intent.createChooser(intent, "Share Invoice").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    context.startActivity(Intent.createChooser(intent, "Share File").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 }
 
 actual fun printPdf(invoiceByteArray: ByteArray, fileName: String) {

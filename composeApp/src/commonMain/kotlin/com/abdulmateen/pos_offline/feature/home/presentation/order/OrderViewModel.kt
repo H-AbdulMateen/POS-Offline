@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.core.domain.PrefKeys
+import com.abdulmateen.pos_offline.data.database.entities.CreditEntity
 import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.domain.models.Product
+import com.abdulmateen.pos_offline.domain.models.Customer
 import com.abdulmateen.pos_offline.domain.repository.CreditRepository
 import com.abdulmateen.pos_offline.domain.repository.InventoryRepository
 import com.abdulmateen.pos_offline.domain.repository.OrderRepository
+import com.abdulmateen.pos_offline.domain.repository.CustomerRepository
 import com.abdulmateen.pos_offline.domain.use_cases.CartUseCases
 import com.abdulmateen.pos_offline.domain.use_cases.ProductUseCases
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,7 +38,8 @@ class OrderViewModel(
     private val cartUseCases: CartUseCases,
     private val dataStoreManager: DataStoreManager,
     private val creditRepository: CreditRepository,
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val customerRepository: CustomerRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OrderUiState())
     val uiState: StateFlow<OrderUiState> = _uiState
@@ -46,7 +50,8 @@ class OrderViewModel(
             loadCartItems()
             calculateSubTotal()
             loadSettings()
-            if (uiState.value.categoryList.isNotEmpty() && uiState.value.unitList.isNotEmpty()) {
+            loadCustomers()
+            if (uiState.value.productList.isEmpty()) {
                 loadProducts()
             }
 
@@ -147,14 +152,23 @@ class OrderViewModel(
             is OrderUiAction.CreateCredit -> {
                 createCredit(action.customerName, action.phoneNumber, action.paidAmount)
             }
+            is OrderUiAction.SelectCustomer -> {
+                _uiState.update {
+                    it.copy(
+                        selectedCustomer = action.customer
+                    )
+                }
+            }
         }
     }
 
     private fun createCredit(customerName: String, phoneNumber: String?, paidAmount: Double) {
         viewModelScope.launch {
             val total = uiState.value.total
+            val customerId = uiState.value.selectedCustomer?.customerId
             creditRepository.upsertCredit(
-                com.abdulmateen.pos_offline.data.database.entities.CreditEntity(
+                CreditEntity(
+                    customerId = customerId,
                     customerName = customerName,
                     phoneNumber = phoneNumber,
                     totalAmount = total,
@@ -168,6 +182,7 @@ class OrderViewModel(
                 discount = uiState.value.discount,
                 tax = uiState.value.tax,
                 total = uiState.value.total,
+                customerId = customerId,
                 customerName = customerName,
                 customerPhone = phoneNumber,
                 paymentMethod = "CREDIT"
@@ -178,12 +193,14 @@ class OrderViewModel(
 
     private fun checkout(customerName: String?, customerPhone: String?) {
         viewModelScope.launch {
+            val customerId = uiState.value.selectedCustomer?.customerId
             orderRepository.checkout(
                 cartItems = uiState.value.cartItems,
                 subTotal = uiState.value.subTotal,
                 discount = uiState.value.discount,
                 tax = uiState.value.tax,
                 total = uiState.value.total,
+                customerId = customerId,
                 customerName = customerName,
                 customerPhone = customerPhone,
                 paymentMethod = "CASH" // Defaulting to CASH for now, can be improved if needed
@@ -365,6 +382,18 @@ class OrderViewModel(
 //            }.launchIn(viewModelScope)
 //        }
 //    }
+
+    private fun loadCustomers() {
+        viewModelScope.launch {
+            customerRepository.getAllCustomers().collect { customers ->
+                _uiState.update {
+                    it.copy(
+                        customerList = customers
+                    )
+                }
+            }
+        }
+    }
 
     private fun loadSettings() {
         viewModelScope.launch {

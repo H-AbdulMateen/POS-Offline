@@ -19,35 +19,25 @@ class StartupViewModel(
     private val inventoryRepository: InventoryRepository
 ): ViewModel() {
     private val _uiState = MutableStateFlow(LoadingUiState())
-    private var hasLoadedInitialData: Boolean = false
-    val uiState = _uiState
-        .onStart {
-            if (!hasLoadedInitialData) {
-                hasLoadedInitialData = true
-                viewModelScope.launch {
-                    observeSession()
-                }
-            }
+    val uiState = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            observeSession()
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000L),
-            initialValue = LoadingUiState()
-        )
+    }
 
     private suspend fun observeSession(){
         Logger.d("StartupViewModel: Starting session observation...")
         try {
             Logger.d("StartupViewModel: Initializing inventory defaults...")
+            // Ensure this doesn't block forever
             inventoryRepository.initializeDefaults()
             
-            Logger.d("StartupViewModel: Fetching auth info from DataStore...")
-//            val authInfo = dataStoreManager.getBoolValue(PrefKeys.IS_LOGGED_IN)
-            
-            Logger.d("StartupViewModel: Fetching setup status...")
+            Logger.d("StartupViewModel: Fetching setup status from DataStore...")
             val setupCompleted = dataStoreManager.getBoolValue(PrefKeys.IS_SETUP_COMPLETED)
+            Logger.d("StartupViewModel: Setup status retrieved: $setupCompleted")
             
-//            Logger.d("StartupViewModel: Session observation complete. Auth: $authInfo, Setup: $setupCompleted")
             _uiState.update {
                 it.copy(
                     isReady = true,
@@ -56,9 +46,15 @@ class StartupViewModel(
                     isSetupCompleted = setupCompleted
                 )
             }
-        } catch (e: Exception) {
-            Logger.e("StartupViewModel: Error during observeSession", e)
-            _uiState.update { it.copy(isCheckingAuth = false) }
+            Logger.d("StartupViewModel: UI State updated. isCheckingAuth = false")
+        } catch (e: Throwable) {
+            Logger.e("StartupViewModel: Fatal error during observeSession", e)
+            _uiState.update { 
+                it.copy(
+                    isCheckingAuth = false,
+                    isReady = true 
+                ) 
+            }
         }
     }
 }

@@ -19,6 +19,8 @@ expect fun saveInvoiceFile(invoiceByteArray: ByteArray, fileName: String)
 
 expect fun shareInvoiceFile(invoiceByteArray: ByteArray, fileName: String)
 
+expect fun shareFile(bytes: ByteArray, fileName: String, mimeType: String)
+
 expect fun printPdf(invoiceByteArray: ByteArray, fileName: String)
 
 expect fun isPrinterAvailable(): Boolean

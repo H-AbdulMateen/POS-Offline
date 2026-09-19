@@ -49,6 +49,8 @@ import com.abdulmateen.pos_offline.domain.repository.ExpenseRepository
 import com.abdulmateen.pos_offline.data.repository.ExpenseRepositoryImpl
 import com.abdulmateen.pos_offline.domain.repository.CreditRepository
 import com.abdulmateen.pos_offline.data.repository.CreditRepositoryImpl
+import com.abdulmateen.pos_offline.domain.repository.CustomerRepository
+import com.abdulmateen.pos_offline.data.repository.CustomerRepositoryImpl
 import com.abdulmateen.pos_offline.domain.repository.ReturnRepository
 import com.abdulmateen.pos_offline.data.repository.ReturnRepositoryImpl
 import com.abdulmateen.pos_offline.feature.expense.presentation.ExpenseViewModel
@@ -59,7 +61,10 @@ import com.abdulmateen.pos_offline.feature.setup.presentation.SetupViewModel
 import com.abdulmateen.pos_offline.domain.repository.ReportRepository
 import com.abdulmateen.pos_offline.data.repository.ReportRepositoryImpl
 import com.abdulmateen.pos_offline.feature.reports.presentation.ReportsViewModel
+import com.abdulmateen.pos_offline.feature.customer.presentation.CustomerLedgerViewModel
+import com.abdulmateen.pos_offline.feature.customer.presentation.CustomerViewModel
 import org.koin.core.module.Module
+
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
@@ -78,7 +83,8 @@ val sharedModule = module {
                 MyAppDatabase.MIGRATION_4_5,
                 MyAppDatabase.MIGRATION_5_6,
                 MyAppDatabase.MIGRATION_6_7,
-                MyAppDatabase.MIGRATION_7_8
+                MyAppDatabase.MIGRATION_7_8,
+                MyAppDatabase.MIGRATION_8_9
             )
             .fallbackToDestructiveMigration(dropAllTables = true)
             
@@ -94,6 +100,7 @@ val sharedModule = module {
     single { get<MyAppDatabase>().expenseDao() }
     single { get<MyAppDatabase>().creditDao() }
     single { get<MyAppDatabase>().returnDao() }
+    single { get<MyAppDatabase>().customerDao() }
 
     singleOf(::KtorUserDataSource).bind<RemoteUserDataSource>()
     singleOf(::DataStoreManagerImpl).bind<DataStoreManager>()
@@ -106,6 +113,7 @@ val sharedModule = module {
     singleOf(::CreditRepositoryImpl).bind<CreditRepository>()
     singleOf(::ReturnRepositoryImpl).bind<com.abdulmateen.pos_offline.domain.repository.ReturnRepository>()
     singleOf(::ReportRepositoryImpl).bind<ReportRepository>()
+    singleOf(::CustomerRepositoryImpl).bind<CustomerRepository>()
 
     single {
         ProductUseCases(
@@ -143,7 +151,8 @@ val sharedModule = module {
             cartUseCases = get(),
             dataStoreManager = get(),
             creditRepository = get(),
-            orderRepository = get()
+            orderRepository = get(),
+            customerRepository = get()
         )
     }
     viewModelOf(::SettingsViewModel)
@@ -154,4 +163,7 @@ val sharedModule = module {
     single { OrderHistoryViewModel(get(), get()) }
     viewModelOf(::ReportsViewModel)
     viewModelOf(::SetupViewModel)
+    viewModelOf(::CustomerViewModel)
+    factory { (customerId: Long) -> CustomerLedgerViewModel(customerId, get(), get(), get()) }
 }
+

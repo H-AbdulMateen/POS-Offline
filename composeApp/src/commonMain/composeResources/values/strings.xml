@@ -128,5 +128,20 @@
     <string name="employees">Employees</string>
     <string name="add_employee">Add Employee</string>
 
+    <string name="customers">Customers</string>
+    <string name="add_customer">Add Customer</string>
+    <string name="edit_customer">Edit Customer</string>
+    <string name="customer_name">Customer Name</string>
+    <string name="customer_added">Customer added successfully</string>
+    <string name="customer_updated">Customer updated successfully</string>
+    <string name="customer_deleted">Customer deleted successfully</string>
+    <string name="address">Address</string>
+    <string name="ledger">Ledger</string>
+    <string name="outstanding_balance">Outstanding Balance</string>
+    <string name="transaction_date">Date</string>
+    <string name="transaction_type">Type</string>
+    <string name="amount">Amount</string>
+
+
 
 </resources>

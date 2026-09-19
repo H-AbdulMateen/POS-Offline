@@ -156,12 +156,16 @@ fun CartSummarySection(
             totalAmount = uiState.total,
             businessName = uiState.businessName,
             currencySymbol = uiState.currencySymbol,
+            customerList = uiState.customerList,
+            selectedCustomer = uiState.selectedCustomer,
+            onSelectCustomer = { uiAction(OrderUiAction.SelectCustomer(it)) },
             onDismiss = { showCheckoutDialog = false },
             onConfirm = { name, phone ->
                 showCheckoutDialog = false
                 uiAction(OrderUiAction.Checkout(name, phone))
             },
             onConfirmCredit = { name, phone, paid ->
+                showCheckoutDialog = false
                 uiAction(OrderUiAction.CreateCredit(name, phone, paid))
             }
         )

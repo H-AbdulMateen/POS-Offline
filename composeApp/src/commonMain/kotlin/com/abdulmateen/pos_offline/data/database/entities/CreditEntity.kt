@@ -9,6 +9,7 @@ import kotlin.time.ExperimentalTime
 data class CreditEntity @OptIn(ExperimentalTime::class) constructor(
     @PrimaryKey(autoGenerate = true)
     val creditId: Long = 0,
+    val customerId: Long? = null,
     val customerName: String,
     val phoneNumber: String? = null,
     val totalAmount: Double,

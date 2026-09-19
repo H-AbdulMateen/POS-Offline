@@ -1,13 +1,29 @@
 package com.abdulmateen.pos_offline
 
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import org.jetbrains.compose.resources.painterResource
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.compose_multiplatform
 import com.abdulmateen.pos_offline.di.initKoin
+import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
+import com.abdulmateen.pos_offline.core.designsystem.components.LogoImage
 import org.jetbrains.compose.resources.stringResource
 import pos_offline.composeapp.generated.resources.app_name
 import pos_offline.composeapp.generated.resources.tally_trades_logo
@@ -35,7 +51,7 @@ fun main() {
                 onCloseRequest = ::exitApplication,
                 title = stringResource(Res.string.app_name),
                 icon = painterResource(Res.drawable.tally_trades_logo),
-                //Launch with full screen size
+                state = rememberWindowState(placement = WindowPlacement.Maximized)
             ) {
                 App()
             }

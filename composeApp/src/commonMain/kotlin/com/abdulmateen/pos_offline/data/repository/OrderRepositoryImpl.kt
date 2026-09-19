@@ -20,11 +20,13 @@ class OrderRepositoryImpl(
         discount: Double,
         tax: Double,
         total: Double,
+        customerId: Long?,
         customerName: String?,
         customerPhone: String?,
         paymentMethod: String
     ) {
         val orderEntity = com.abdulmateen.pos_offline.data.database.entities.OrderEntity(
+            customerId = customerId,
             customerName = customerName,
             customerPhone = customerPhone,
             subTotal = subTotal,

@@ -11,6 +11,7 @@ interface OrderRepository {
         discount: Double,
         tax: Double,
         total: Double,
+        customerId: Long?,
         customerName: String?,
         customerPhone: String?,
         paymentMethod: String
