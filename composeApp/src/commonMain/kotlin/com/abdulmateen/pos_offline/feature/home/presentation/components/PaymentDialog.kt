@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.domain.models.Customer
+import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderUiAction
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.generateInvoiceInPdf
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.isPrinterAvailable
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.printPdf
@@ -98,8 +99,6 @@ fun PaymentDialog(
                         onClick = {
                             val paid = paidAmount.toDoubleOrNull() ?: 0.0
                             onConfirmCredit(customerName, phoneNumber.takeIf { it.isNotBlank() }, paid)
-                            //dismiss the dialog
-                            onDismiss()
                         },
                         enabled = customerName.isNotEmpty(),
                         modifier = Modifier.fillMaxWidth()
@@ -247,7 +246,7 @@ fun PaymentDialog(
                 OutlinedTextField(
                     value = customerName,
                     onValueChange = { customerName = it },
-                    label = { Text("Customer Name (Optional)") },
+                    label = { Text("Customer Name ${if (paymentType == "Credit") "(Required)" else ")(Optional)"}") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -259,7 +258,7 @@ fun PaymentDialog(
                             phoneNumber = input
                         }
                     },
-                    label = { Text("Phone Number (Optional)") },
+                    label = { Text("Phone Number ${if (paymentType == "Credit") "(Required)" else ")(Optional)"}") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
@@ -381,7 +380,7 @@ fun PaymentDialogPreview(){
                 currencySymbol = "$",
                 onDismiss = {},
                 onConfirm = { _, _ -> },
-                onConfirmCredit = { _, _, _ -> }
+                onConfirmCredit = { _, _, _ -> },
             )
         }
     )

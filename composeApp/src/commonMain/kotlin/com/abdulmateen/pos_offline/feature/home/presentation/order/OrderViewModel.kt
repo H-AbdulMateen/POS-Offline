@@ -188,6 +188,11 @@ class OrderViewModel(
                 paymentMethod = "CREDIT"
             )
             cartUseCases.clearCartItems()
+            _uiState.update {
+                it.copy(
+                    selectedCustomer = null,
+                )
+            }
         }
     }
 
@@ -206,6 +211,11 @@ class OrderViewModel(
                 paymentMethod = "CASH" // Defaulting to CASH for now, can be improved if needed
             )
             cartUseCases.clearCartItems()
+            _uiState.update {
+                it.copy(
+                    selectedCustomer = null,
+                )
+            }
         }
     }
 

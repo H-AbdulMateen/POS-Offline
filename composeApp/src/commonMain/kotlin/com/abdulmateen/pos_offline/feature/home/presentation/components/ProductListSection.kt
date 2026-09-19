@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,10 +23,12 @@ import com.abdulmateen.pos_offline.domain.models.Product
 import com.abdulmateen.pos_offline.domain.models.dummyProducts
 import com.abdulmateen.pos_offline.feature.inventory.presentation.models.toProduct
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.add
+import pos_offline.composeapp.generated.resources.add_shopping_cart
 
 @Composable
 fun ProductListSection(
@@ -71,9 +74,9 @@ fun ProductListSection(
                         shape = MaterialTheme.shapes.small,
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                     ) {
-                        Text(
-                            text = stringResource(Res.string.add),
-                            style = MaterialTheme.typography.labelLarge
+                        Icon(
+                            painter = painterResource(Res.drawable.add_shopping_cart),
+                            contentDescription = stringResource(Res.string.add)
                         )
                     }
                 }
