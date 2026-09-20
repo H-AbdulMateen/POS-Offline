@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,12 +22,14 @@ import com.abdulmateen.pos_offline.data.database.entities.CreditEntity
 import com.abdulmateen.pos_offline.feature.credit.presentation.components.ReceivePaymentDialog
 import com.abdulmateen.pos_offline.feature.credit.presentation.components.TableCell
 import com.abdulmateen.pos_offline.feature.customer.presentation.OrderDetailDialog
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.math.round
 import kotlin.time.Clock
+import kotlin.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +47,11 @@ fun CreditDetailScreenRoot(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { viewModel.exportToCsv() }) {
+                        Icon(Icons.Default.FileDownload, contentDescription = "Export CSV")
                     }
                 }
             )
@@ -146,15 +154,16 @@ fun CreditDetailTableRow(
     val date = remember(credit.date) {
         val localDateTime = Instant.fromEpochMilliseconds(credit.date)
             .toLocalDateTime(TimeZone.currentSystemDefault())
-        val day = localDateTime.dayOfMonth.toString().padStart(2, '0')
-        val month = localDateTime.monthNumber.toString().padStart(2, '0')
+        val day = localDateTime.day.toString().padStart(2, '0')
+        val month = localDateTime.month.number.toString().padStart(2, '0')
         val year = (localDateTime.year % 100).toString().padStart(2, '0')
         "$day-$month-$year"
     }
     val days = remember(credit.date) {
         val now = Clock.System.now().toEpochMilliseconds()
         val diff = now - credit.date
-        (diff / (1000L * 60L * 60L * 24L)).toInt()
+        val msPerDay = 86400000L
+        (diff / msPerDay).toInt()
     }
     
     Row(
@@ -173,8 +182,9 @@ fun CreditDetailTableRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
+            val remaining = round(credit.remainingAmount * 100) / 100.0
             Text(
-                text = "$currencySymbol${credit.remainingAmount}",
+                text = "$currencySymbol$remaining",
                 modifier = Modifier.padding(vertical = 12.dp),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,

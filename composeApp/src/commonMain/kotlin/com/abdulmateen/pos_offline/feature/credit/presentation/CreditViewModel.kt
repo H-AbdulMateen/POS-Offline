@@ -2,6 +2,7 @@ package com.abdulmateen.pos_offline.feature.credit.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.abdulmateen.pos_offline.data.database.entities.CreditEntity
 import com.abdulmateen.pos_offline.domain.repository.CreditRepository
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.core.domain.PrefKeys
@@ -9,11 +10,10 @@ import com.abdulmateen.pos_offline.feature.home.presentation.utils.shareFile
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock.System
-import kotlin.time.Instant
 
 data class CreditSummary(
     val customerName: String,
@@ -84,7 +84,8 @@ class CreditViewModel(
                         oldestDate = oldest,
                         noOfDays = calculateDays(oldest)
                     )
-                }.sortedByDescending { it.noOfDays }
+                }.filter { it.remainingAmount > 0.0 }
+                .sortedByDescending { it.noOfDays }
 
                 _uiState.update {
                     it.copy(
@@ -99,8 +100,8 @@ class CreditViewModel(
     private fun calculateDays(timestamp: Long): Int {
         val now = System.now().toEpochMilliseconds()
         val diff = now - timestamp
-        val msInDay = 1000L * 60L * 60L * 24L
-        return (diff / msInDay).toInt()
+        val msPerDay = 86400000L
+        return (diff / msPerDay).toInt()
     }
 
     fun updateSearchQuery(query: String) {
@@ -113,7 +114,7 @@ class CreditViewModel(
         val csvContent = summaries.joinToString("\n") { summary ->
             val date = Instant.fromEpochMilliseconds(summary.oldestDate)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
-            val dateStr = "${date.day}-${date.month.number}-${date.year}"
+            val dateStr = "${date.dayOfMonth}-${date.monthNumber}-${date.year}"
             "${summary.customerName},${summary.phoneNumber ?: ""},$dateStr,${summary.noOfDays},${summary.totalAmount},${summary.paidAmount},${summary.remainingAmount}"
         }
 

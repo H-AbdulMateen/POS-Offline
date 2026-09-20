@@ -18,8 +18,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.feature.credit.presentation.components.TableCell
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -142,10 +142,10 @@ fun CreditScreen(
 @Composable
 fun CreditSummaryTableRow(summary: CreditSummary, currencySymbol: String, onClick: () -> Unit) {
     val date = remember(summary.oldestDate) {
-        val localDateTime = Instant.fromEpochMilliseconds(summary.oldestDate)
+        val localDateTime = kotlin.time.Instant.fromEpochMilliseconds(summary.oldestDate)
             .toLocalDateTime(TimeZone.currentSystemDefault())
-        val day = localDateTime.dayOfMonth.toString().padStart(2, '0')
-        val month = localDateTime.monthNumber.toString().padStart(2, '0')
+        val day = localDateTime.day.toString().padStart(2, '0')
+        val month = localDateTime.month.number.toString().padStart(2, '0')
         val year = (localDateTime.year % 100).toString().padStart(2, '0')
         "$day-$month-$year"
     }

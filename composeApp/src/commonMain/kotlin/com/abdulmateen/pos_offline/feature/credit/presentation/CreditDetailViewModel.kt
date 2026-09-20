@@ -8,9 +8,15 @@ import com.abdulmateen.pos_offline.domain.repository.CreditRepository
 import com.abdulmateen.pos_offline.domain.repository.OrderRepository
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.core.domain.PrefKeys
+import com.abdulmateen.pos_offline.feature.home.presentation.utils.shareFile
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock.System
 
 data class CreditDetailUiState(
     val credits: List<CreditEntity> = emptyList(),
@@ -46,7 +52,6 @@ class CreditDetailViewModel(
     private fun loadCredits() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            // Since we don't have a specific "search by exact name" in repo, we use search and filter locally or use the existing flow
             creditRepository.getAllCredits().collect { all ->
                 val filtered = all.filter { it.customerName == customerName }
                     .sortedByDescending { it.date }
@@ -63,7 +68,7 @@ class CreditDetailViewModel(
                 credit.copy(
                     paidAmount = updatedPaidAmount,
                     remainingAmount = updatedRemainingAmount,
-                    lastUpdated = Clock.System.now().toEpochMilliseconds()
+                    lastUpdated = System.now().toEpochMilliseconds()
                 )
             )
         }
@@ -84,5 +89,25 @@ class CreditDetailViewModel(
 
     fun dismissOrderDetails() {
         _uiState.update { it.copy(showOrderDetails = false, selectedOrder = null) }
+    }
+
+    fun exportToCsv() {
+        val credits = uiState.value.credits
+        val customerName = customerName
+        
+        val csvHeader = "Date,Days,Total,Paid,Balance\n"
+        val csvContent = credits.joinToString("\n") { credit ->
+            val date = Instant.fromEpochMilliseconds(credit.date)
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+            val dateStr = "${date.day}-${date.month.number}-${date.year}"
+            val now = System.now().toEpochMilliseconds()
+            val days = ((now - credit.date) / (1000L * 60L * 60L * 24L)).toInt()
+            
+            "$dateStr,$days,${credit.totalAmount},${credit.paidAmount},${credit.remainingAmount}"
+        }
+        
+        val fullCsv = csvHeader + csvContent
+        val fileName = "${customerName.replace(" ", "_")}_Credits.csv"
+        shareFile(fullCsv.encodeToByteArray(), fileName, "text/csv")
     }
 }
