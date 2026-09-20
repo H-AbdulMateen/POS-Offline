@@ -49,6 +49,9 @@ interface CartDao {
     @Query("UPDATE cart_items SET quantity = quantity - 1 WHERE productId = :productId")
     suspend fun decrementInQuantity(productId: Long)
 
+    @Query("UPDATE cart_items SET price = :newPrice WHERE productId = :productId")
+    suspend fun updatePrice(productId: Long, newPrice: Double)
+
     @Query("SELECT SUM(price * quantity) FROM cart_items")
     fun calculateSubTotal(): Flow<Double>
 

@@ -159,6 +159,11 @@ class OrderViewModel(
                     )
                 }
             }
+            is OrderUiAction.UpdateCartItemPrice -> {
+                viewModelScope.launch {
+                    cartUseCases.updateCartItemPrice(action.productId, action.newPrice)
+                }
+            }
         }
     }
 
@@ -166,17 +171,8 @@ class OrderViewModel(
         viewModelScope.launch {
             val total = uiState.value.total
             val customerId = uiState.value.selectedCustomer?.customerId
-            creditRepository.upsertCredit(
-                CreditEntity(
-                    customerId = customerId,
-                    customerName = customerName,
-                    phoneNumber = phoneNumber,
-                    totalAmount = total,
-                    paidAmount = paidAmount,
-                    remainingAmount = total - paidAmount
-                )
-            )
-            orderRepository.checkout(
+            
+            val orderId = orderRepository.checkout(
                 cartItems = uiState.value.cartItems,
                 subTotal = uiState.value.subTotal,
                 discount = uiState.value.discount,
@@ -186,6 +182,18 @@ class OrderViewModel(
                 customerName = customerName,
                 customerPhone = phoneNumber,
                 paymentMethod = "CREDIT"
+            )
+
+            creditRepository.upsertCredit(
+                CreditEntity(
+                    customerId = customerId,
+                    orderId = orderId,
+                    customerName = customerName,
+                    phoneNumber = phoneNumber,
+                    totalAmount = total,
+                    paidAmount = paidAmount,
+                    remainingAmount = total - paidAmount
+                )
             )
             cartUseCases.clearCartItems()
             _uiState.update {
@@ -409,10 +417,12 @@ class OrderViewModel(
         viewModelScope.launch {
             val businessName = dataStoreManager.getStringValue(PrefKeys.BUSINESS_NAME)
             val currencySymbol = dataStoreManager.getStringValue(PrefKeys.CURRENCY_SYMBOL)
+            val isCustomizablePriceEnabled = dataStoreManager.getBoolValue(PrefKeys.CUSTOMIZABLE_PRICE)
             _uiState.update {
                 it.copy(
                     businessName = businessName,
-                    currencySymbol = currencySymbol.ifEmpty { "$" }
+                    currencySymbol = currencySymbol.ifEmpty { "$" },
+                    isCustomizablePriceEnabled = isCustomizablePriceEnabled
                 )
             }
         }

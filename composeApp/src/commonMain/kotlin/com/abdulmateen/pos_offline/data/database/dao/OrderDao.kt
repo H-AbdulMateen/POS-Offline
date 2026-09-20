@@ -27,9 +27,10 @@ interface OrderDao {
     suspend fun createOrder(
         order: OrderEntity,
         items: List<OrderItemEntity>
-    ) {
+    ): Long {
         val orderId = insertOrUpdateOrder(order)
         insertOrderItems(items.map { it.copy(orderId = orderId) })
+        return orderId
     }
 
 

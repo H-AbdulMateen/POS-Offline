@@ -8,6 +8,7 @@ import com.abdulmateen.pos_offline.domain.use_cases.cart.GetCartItemCount
 import com.abdulmateen.pos_offline.domain.use_cases.cart.GetCartItemList
 import com.abdulmateen.pos_offline.domain.use_cases.cart.IncrementInQuantity
 import com.abdulmateen.pos_offline.domain.use_cases.cart.RemoveItem
+import com.abdulmateen.pos_offline.domain.use_cases.cart.UpdateCartItemPrice
 
 data class CartUseCases(
     val getCartItemList: GetCartItemList,
@@ -17,5 +18,6 @@ data class CartUseCases(
     val clearCartItems: ClearCartItems,
     val incrementInQuantity: IncrementInQuantity,
     val decrementInQuantity: DecrementInQuantity,
-    val calculateSubTotal: CalculateSubTotal
+    val calculateSubTotal: CalculateSubTotal,
+    val updateCartItemPrice: UpdateCartItemPrice
 )

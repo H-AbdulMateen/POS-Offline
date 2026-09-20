@@ -20,8 +20,8 @@ import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.generateInvoiceInPdf
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.printPdf
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.shareInvoiceFile
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -141,7 +141,7 @@ fun LedgerItem(
     transaction: LedgerTransaction,
     onClick: () -> Unit
 ) {
-    val date = Instant.fromEpochMilliseconds(transaction.date)
+    val date = kotlin.time.Instant.fromEpochMilliseconds(transaction.date)
         .toLocalDateTime(TimeZone.currentSystemDefault())
     
     Card(
@@ -155,7 +155,7 @@ fun LedgerItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "${date.dayOfMonth}/${date.monthNumber}/${date.year}",
+                text = "${date.day}/${date.month.number}/${date.year}",
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyMedium
             )

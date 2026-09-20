@@ -23,25 +23,32 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.abdulmateen.pos_offline.common.presentation.components.ProductPhoto
+import com.abdulmateen.pos_offline.core.designsystem.components.dialogs.SingleTextFieldDialog
 import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderUiAction
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import kotlin.math.round
 
 @Composable
 fun CartListItem(
     item: CartItem,
+    isCustomizablePriceEnabled: Boolean = false,
+    currencySymbol: String = "$",
     uiAction: (OrderUiAction) -> Unit
 ) {
+    var showPriceEditDialog by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp)
@@ -104,11 +111,26 @@ fun CartListItem(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "$${item.price}",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
+                    Column {
+                        val formattedTotalPrice = round(item.price * 100) / 100.0
+                        Text(
+                            text = "$currencySymbol$formattedTotalPrice",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        if (isCustomizablePriceEnabled) {
+                            val formattedUnitPrice = round(item.unitPrice * 100) / 100.0
+                            Text(
+                                text = "Unit: $currencySymbol$formattedUnitPrice",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.clickable {
+                                    showPriceEditDialog = true
+                                }
+                            )
+                        }
+                    }
 
                     // Quantity Picker
                     Row(
@@ -162,6 +184,26 @@ fun CartListItem(
                 }
             }
         }
+    }
+
+    if (showPriceEditDialog) {
+        var priceValue by remember { mutableStateOf(item.unitPrice.toString()) }
+        SingleTextFieldDialog(
+            title = "Edit Unit Price",
+            onConfirm = {
+                priceValue.toDoubleOrNull()?.let { newPrice ->
+                    uiAction(OrderUiAction.UpdateCartItemPrice(item.productId, newPrice))
+                }
+                showPriceEditDialog = false
+            },
+            onDismiss = { showPriceEditDialog = false },
+            hint = "Enter new unit price",
+            textFieldValue = priceValue,
+            onValueChange = { priceValue = it },
+            keyboardType = KeyboardType.Decimal,
+            hasError = false,
+            textFieldError = ""
+        )
     }
 }
 

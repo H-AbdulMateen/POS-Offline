@@ -10,4 +10,5 @@ object PrefKeys {
     const val PHONE = "phone"
     const val CURRENCY_SYMBOL = "currency_symbol"
     const val IS_SETUP_COMPLETED = "is_setup_completed"
+    const val CUSTOMIZABLE_PRICE = "customizable_price"
 }

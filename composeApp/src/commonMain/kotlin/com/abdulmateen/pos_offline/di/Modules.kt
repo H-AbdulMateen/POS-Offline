@@ -32,6 +32,7 @@ import com.abdulmateen.pos_offline.domain.use_cases.cart.GetCartItemCount
 import com.abdulmateen.pos_offline.domain.use_cases.cart.GetCartItemList
 import com.abdulmateen.pos_offline.domain.use_cases.cart.IncrementInQuantity
 import com.abdulmateen.pos_offline.domain.use_cases.cart.RemoveItem
+import com.abdulmateen.pos_offline.domain.use_cases.cart.UpdateCartItemPrice
 import com.abdulmateen.pos_offline.domain.use_cases.product.AddProduct
 import com.abdulmateen.pos_offline.domain.use_cases.product.DeleteProduct
 import com.abdulmateen.pos_offline.domain.use_cases.product.GetProductList
@@ -63,6 +64,7 @@ import com.abdulmateen.pos_offline.data.repository.ReportRepositoryImpl
 import com.abdulmateen.pos_offline.feature.reports.presentation.ReportsViewModel
 import com.abdulmateen.pos_offline.feature.customer.presentation.CustomerLedgerViewModel
 import com.abdulmateen.pos_offline.feature.customer.presentation.CustomerViewModel
+import com.abdulmateen.pos_offline.feature.credit.presentation.CreditDetailViewModel
 import org.koin.core.module.Module
 
 import org.koin.core.module.dsl.singleOf
@@ -84,7 +86,8 @@ val sharedModule = module {
                 MyAppDatabase.MIGRATION_5_6,
                 MyAppDatabase.MIGRATION_6_7,
                 MyAppDatabase.MIGRATION_7_8,
-                MyAppDatabase.MIGRATION_8_9
+                MyAppDatabase.MIGRATION_8_9,
+                MyAppDatabase.MIGRATION_9_10
             )
             .fallbackToDestructiveMigration(dropAllTables = true)
             
@@ -136,7 +139,8 @@ val sharedModule = module {
             clearCartItems = ClearCartItems(get()),
             incrementInQuantity = IncrementInQuantity(get()),
             decrementInQuantity = DecrementInQuantity(get()),
-            calculateSubTotal = CalculateSubTotal(get())
+            calculateSubTotal = CalculateSubTotal(get()),
+            updateCartItemPrice = UpdateCartItemPrice(get())
         )
     }
 
@@ -165,5 +169,6 @@ val sharedModule = module {
     viewModelOf(::SetupViewModel)
     viewModelOf(::CustomerViewModel)
     factory { (customerId: Long) -> CustomerLedgerViewModel(customerId, get(), get(), get()) }
+    factory { (customerName: String) -> CreditDetailViewModel(customerName, get(), get(), get()) }
 }
 

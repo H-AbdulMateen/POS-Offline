@@ -15,7 +15,7 @@ interface OrderRepository {
         customerName: String?,
         customerPhone: String?,
         paymentMethod: String
-    )
+    ): Long
 
     suspend fun addOrderItem(orderItem: OrderItem)
     suspend fun removeOrderItem(orderId: Long, productId: Long)

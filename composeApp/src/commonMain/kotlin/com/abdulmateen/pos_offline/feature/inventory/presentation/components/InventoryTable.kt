@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.core.designsystem.components.dialogs.DestructiveConfirmationDialog
 import com.abdulmateen.pos_offline.domain.models.Product
@@ -253,7 +254,8 @@ fun RowScope.TableCell(text: String, weight: Float) {
     Text(
         text,
         modifier = Modifier.weight(weight),
-        style = MaterialTheme.typography.bodyMedium
+        style = MaterialTheme.typography.bodyMedium,
+        textAlign = TextAlign.Start
     )
 }
 

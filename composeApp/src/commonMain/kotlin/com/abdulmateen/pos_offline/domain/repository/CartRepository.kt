@@ -17,6 +17,7 @@ interface CartRepository {
 
     suspend fun incrementInQuantity(productId: Long)
     suspend fun decrementInQuantity(productId: Long)
+    suspend fun updatePrice(productId: Long, newPrice: Double)
     fun calculateSubTotal(): Flow<Double>
 
 }

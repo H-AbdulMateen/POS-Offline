@@ -36,6 +36,7 @@ import pos_offline.composeapp.generated.resources.discount
 import pos_offline.composeapp.generated.resources.sub_total
 import pos_offline.composeapp.generated.resources.tax
 import pos_offline.composeapp.generated.resources.total
+import kotlin.math.round
 
 @Composable
 fun TotalCheckoutSection(
@@ -54,24 +55,28 @@ fun TotalCheckoutSection(
         ) {
             TotalSectionRow(
                 label = stringResource(Res.string.sub_total).plus(":"),
-                value = subTotal
+                value = subTotal,
+                currencySymbol = uiState.currencySymbol
             )
             HorizontalDivider()
             TotalSectionRowWithEdit(
                 label = stringResource(Res.string.discount).plus(":"),
                 value = uiState.discount,
-                onEditClick = { uiAction(OrderUiAction.ToggleDiscountDialog) }
+                onEditClick = { uiAction(OrderUiAction.ToggleDiscountDialog) },
+                currencySymbol = uiState.currencySymbol
             )
             HorizontalDivider()
             TotalSectionRowWithEdit(
                 label = stringResource(Res.string.tax).plus(":"),
                 value = uiState.tax,
-                onEditClick = { uiAction(OrderUiAction.ToggleTaxDialog) }
+                onEditClick = { uiAction(OrderUiAction.ToggleTaxDialog) },
+                currencySymbol = uiState.currencySymbol
             )
             HorizontalDivider()
             TotalSectionRow(
                 label = stringResource(Res.string.total).plus(":"),
-                value = subTotal
+                value = uiState.total,
+                currencySymbol = uiState.currencySymbol
             )
         }
     }
@@ -80,7 +85,8 @@ fun TotalCheckoutSection(
 @Composable
 fun TotalSectionRow(
     label: String,
-    value: Double
+    value: Double,
+    currencySymbol: String = "$"
 ){
 
     Row(
@@ -92,8 +98,9 @@ fun TotalSectionRow(
             text = label,
             fontSize = 11.sp
         )
+        val formattedValue = round(value * 100) / 100.0
         Text(
-            text = "$value",
+            text = "$currencySymbol$formattedValue",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
@@ -104,7 +111,8 @@ fun TotalSectionRow(
 fun TotalSectionRowWithEdit(
     label: String,
     value: Double,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    currencySymbol: String = "$"
 ){
 
     Row(
@@ -135,8 +143,9 @@ fun TotalSectionRowWithEdit(
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
+            val formattedValue = round(value * 100) / 100.0
             Text(
-                text = "$value",
+                text = "$currencySymbol$formattedValue",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )

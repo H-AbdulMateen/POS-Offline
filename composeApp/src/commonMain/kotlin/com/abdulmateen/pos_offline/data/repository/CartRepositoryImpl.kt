@@ -79,6 +79,10 @@ class CartRepositoryImpl(
         }
     }
 
+    override suspend fun updatePrice(productId: Long, newPrice: Double) {
+        cartDao.updatePrice(productId = productId, newPrice = newPrice)
+    }
+
     override fun calculateSubTotal(): Flow<Double> {
         return cartDao.calculateSubTotal()
     }

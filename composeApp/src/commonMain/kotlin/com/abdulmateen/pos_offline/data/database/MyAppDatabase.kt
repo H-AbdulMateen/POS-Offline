@@ -48,7 +48,7 @@ import com.abdulmateen.pos_offline.data.database.entities.UnitEntity
         ReturnItemEntity::class,
         CustomerEntity::class
     ],
-    version = 9
+    version = 10
 )
 @TypeConverters(ExpenseTypeConverter::class)
 @ConstructedBy(MyAppDatabaseConstructor::class)
@@ -106,6 +106,12 @@ abstract class MyAppDatabase : RoomDatabase() {
                 connection.execSQL("CREATE TABLE IF NOT EXISTS `customers` (`customerId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `phone` TEXT, `email` TEXT, `address` TEXT, `createdAt` INTEGER NOT NULL)")
                 connection.execSQL("ALTER TABLE orders ADD COLUMN customerId INTEGER")
                 connection.execSQL("ALTER TABLE credits ADD COLUMN customerId INTEGER")
+            }
+        }
+
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("ALTER TABLE credits ADD COLUMN orderId INTEGER")
             }
         }
     }

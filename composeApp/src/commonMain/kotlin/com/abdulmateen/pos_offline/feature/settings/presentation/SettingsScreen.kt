@@ -37,6 +37,7 @@ fun SettingsScreenRoot(
         onBusinessNameChange = viewModel::onBusinessNameChange,
         onPhoneChange = viewModel::onPhoneChange,
         onCurrencySymbolChange = viewModel::onCurrencySymbolChange,
+        onCustomizablePriceToggle = viewModel::onCustomizablePriceToggle,
         onSaveClick = viewModel::saveSettings,
         onLogoutClick = onLogoutClick,
         doLogoutUser = viewModel::doLogoutUser
@@ -52,6 +53,7 @@ fun SettingsScreen(
     onBusinessNameChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
     onCurrencySymbolChange: (String) -> Unit,
+    onCustomizablePriceToggle: (Boolean) -> Unit,
     onSaveClick: () -> Unit,
     onLogoutClick: () -> Unit,
     doLogoutUser: () -> Unit
@@ -145,7 +147,24 @@ fun SettingsScreen(
                         }
                         Box(modifier = Modifier.matchParentSize().clickable { expanded = !expanded })
                     }
-                    
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Customizable Price", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                            Text("Allow changing product price at order creation", style = MaterialTheme.typography.bodySmall)
+                        }
+                        Checkbox(
+                            checked = uiState.isCustomizablePriceEnabled,
+                            onCheckedChange = onCustomizablePriceToggle
+                        )
+                    }
+
                     Button(
                         onClick = onSaveClick,
                         modifier = Modifier.align(Alignment.End),
@@ -187,6 +206,7 @@ fun SettingsScreenPreview() {
                 onBusinessNameChange = {},
                 onPhoneChange = {},
                 onCurrencySymbolChange = {},
+                onCustomizablePriceToggle = {},
                 onSaveClick = {},
                 onLogoutClick = {},
                 doLogoutUser = {}

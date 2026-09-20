@@ -40,6 +40,7 @@ import com.abdulmateen.pos_offline.feature.expense.presentation.ExpenseScreenRoo
 import com.abdulmateen.pos_offline.feature.profile.presentation.ProfileScreenRoot
 import com.abdulmateen.pos_offline.feature.settings.presentation.SettingsScreenRoot
 import com.abdulmateen.pos_offline.feature.credit.presentation.CreditScreenRoot
+import com.abdulmateen.pos_offline.feature.credit.presentation.CreditDetailScreenRoot
 import com.abdulmateen.pos_offline.feature.home.presentation.order.OrderHistoryScreenRoot
 import com.abdulmateen.pos_offline.feature.return_module.presentation.ReturnScreenRoot
 import com.abdulmateen.pos_offline.feature.customer.presentation.CustomerScreenRoot
@@ -249,7 +250,18 @@ fun NavHostPane(
             ExpenseScreenRoot()
         }
         composable<MainScreenRoutes.Credits> {
-            CreditScreenRoot()
+            CreditScreenRoot(
+                onCustomerClick = { customerName ->
+                    navController.navigate(MainScreenRoutes.CreditDetails(customerName))
+                }
+            )
+        }
+        composable<MainScreenRoutes.CreditDetails> { backStackEntry ->
+            val route = backStackEntry.toRoute<MainScreenRoutes.CreditDetails>()
+            CreditDetailScreenRoot(
+                customerName = route.customerName,
+                onBackClick = { navController.popBackStack() }
+            )
         }
         composable<MainScreenRoutes.OrderHistory> {
             OrderHistoryScreenRoot(onBackClick = { navController.popBackStack() })
@@ -419,6 +431,9 @@ sealed interface MainScreenRoutes {
 
     @Serializable
     data class CustomerLedger(val customerId: Long) : MainScreenRoutes
+
+    @Serializable
+    data class CreditDetails(val customerName: String) : MainScreenRoutes
 }
 
 @Preview

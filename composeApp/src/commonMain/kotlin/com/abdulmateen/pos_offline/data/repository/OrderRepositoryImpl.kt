@@ -24,7 +24,7 @@ class OrderRepositoryImpl(
         customerName: String?,
         customerPhone: String?,
         paymentMethod: String
-    ) {
+    ): Long {
         val orderEntity = com.abdulmateen.pos_offline.data.database.entities.OrderEntity(
             customerId = customerId,
             customerName = customerName,
@@ -47,7 +47,7 @@ class OrderRepositoryImpl(
                 discount = it.discount
             )
         }
-        orderDao.createOrder(orderEntity, orderItems)
+        return orderDao.createOrder(orderEntity, orderItems)
     }
 
     override suspend fun addOrderItem(orderItem: OrderItem) {

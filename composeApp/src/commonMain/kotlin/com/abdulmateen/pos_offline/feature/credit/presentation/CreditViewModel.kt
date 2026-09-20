@@ -2,20 +2,33 @@ package com.abdulmateen.pos_offline.feature.credit.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.abdulmateen.pos_offline.data.database.entities.CreditEntity
 import com.abdulmateen.pos_offline.domain.repository.CreditRepository
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.core.domain.PrefKeys
+import com.abdulmateen.pos_offline.feature.home.presentation.utils.shareFile
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock.System
+import kotlin.time.Instant
+
+data class CreditSummary(
+    val customerName: String,
+    val phoneNumber: String?,
+    val totalAmount: Double,
+    val paidAmount: Double,
+    val remainingAmount: Double,
+    val oldestDate: Long,
+    val noOfDays: Int
+)
 
 data class CreditUiState(
-    val credits: List<CreditEntity> = emptyList(),
+    val summaries: List<CreditSummary> = emptyList(),
     val currencySymbol: String = "$",
-    val isLoading: Boolean = false,
-    val isEndReached: Boolean = false
+    val isLoading: Boolean = false
 )
 
 class CreditViewModel(
@@ -26,11 +39,8 @@ class CreditViewModel(
     private val _uiState = MutableStateFlow(CreditUiState())
     val uiState: StateFlow<CreditUiState> = _uiState.asStateFlow()
 
-    private var currentPage = 0
-    private val pageSize = 20
-
     init {
-        loadNextCredits()
+        loadSummaries()
         observeDataStore()
         observeSearch()
     }
@@ -45,81 +55,70 @@ class CreditViewModel(
     private fun observeSearch() {
         viewModelScope.launch {
             _searchQuery.debounce(300).collect { query ->
-                if (query.isEmpty()) {
-                    currentPage = 0
-                    _uiState.update { it.copy(credits = emptyList(), isEndReached = false) }
-                    loadNextCredits()
-                } else {
-                    creditRepository.searchCredits(query).collect { credits ->
-                        _uiState.update { 
-                            it.copy(
-                                credits = credits,
-                                isEndReached = true // Disable pagination during search
-                            )
-                        }
-                    }
+                loadSummaries(query)
+            }
+        }
+    }
+
+    private fun loadSummaries(query: String = "") {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            val baseFlow = if (query.isEmpty()) {
+                creditRepository.getAllCredits()
+            } else {
+                creditRepository.searchCredits(query)
+            }
+            
+            baseFlow.collect { allCredits ->
+                val summaries = allCredits.groupBy { it.customerName }.map { (name, list) ->
+                    val total = list.sumOf { it.totalAmount }
+                    val paid = list.sumOf { it.paidAmount }
+                    val remaining = list.sumOf { it.remainingAmount }
+                    val oldest = list.minOf { it.date }
+                    CreditSummary(
+                        customerName = name,
+                        phoneNumber = list.firstOrNull { !it.phoneNumber.isNullOrBlank() }?.phoneNumber,
+                        totalAmount = total,
+                        paidAmount = paid,
+                        remainingAmount = remaining,
+                        oldestDate = oldest,
+                        noOfDays = calculateDays(oldest)
+                    )
+                }.sortedByDescending { it.noOfDays }
+
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        summaries = summaries
+                    )
                 }
             }
         }
     }
 
-    fun loadNextCredits() {
-        if (_uiState.value.isLoading || _uiState.value.isEndReached || _searchQuery.value.isNotEmpty()) return
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            creditRepository.getCreditsPaged(pageSize, currentPage * pageSize).firstOrNull()?.let { newCredits ->
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        credits = it.credits + newCredits,
-                        isEndReached = newCredits.size < pageSize
-                    )
-                }
-                currentPage++
-            } ?: _uiState.update { it.copy(isLoading = false) }
-        }
+    private fun calculateDays(timestamp: Long): Int {
+        val now = System.now().toEpochMilliseconds()
+        val diff = now - timestamp
+        val msInDay = 1000L * 60L * 60L * 24L
+        return (diff / msInDay).toInt()
     }
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
     }
 
-    @OptIn(ExperimentalTime::class)
-    fun receivePayment(credit: CreditEntity, amount: Double) {
-        viewModelScope.launch {
-            val updatedPaidAmount = credit.paidAmount + amount
-            val updatedRemainingAmount = (credit.totalAmount - updatedPaidAmount).coerceAtLeast(0.0)
-            creditRepository.upsertCredit(
-                credit.copy(
-                    paidAmount = updatedPaidAmount,
-                    remainingAmount = updatedRemainingAmount,
-                    lastUpdated = Clock.System.now().toEpochMilliseconds()
-                )
-            )
+    fun exportReport() {
+        val csvHeader = "Customer,Phone,Oldest Date,Days,Total,Paid,Balance\n"
+        val summaries = _uiState.value.summaries
+        val csvContent = summaries.joinToString("\n") { summary ->
+            val date = Instant.fromEpochMilliseconds(summary.oldestDate)
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+            val dateStr = "${date.day}-${date.month.number}-${date.year}"
+            "${summary.customerName},${summary.phoneNumber ?: ""},$dateStr,${summary.noOfDays},${summary.totalAmount},${summary.paidAmount},${summary.remainingAmount}"
         }
-    }
 
-    @OptIn(ExperimentalTime::class)
-    fun addCredit(customerName: String, phoneNumber: String?, totalAmount: Double, paidAmount: Double) {
-        viewModelScope.launch {
-            creditRepository.upsertCredit(
-                CreditEntity(
-                    customerName = customerName,
-                    phoneNumber = phoneNumber,
-                    totalAmount = totalAmount,
-                    paidAmount = paidAmount,
-                    remainingAmount = totalAmount - paidAmount,
-                    date = Clock.System.now().toEpochMilliseconds(),
-                    lastUpdated = Clock.System.now().toEpochMilliseconds()
-                )
-            )
-        }
-    }
-
-    fun deleteCredit(credit: CreditEntity) {
-        viewModelScope.launch {
-            creditRepository.deleteCredit(credit)
-        }
+        val fullCsv = csvHeader + csvContent
+        val fileName = "Credit_Summary_${System.now().toEpochMilliseconds()}.csv"
+        shareFile(fullCsv.encodeToByteArray(), fileName, "text/csv")
     }
 }

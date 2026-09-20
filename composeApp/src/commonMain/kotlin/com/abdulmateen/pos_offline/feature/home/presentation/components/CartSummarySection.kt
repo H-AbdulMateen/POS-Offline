@@ -77,6 +77,8 @@ fun CartSummarySection(
                         items(items = cartItemList) {cartItem ->
                             CartListItem(
                                 item = cartItem,
+                                isCustomizablePriceEnabled = uiState.isCustomizablePriceEnabled,
+                                currencySymbol = uiState.currencySymbol,
                                 uiAction = uiAction
                             )
                         }
@@ -119,6 +121,8 @@ fun CartSummarySection(
                     items(items = cartItemList) {
                         CartListItem(
                             item = it,
+                            isCustomizablePriceEnabled = uiState.isCustomizablePriceEnabled,
+                            currencySymbol = uiState.currencySymbol,
                             uiAction = uiAction
                         )
                     }
