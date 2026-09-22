@@ -35,6 +35,7 @@ import kotlin.time.Instant
 @Composable
 fun CreditDetailScreenRoot(
     customerName: String,
+    onEditOrder: (Long) -> Unit,
     onBackClick: () -> Unit
 ) {
     val viewModel = koinViewModel<CreditDetailViewModel> { parametersOf(customerName) }
@@ -70,7 +71,11 @@ fun CreditDetailScreenRoot(
             orderWithItems = uiState.selectedOrder!!,
             onDismiss = { viewModel.dismissOrderDetails() },
             businessName = uiState.businessName,
-            currencySymbol = uiState.currencySymbol
+            currencySymbol = uiState.currencySymbol,
+            onEditClick = { orderId ->
+                viewModel.dismissOrderDetails()
+                onEditOrder(orderId)
+            }
         )
     }
 }

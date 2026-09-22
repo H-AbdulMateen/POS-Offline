@@ -50,12 +50,17 @@ interface OrderDao {
         items: List<OrderItemEntity>
     ) {
         insertOrUpdateOrder(order)
-        insertOrderItems(items)
+        deleteOrderItems(order.orderId)
+        insertOrderItems(items.map { it.copy(orderId = order.orderId) })
     }
 
     @Transaction
     @Query("SELECT * FROM orders WHERE orderId = :orderId")
     fun getOrderWithItems(orderId: Long): Flow<OrderWithItems?>
+
+    @Transaction
+    @Query("SELECT * FROM orders WHERE orderId = :orderId")
+    suspend fun getOrderWithItemsDirect(orderId: Long): OrderWithItems?
 
     @Transaction
     @Query("DELETE FROM orders WHERE orderId = :orderId")

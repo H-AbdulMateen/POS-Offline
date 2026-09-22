@@ -11,12 +11,11 @@ import com.abdulmateen.pos_offline.core.domain.PrefKeys
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.shareFile
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock.System
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 data class CreditDetailUiState(
     val credits: List<CreditEntity> = emptyList(),
@@ -68,7 +67,7 @@ class CreditDetailViewModel(
                 credit.copy(
                     paidAmount = updatedPaidAmount,
                     remainingAmount = updatedRemainingAmount,
-                    lastUpdated = System.now().toEpochMilliseconds()
+                    lastUpdated = Clock.System.now().toEpochMilliseconds()
                 )
             )
         }
@@ -100,7 +99,7 @@ class CreditDetailViewModel(
             val date = Instant.fromEpochMilliseconds(credit.date)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
             val dateStr = "${date.day}-${date.month.number}-${date.year}"
-            val now = System.now().toEpochMilliseconds()
+            val now = Clock.System.now().toEpochMilliseconds()
             val days = ((now - credit.date) / (1000L * 60L * 60L * 24L)).toInt()
             
             "$dateStr,$days,${credit.totalAmount},${credit.paidAmount},${credit.remainingAmount}"

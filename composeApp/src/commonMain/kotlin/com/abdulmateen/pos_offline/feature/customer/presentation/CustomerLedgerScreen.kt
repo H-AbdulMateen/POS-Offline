@@ -32,6 +32,7 @@ import pos_offline.composeapp.generated.resources.*
 @Composable
 fun CustomerLedgerScreenRoot(
     customerId: Long,
+    onEditOrder: (Long) -> Unit,
     onBackClick: () -> Unit
 ) {
     val viewModel = koinViewModel<CustomerLedgerViewModel> { parametersOf(customerId) }
@@ -70,7 +71,11 @@ fun CustomerLedgerScreenRoot(
             orderWithItems = uiState.selectedOrder,
             onDismiss = { viewModel.dismissOrderDetails() },
             businessName = uiState.businessName,
-            currencySymbol = uiState.currencySymbol
+            currencySymbol = uiState.currencySymbol,
+            onEditClick = { orderId ->
+                viewModel.dismissOrderDetails()
+                onEditOrder(orderId)
+            }
         )
     }
 }
@@ -180,7 +185,8 @@ fun OrderDetailDialog(
     orderWithItems: OrderWithItems,
     onDismiss: () -> Unit,
     businessName: String,
-    currencySymbol: String
+    currencySymbol: String,
+    onEditClick: (Long) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -215,68 +221,77 @@ fun OrderDetailDialog(
             }
         },
         confirmButton = {
-            Button(onClick = {
-                val fileName = "invoice_${orderWithItems.order.orderId}.pdf"
-                val invoiceData = generateInvoiceInPdf(
-                    cartItems = orderWithItems.items.map {
-                        CartItem(
-                            productId = it.productId,
-                            productName = it.productName,
-                            sku = it.sku,
-                            quantity = it.quantity,
-                            price = it.price * it.quantity,
-                            discount = it.discount,
-                            unitPrice = it.price,
-                            imagePath = it.imagePath
-                        )
-                    },
-                    subTotal = orderWithItems.order.subTotal,
-                    discount = orderWithItems.order.discount ?: 0.0,
-                    tax = orderWithItems.order.tax ?: 0.0,
-                    total = orderWithItems.order.total,
-                    paidAmount = orderWithItems.order.total,
-                    change = 0.0,
-                    paymentType = orderWithItems.order.paymentMethod,
-                    businessName = businessName,
-                    currencySymbol = currencySymbol
-                )
-                printPdf(invoiceData, fileName)
-            }) {
-                Text("Print")
-            }
-            Button(onClick = {
-                val fileName = "invoice_${orderWithItems.order.orderId}.pdf"
-                val invoiceData = generateInvoiceInPdf(
-                    cartItems = orderWithItems.items.map {
-                        CartItem(
-                            productId = it.productId,
-                            productName = it.productName,
-                            sku = it.sku,
-                            quantity = it.quantity,
-                            price = it.price * it.quantity,
-                            discount = it.discount,
-                            unitPrice = it.price,
-                            imagePath = it.imagePath
-                        )
-                    },
-                    subTotal = orderWithItems.order.subTotal,
-                    discount = orderWithItems.order.discount ?: 0.0,
-                    tax = orderWithItems.order.tax ?: 0.0,
-                    total = orderWithItems.order.total,
-                    paidAmount = orderWithItems.order.total,
-                    change = 0.0,
-                    paymentType = orderWithItems.order.paymentMethod,
-                    businessName = businessName,
-                    currencySymbol = currencySymbol
-                )
-                shareInvoiceFile(invoiceData, fileName)
-            }) {
-                Text("Share")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                Button(onClick = {
+                    onEditClick(orderWithItems.order.orderId)
+                }, modifier = Modifier.weight(1f)) {
+                    Text("Edit")
+                }
+                Button(onClick = {
+                    val fileName = "invoice_${orderWithItems.order.orderId}.pdf"
+                    val invoiceData = generateInvoiceInPdf(
+                        cartItems = orderWithItems.items.map {
+                            CartItem(
+                                productId = it.productId,
+                                productName = it.productName,
+                                sku = it.sku,
+                                quantity = it.quantity,
+                                price = it.price * it.quantity,
+                                discount = it.discount,
+                                unitPrice = it.price,
+                                imagePath = it.imagePath
+                            )
+                        },
+                        subTotal = orderWithItems.order.subTotal,
+                        discount = orderWithItems.order.discount ?: 0.0,
+                        tax = orderWithItems.order.tax ?: 0.0,
+                        total = orderWithItems.order.total,
+                        paidAmount = orderWithItems.order.total,
+                        change = 0.0,
+                        paymentType = orderWithItems.order.paymentMethod,
+                        businessName = businessName,
+                        currencySymbol = currencySymbol
+                    )
+                    printPdf(invoiceData, fileName)
+                }, modifier = Modifier.weight(1f)) {
+                    Text("Print")
+                }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Close")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                Button(onClick = {
+                    val fileName = "invoice_${orderWithItems.order.orderId}.pdf"
+                    val invoiceData = generateInvoiceInPdf(
+                        cartItems = orderWithItems.items.map {
+                            CartItem(
+                                productId = it.productId,
+                                productName = it.productName,
+                                sku = it.sku,
+                                quantity = it.quantity,
+                                price = it.price * it.quantity,
+                                discount = it.discount,
+                                unitPrice = it.price,
+                                imagePath = it.imagePath
+                            )
+                        },
+                        subTotal = orderWithItems.order.subTotal,
+                        discount = orderWithItems.order.discount ?: 0.0,
+                        tax = orderWithItems.order.tax ?: 0.0,
+                        total = orderWithItems.order.total,
+                        paidAmount = orderWithItems.order.total,
+                        change = 0.0,
+                        paymentType = orderWithItems.order.paymentMethod,
+                        businessName = businessName,
+                        currencySymbol = currencySymbol
+                    )
+                    shareInvoiceFile(invoiceData, fileName)
+                }, modifier = Modifier.weight(1f)) {
+                    Text("Share")
+                }
+                TextButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
+                    Text("Close")
+                }
             }
         }
     )

@@ -35,7 +35,8 @@ data class OrderUiState(
     val currencySymbol: String = "$",
     val customerList: List<Customer> = emptyList(),
     val selectedCustomer: Customer? = null,
-    val isCustomizablePriceEnabled: Boolean = false
+    val isCustomizablePriceEnabled: Boolean = false,
+    val updatingOrderId: Long? = null
 ) {
     val total: Double get() = subTotal - discount + tax
 }

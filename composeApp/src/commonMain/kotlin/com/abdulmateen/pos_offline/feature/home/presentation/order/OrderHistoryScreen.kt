@@ -19,6 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.abdulmateen.pos_offline.data.database.entities.OrderWithItems
 import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.domain.models.Order
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.generateInvoiceInPdf
@@ -30,10 +31,12 @@ import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderHistoryScreenRoot(
+    onEditOrder: (Long) -> Unit,
     onBackClick: () -> Unit
 ) {
     val viewModel = koinViewModel<OrderHistoryViewModel>()
@@ -45,7 +48,8 @@ fun OrderHistoryScreenRoot(
         onOrderClick = { viewModel.selectOrder(it.orderId) },
         onDismissDetails = { viewModel.selectOrder(null) },
         onLoadNextPage = viewModel::loadNextOrders,
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
+        onEditOrder = onEditOrder
     )
 }
 
@@ -57,7 +61,8 @@ fun OrderHistoryScreen(
     onOrderClick: (Order) -> Unit,
     onDismissDetails: () -> Unit,
     onLoadNextPage: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onEditOrder: (Long) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -158,10 +163,6 @@ fun OrderHistoryScreen(
                             }
                         }
                     }
-                    
-                    LaunchedEffect(uiState.orders.size) {
-                        // Very simple scroll-to-end detection could be done with listState
-                    }
                 }
             }
         }
@@ -172,78 +173,90 @@ fun OrderHistoryScreen(
             orderDetails = uiState.selectedOrderDetails,
             businessName = uiState.businessName,
             currencySymbol = uiState.currencySymbol,
-            onDismiss = onDismissDetails
+            onDismiss = onDismissDetails,
+            onEditClick = { orderId ->
+                onDismissDetails()
+                onEditOrder(orderId)
+            }
         )
     }
 }
 
 @Composable
 fun OrderDetailDialog(
-    orderDetails: com.abdulmateen.pos_offline.data.database.entities.OrderWithItems,
+    orderDetails: OrderWithItems,
     businessName: String,
     currencySymbol: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onEditClick: (Long) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(onClick = {
-                val fileName = "invoice_${orderDetails.order.orderId}.pdf"
-                val invoiceData = generateInvoiceInPdf(
-                    cartItems = orderDetails.items.map { 
-                        com.abdulmateen.pos_offline.domain.models.CartItem(
-                            productId = it.productId,
-                            productName = it.productName,
-                            sku = it.sku,
-                            quantity = it.quantity,
-                            price = it.price * it.quantity,
-                            discount = it.discount,
-                            unitPrice = it.price,
-                            imagePath = it.imagePath
-                        )
-                    },
-                    subTotal = orderDetails.order.subTotal,
-                    discount = orderDetails.order.discount ?: 0.0,
-                    tax = orderDetails.order.tax ?: 0.0,
-                    total = orderDetails.order.total,
-                    paidAmount = orderDetails.order.total,
-                    change = 0.0,
-                    paymentType = orderDetails.order.paymentMethod,
-                    businessName = businessName,
-                    currencySymbol = currencySymbol
-                )
-                printPdf(invoiceData, fileName)
-            }) {
-                Text("Print")
-            }
-            Button(onClick = {
-                val fileName = "invoice_${orderDetails.order.orderId}.pdf"
-                val invoiceData = generateInvoiceInPdf(
-                    cartItems = orderDetails.items.map {
-                        CartItem(
-                            productId = it.productId,
-                            productName = it.productName,
-                            sku = it.sku,
-                            quantity = it.quantity,
-                            price = it.price * it.quantity,
-                            discount = it.discount,
-                            unitPrice = it.price,
-                            imagePath = it.imagePath
-                        )
-                    },
-                    subTotal = orderDetails.order.subTotal,
-                    discount = orderDetails.order.discount ?: 0.0,
-                    tax = orderDetails.order.tax ?: 0.0,
-                    total = orderDetails.order.total,
-                    paidAmount = orderDetails.order.total,
-                    change = 0.0,
-                    paymentType = orderDetails.order.paymentMethod,
-                    businessName = businessName,
-                    currencySymbol = currencySymbol
-                )
-                shareInvoiceFile(invoiceData, fileName)
-            }) {
-                Text("Share")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = {
+                    onEditClick(orderDetails.order.orderId)
+                }) {
+                    Text("Edit")
+                }
+                Button(onClick = {
+                    val fileName = "invoice_${orderDetails.order.orderId}.pdf"
+                    val invoiceData = generateInvoiceInPdf(
+                        cartItems = orderDetails.items.map { 
+                            CartItem(
+                                productId = it.productId,
+                                productName = it.productName,
+                                sku = it.sku,
+                                quantity = it.quantity,
+                                price = it.price * it.quantity,
+                                discount = it.discount,
+                                unitPrice = it.price,
+                                imagePath = it.imagePath
+                            )
+                        },
+                        subTotal = orderDetails.order.subTotal,
+                        discount = orderDetails.order.discount ?: 0.0,
+                        tax = orderDetails.order.tax ?: 0.0,
+                        total = orderDetails.order.total,
+                        paidAmount = orderDetails.order.total,
+                        change = 0.0,
+                        paymentType = orderDetails.order.paymentMethod,
+                        businessName = businessName,
+                        currencySymbol = currencySymbol
+                    )
+                    printPdf(invoiceData, fileName)
+                }) {
+                    Text("Print")
+                }
+                Button(onClick = {
+                    val fileName = "invoice_${orderDetails.order.orderId}.pdf"
+                    val invoiceData = generateInvoiceInPdf(
+                        cartItems = orderDetails.items.map {
+                            CartItem(
+                                productId = it.productId,
+                                productName = it.productName,
+                                sku = it.sku,
+                                quantity = it.quantity,
+                                price = it.price * it.quantity,
+                                discount = it.discount,
+                                unitPrice = it.price,
+                                imagePath = it.imagePath
+                            )
+                        },
+                        subTotal = orderDetails.order.subTotal,
+                        discount = orderDetails.order.discount ?: 0.0,
+                        tax = orderDetails.order.tax ?: 0.0,
+                        total = orderDetails.order.total,
+                        paidAmount = orderDetails.order.total,
+                        change = 0.0,
+                        paymentType = orderDetails.order.paymentMethod,
+                        businessName = businessName,
+                        currencySymbol = currencySymbol
+                    )
+                    shareInvoiceFile(invoiceData, fileName)
+                }) {
+                    Text("Share")
+                }
             }
         },
         dismissButton = {
@@ -257,10 +270,10 @@ fun OrderDetailDialog(
         },
         text = {
             val date = remember(orderDetails.order.createdAt) {
-                val localDateTime = kotlin.time.Instant.fromEpochMilliseconds(orderDetails.order.createdAt)
+                val localDateTime = Instant.fromEpochMilliseconds(orderDetails.order.createdAt)
                     .toLocalDateTime(TimeZone.currentSystemDefault())
-                val day = localDateTime.day.toString().padStart(2, '0')
-                val month = localDateTime.month.number.toString().padStart(2, '0')
+                val day = localDateTime.dayOfMonth.toString().padStart(2, '0')
+                val month = localDateTime.monthNumber.toString().padStart(2, '0')
                 val year = (localDateTime.year % 100).toString().padStart(2, '0')
                 "$day-$month-$year"
             }
@@ -389,10 +402,10 @@ fun RowScope.OrderHeaderCell(
 @Composable
 fun OrderHistoryRow(order: Order, currencySymbol: String, onClick: () -> Unit) {
     val date = remember(order.createdAt) {
-        val localDateTime = kotlin.time.Instant.fromEpochMilliseconds(order.createdAt)
+        val localDateTime = Instant.fromEpochMilliseconds(order.createdAt)
             .toLocalDateTime(TimeZone.currentSystemDefault())
-        val day = localDateTime.day.toString().padStart(2, '0')
-        val month = localDateTime.month.number.toString().padStart(2, '0')
+        val day = localDateTime.dayOfMonth.toString().padStart(2, '0')
+        val month = localDateTime.monthNumber.toString().padStart(2, '0')
         val year = (localDateTime.year % 100).toString().padStart(2, '0')
         "$day-$month-$year"
     }
@@ -493,7 +506,8 @@ private fun OrderHistoryScreenPreview() {
                 onOrderClick = {},
                 onDismissDetails = {},
                 onLoadNextPage = {},
-                onBackClick = {}
+                onBackClick = {},
+                onEditOrder = {}
             )
         }
     )

@@ -27,7 +27,7 @@ class CartRepositoryImpl(
             val id = cartDao.createCart(newCart)
             newCart.copy(cartId = id)
         }
-        val productExists = cartDao.getCartItemByProductId(cartItem.productId).firstOrNull()
+        val productExists = cartDao.getCartItemByProductIdDirect(cartItem.productId)
         if (productExists != null) {
             incrementInQuantity(productId = productExists.productId)
         }else{

@@ -1,5 +1,7 @@
 package com.abdulmateen.pos_offline.domain.repository
 
+import com.abdulmateen.pos_offline.data.database.entities.OrderWithItems
+import com.abdulmateen.pos_offline.domain.models.CartItem
 import com.abdulmateen.pos_offline.domain.models.Order
 import com.abdulmateen.pos_offline.domain.models.OrderItem
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +19,19 @@ interface OrderRepository {
         paymentMethod: String
     ): Long
 
+    suspend fun updateCheckout(
+        orderId: Long,
+        cartItems: List<CartItem>,
+        subTotal: Double,
+        discount: Double,
+        tax: Double,
+        total: Double,
+        customerId: Long?,
+        customerName: String?,
+        customerPhone: String?,
+        paymentMethod: String
+    )
+
     suspend fun addOrderItem(orderItem: OrderItem)
     suspend fun removeOrderItem(orderId: Long, productId: Long)
 
@@ -27,4 +42,5 @@ interface OrderRepository {
     fun getAllOrders(): Flow<List<Order>>
     fun getOrdersPaged(limit: Int, offset: Int): Flow<List<Order>>
     fun getOrderWithItems(orderId: Long): Flow<com.abdulmateen.pos_offline.data.database.entities.OrderWithItems?>
+    suspend fun getOrderWithItemsDirect(orderId: Long): OrderWithItems?
 }

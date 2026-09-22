@@ -43,6 +43,9 @@ interface CartDao {
     @Query("SELECT * FROM cart_items WHERE productId = :productId")
     fun getCartItemByProductId(productId: Long): Flow<CartItemEntity?>
 
+    @Query("SELECT * FROM cart_items WHERE productId = :productId")
+    suspend fun getCartItemByProductIdDirect(productId: Long): CartItemEntity?
+
     @Query("UPDATE cart_items SET quantity = quantity + 1 WHERE productId = :productId")
     suspend fun incrementInQuantity(productId: Long)
 

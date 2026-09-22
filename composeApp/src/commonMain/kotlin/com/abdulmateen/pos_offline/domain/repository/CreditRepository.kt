@@ -10,4 +10,5 @@ interface CreditRepository {
     fun getCreditsPaged(limit: Int, offset: Int): Flow<List<CreditEntity>>
     suspend fun getCreditById(creditId: Long): CreditEntity?
     fun searchCredits(name: String): Flow<List<CreditEntity>>
+    suspend fun getCreditByOrderId(orderId: Long): CreditEntity?
 }

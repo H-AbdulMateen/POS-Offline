@@ -23,4 +23,7 @@ interface CreditDao {
 
     @Query("SELECT * FROM credits WHERE customerName LIKE '%' || :name || '%'")
     fun searchCreditsByCustomer(name: String): Flow<List<CreditEntity>>
+
+    @Query("SELECT * FROM credits WHERE orderId = :orderId")
+    suspend fun getCreditByOrderId(orderId: Long): CreditEntity?
 }

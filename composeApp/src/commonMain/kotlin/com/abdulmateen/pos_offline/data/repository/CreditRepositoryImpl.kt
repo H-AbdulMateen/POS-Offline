@@ -14,4 +14,5 @@ class CreditRepositoryImpl(
     override fun getCreditsPaged(limit: Int, offset: Int): Flow<List<CreditEntity>> = creditDao.getCreditsPaged(limit, offset)
     override suspend fun getCreditById(creditId: Long): CreditEntity? = creditDao.getCreditById(creditId)
     override fun searchCredits(name: String): Flow<List<CreditEntity>> = creditDao.searchCreditsByCustomer(name)
+    override suspend fun getCreditByOrderId(orderId: Long): CreditEntity? = creditDao.getCreditByOrderId(orderId)
 }

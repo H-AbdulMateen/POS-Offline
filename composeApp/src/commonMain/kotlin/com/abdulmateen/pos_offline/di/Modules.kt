@@ -65,12 +65,12 @@ import com.abdulmateen.pos_offline.feature.reports.presentation.ReportsViewModel
 import com.abdulmateen.pos_offline.feature.customer.presentation.CustomerLedgerViewModel
 import com.abdulmateen.pos_offline.feature.customer.presentation.CustomerViewModel
 import com.abdulmateen.pos_offline.feature.credit.presentation.CreditDetailViewModel
-import org.koin.core.module.Module
-
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.module.Module
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.koin.core.module.dsl.factoryOf
 
 expect val platformModule: Module
 
@@ -148,9 +148,10 @@ val sharedModule = module {
     viewModelOf(::LoginViewModel)
     viewModelOf(::SignUpViewModel)
     viewModelOf(::InventoryViewModel)
-    single { DashboardViewModel(get(), get()) }
-    single {
+    viewModelOf(::DashboardViewModel)
+    factory { (orderId: Long?) ->
         OrderViewModel(
+            orderIdForUpdate = orderId,
             productUseCases = get(),
             cartUseCases = get(),
             dataStoreManager = get(),

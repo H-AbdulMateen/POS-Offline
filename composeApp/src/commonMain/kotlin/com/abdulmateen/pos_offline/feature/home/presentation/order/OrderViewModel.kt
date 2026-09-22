@@ -22,6 +22,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
@@ -31,9 +34,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.field_required
+import kotlin.time.Clock
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class OrderViewModel(
+    private val orderIdForUpdate: Long? = null,
     private val productUseCases: ProductUseCases,
     private val cartUseCases: CartUseCases,
     private val dataStoreManager: DataStoreManager,
@@ -44,8 +49,6 @@ class OrderViewModel(
     private val _uiState = MutableStateFlow(OrderUiState())
     val uiState: StateFlow<OrderUiState> = _uiState
         .onStart {
-//            loadCategories() //TODO: Remove this before go to release
-//            loadUnits() //TODO: Remove this before go to release
             getCartItemsCount()
             loadCartItems()
             calculateSubTotal()
@@ -54,7 +57,9 @@ class OrderViewModel(
             if (uiState.value.productList.isEmpty()) {
                 loadProducts()
             }
-
+            if (orderIdForUpdate != null) {
+                loadOrderForUpdate(orderIdForUpdate)
+            }
         }
         .stateIn(
             scope = viewModelScope,
@@ -164,6 +169,53 @@ class OrderViewModel(
                     cartUseCases.updateCartItemPrice(action.productId, action.newPrice)
                 }
             }
+            is OrderUiAction.LoadOrderForUpdate -> {
+                loadOrderForUpdate(action.orderId)
+            }
+        }
+    }
+
+    private fun loadOrderForUpdate(orderId: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            
+            val orderWithItems = orderRepository.getOrderWithItemsDirect(orderId)
+            
+            if (orderWithItems != null) {
+                cartUseCases.clearCartItems()
+                
+                orderWithItems.items.forEach { item ->
+                    cartUseCases.addItemToCart(
+                        CartItem(
+                            productId = item.productId,
+                            productName = item.productName,
+                            sku = item.sku,
+                            quantity = item.quantity,
+                            unitPrice = item.price,
+                            price = item.price * item.quantity,
+                            imagePath = item.imagePath
+                        )
+                    )
+                }
+                
+                val customers = customerRepository.getAllCustomers().firstOrNull() ?: emptyList()
+                val customer = customers.find { 
+                    (it.name == orderWithItems.order.customerName && it.name.isNotEmpty()) || 
+                    (it.phone == orderWithItems.order.customerPhone && !it.phone.isNullOrBlank())
+                }
+                
+                _uiState.update { 
+                    it.copy(
+                        isLoading = false,
+                        updatingOrderId = orderId,
+                        selectedCustomer = customer,
+                        discount = orderWithItems.order.discount ?: 0.0,
+                        tax = orderWithItems.order.tax ?: 0.0
+                    ) 
+                }
+            } else {
+                _uiState.update { it.copy(isLoading = false) }
+            }
         }
     }
 
@@ -171,34 +223,80 @@ class OrderViewModel(
         viewModelScope.launch {
             val total = uiState.value.total
             val customerId = uiState.value.selectedCustomer?.customerId
+            val orderId = uiState.value.updatingOrderId
             
-            val orderId = orderRepository.checkout(
-                cartItems = uiState.value.cartItems,
-                subTotal = uiState.value.subTotal,
-                discount = uiState.value.discount,
-                tax = uiState.value.tax,
-                total = uiState.value.total,
-                customerId = customerId,
-                customerName = customerName,
-                customerPhone = phoneNumber,
-                paymentMethod = "CREDIT"
-            )
-
-            creditRepository.upsertCredit(
-                CreditEntity(
+            if (orderId == null) {
+                val newOrderId = orderRepository.checkout(
+                    cartItems = uiState.value.cartItems,
+                    subTotal = uiState.value.subTotal,
+                    discount = uiState.value.discount,
+                    tax = uiState.value.tax,
+                    total = uiState.value.total,
                     customerId = customerId,
-                    orderId = orderId,
                     customerName = customerName,
-                    phoneNumber = phoneNumber,
-                    totalAmount = total,
-                    paidAmount = paidAmount,
-                    remainingAmount = total - paidAmount
+                    customerPhone = phoneNumber,
+                    paymentMethod = "CREDIT"
                 )
-            )
+
+                creditRepository.upsertCredit(
+                    CreditEntity(
+                        customerId = customerId,
+                        orderId = newOrderId,
+                        customerName = customerName,
+                        phoneNumber = phoneNumber,
+                        totalAmount = total,
+                        paidAmount = paidAmount,
+                        remainingAmount = total - paidAmount
+                    )
+                )
+            } else {
+                orderRepository.updateCheckout(
+                    orderId = orderId,
+                    cartItems = uiState.value.cartItems,
+                    subTotal = uiState.value.subTotal,
+                    discount = uiState.value.discount,
+                    tax = uiState.value.tax,
+                    total = uiState.value.total,
+                    customerId = customerId,
+                    customerName = customerName,
+                    customerPhone = phoneNumber,
+                    paymentMethod = "CREDIT"
+                )
+                
+                val existingCredit = creditRepository.getCreditByOrderId(orderId)
+                if (existingCredit != null) {
+                    creditRepository.upsertCredit(
+                        existingCredit.copy(
+                            customerId = customerId,
+                            customerName = customerName,
+                            phoneNumber = phoneNumber,
+                            totalAmount = total,
+                            remainingAmount = total - existingCredit.paidAmount,
+                            lastUpdated = Clock.System.now().toEpochMilliseconds()
+                        )
+                    )
+                } else {
+                    creditRepository.upsertCredit(
+                        CreditEntity(
+                            customerId = customerId,
+                            orderId = orderId,
+                            customerName = customerName,
+                            phoneNumber = phoneNumber,
+                            totalAmount = total,
+                            paidAmount = paidAmount,
+                            remainingAmount = total - paidAmount
+                        )
+                    )
+                }
+            }
+            
             cartUseCases.clearCartItems()
             _uiState.update {
                 it.copy(
                     selectedCustomer = null,
+                    updatingOrderId = null,
+                    discount = 0.0,
+                    tax = 0.0
                 )
             }
         }
@@ -207,21 +305,42 @@ class OrderViewModel(
     private fun checkout(customerName: String?, customerPhone: String?) {
         viewModelScope.launch {
             val customerId = uiState.value.selectedCustomer?.customerId
-            orderRepository.checkout(
-                cartItems = uiState.value.cartItems,
-                subTotal = uiState.value.subTotal,
-                discount = uiState.value.discount,
-                tax = uiState.value.tax,
-                total = uiState.value.total,
-                customerId = customerId,
-                customerName = customerName,
-                customerPhone = customerPhone,
-                paymentMethod = "CASH" // Defaulting to CASH for now, can be improved if needed
-            )
+            val orderId = uiState.value.updatingOrderId
+            
+            if (orderId == null) {
+                orderRepository.checkout(
+                    cartItems = uiState.value.cartItems,
+                    subTotal = uiState.value.subTotal,
+                    discount = uiState.value.discount,
+                    tax = uiState.value.tax,
+                    total = uiState.value.total,
+                    customerId = customerId,
+                    customerName = customerName,
+                    customerPhone = customerPhone,
+                    paymentMethod = "CASH"
+                )
+            } else {
+                orderRepository.updateCheckout(
+                    orderId = orderId,
+                    cartItems = uiState.value.cartItems,
+                    subTotal = uiState.value.subTotal,
+                    discount = uiState.value.discount,
+                    tax = uiState.value.tax,
+                    total = uiState.value.total,
+                    customerId = customerId,
+                    customerName = customerName,
+                    customerPhone = customerPhone,
+                    paymentMethod = "CASH"
+                )
+            }
+            
             cartUseCases.clearCartItems()
             _uiState.update {
                 it.copy(
                     selectedCustomer = null,
+                    updatingOrderId = null,
+                    discount = 0.0,
+                    tax = 0.0
                 )
             }
         }

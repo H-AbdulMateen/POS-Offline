@@ -231,10 +231,12 @@ fun NavHostPane(
 ){
     NavHost(
         navController = navController,
-        startDestination = MainScreenRoutes.Home,
+        startDestination = MainScreenRoutes.Home(),
         ) {
-        composable<MainScreenRoutes.Home>() {
+        composable<MainScreenRoutes.Home>() { backStackEntry ->
+            val route = backStackEntry.toRoute<MainScreenRoutes.Home>()
             OrderScreenRoot(
+                orderId = route.orderId,
                 navigateToCart = navigateToCart,
                 toggleDarkTheme = toggleDarkTheme,
                 isDarkTheme = isDarkTheme
@@ -260,11 +262,23 @@ fun NavHostPane(
             val route = backStackEntry.toRoute<MainScreenRoutes.CreditDetails>()
             CreditDetailScreenRoot(
                 customerName = route.customerName,
+                onEditOrder = { orderId ->
+                    navController.navigate(MainScreenRoutes.Home(orderId)) {
+                        popUpTo(MainScreenRoutes.Home()) { inclusive = true }
+                    }
+                },
                 onBackClick = { navController.popBackStack() }
             )
         }
         composable<MainScreenRoutes.OrderHistory> {
-            OrderHistoryScreenRoot(onBackClick = { navController.popBackStack() })
+            OrderHistoryScreenRoot(
+                onEditOrder = { orderId ->
+                    navController.navigate(MainScreenRoutes.Home(orderId)) {
+                        popUpTo(MainScreenRoutes.Home()) { inclusive = true }
+                    }
+                },
+                onBackClick = { navController.popBackStack() }
+            )
         }
         composable<MainScreenRoutes.Returns> {
             ReturnScreenRoot()
@@ -291,6 +305,11 @@ fun NavHostPane(
             val route = backStackEntry.toRoute<MainScreenRoutes.CustomerLedger>()
             CustomerLedgerScreenRoot(
                 customerId = route.customerId,
+                onEditOrder = { orderId ->
+                    navController.navigate(MainScreenRoutes.Home(orderId)) {
+                        popUpTo(MainScreenRoutes.Home()) { inclusive = true }
+                    }
+                },
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -397,7 +416,7 @@ fun SideNavBar(
 
 sealed interface MainScreenRoutes {
     @Serializable
-    data object Home : MainScreenRoutes
+    data class Home(val orderId: Long? = null) : MainScreenRoutes
 
     @Serializable
     data object Inventory: MainScreenRoutes

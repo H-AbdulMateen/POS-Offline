@@ -157,7 +157,7 @@ compose.desktop {;
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "TallyTrades"
-            packageVersion = "1.0.0"
+            packageVersion = "1.0.1"
 
             // IMPORTANT: DataStore/Protobuf requires sun.misc.Unsafe
             modules("jdk.unsupported")

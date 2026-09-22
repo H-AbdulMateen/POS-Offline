@@ -21,4 +21,5 @@ sealed class OrderUiAction {
     data class CreateCredit(val customerName: String, val phoneNumber: String?, val paidAmount: Double): OrderUiAction()
     data class SelectCustomer(val customer: Customer?): OrderUiAction()
     data class UpdateCartItemPrice(val productId: Long, val newPrice: Double): OrderUiAction()
+    data class LoadOrderForUpdate(val orderId: Long): OrderUiAction()
 }
