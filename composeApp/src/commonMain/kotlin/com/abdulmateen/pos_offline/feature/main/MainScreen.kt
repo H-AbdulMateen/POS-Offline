@@ -438,7 +438,6 @@ sealed interface MainScreenRoutes {
 
     @Serializable
     data object Profile : MainScreenRoutes
-
     @Serializable
     data object Settings : MainScreenRoutes
 

@@ -24,6 +24,7 @@ import com.abdulmateen.pos_offline.core.designsystem.components.layouts.LoadingS
 import com.abdulmateen.pos_offline.core.designsystem.components.layouts.MySnackBarScaffold
 import com.abdulmateen.pos_offline.core.presentation.util.ObserveAsEvents
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
+import com.abdulmateen.pos_offline.feature.inventory.presentation.components.InventoryTable
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
@@ -75,7 +76,7 @@ fun InventoryScreen(
         snackbarHostState = snackbarHostState,
         isFloatingActionButtonDocked = true,
         onFabClick = {
-            uiAction(_root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleAddEditProductDialog(productId = null))
+            uiAction(com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleAddEditProductDialog(productId = null))
         }
     ) {
         val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
@@ -94,7 +95,7 @@ fun InventoryScreen(
                     _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.InventoryHeaderRow(
                         onAddItemClick = {
                             uiAction(
-                                _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleAddEditProductDialog(
+                                com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleAddEditProductDialog(
                                     productId = null
                                 )
                             )
@@ -111,7 +112,7 @@ fun InventoryScreen(
                     if (uiState.isLoading && uiState.productList.isEmpty()){
                         LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
                     }else {
-                        _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.InventoryTable(
+                        InventoryTable(
                             uiAction = uiAction,
                             uiState = uiState,
                             onLoadNextPage = onLoadNextPage
@@ -126,12 +127,12 @@ fun InventoryScreen(
                     ) {
                         SearchField(
                             value = uiState.searchProductQuery,
-                            onValueChange = { uiAction(_root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.OnSearchProductChange(it)) },
+                            onValueChange = { uiAction(com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.OnSearchProductChange(it)) },
                             modifier = Modifier.weight(.1f)
                         )
                         Button(
                             onClick = {
-                                uiAction(_root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleAddEditProductDialog(productId = null))
+                                uiAction(com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleAddEditProductDialog(productId = null))
                             },
                             shape = MaterialTheme.shapes.small) {
                             Text(text = stringResource(Res.string.add_item))
@@ -142,7 +143,7 @@ fun InventoryScreen(
                     if (uiState.isLoading && uiState.productList.isEmpty()){
                         LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
                     }else {
-                        _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.InventoryTable(
+                        InventoryTable(
                             uiAction = uiAction,
                             uiState = uiState,
                             onLoadNextPage = onLoadNextPage
@@ -156,7 +157,7 @@ fun InventoryScreen(
                 item = uiState.selectedProduct,
                 onDismiss = {
                     uiAction(
-                        _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleAddEditProductDialog(
+                        com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleAddEditProductDialog(
                             productId = null
                         )
                     )
@@ -172,7 +173,7 @@ fun InventoryScreen(
                     product = it,
                     onDismiss = {
                         uiAction(
-                            _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleDetailDialog(
+                            com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleDetailDialog(
                                 productId = null
                             )
                         )
