@@ -33,6 +33,7 @@ import com.abdulmateen.pos_offline.domain.use_cases.cart.GetCartItemList
 import com.abdulmateen.pos_offline.domain.use_cases.cart.IncrementInQuantity
 import com.abdulmateen.pos_offline.domain.use_cases.cart.RemoveItem
 import com.abdulmateen.pos_offline.domain.use_cases.cart.UpdateCartItemPrice
+import com.abdulmateen.pos_offline.domain.use_cases.cart.UpdateCartItemQuantity
 import com.abdulmateen.pos_offline.domain.use_cases.product.AddProduct
 import com.abdulmateen.pos_offline.domain.use_cases.product.DeleteProduct
 import com.abdulmateen.pos_offline.domain.use_cases.product.GetProductList
@@ -140,7 +141,8 @@ val sharedModule = module {
             incrementInQuantity = IncrementInQuantity(get()),
             decrementInQuantity = DecrementInQuantity(get()),
             calculateSubTotal = CalculateSubTotal(get()),
-            updateCartItemPrice = UpdateCartItemPrice(get())
+            updateCartItemPrice = UpdateCartItemPrice(get()),
+            updateCartItemQuantity = UpdateCartItemQuantity(get())
         )
     }
 
@@ -157,7 +159,8 @@ val sharedModule = module {
             dataStoreManager = get(),
             creditRepository = get(),
             orderRepository = get(),
-            customerRepository = get()
+            customerRepository = get(),
+            inventoryRepository = get()
         )
     }
     viewModelOf(::SettingsViewModel)

@@ -1,7 +1,6 @@
 package com.abdulmateen.pos_offline.feature.home.presentation.order
 
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,7 +36,9 @@ import pos_offline.composeapp.generated.resources.Res
 import com.abdulmateen.pos_offline.core.utils.DeviceConfiguration
 import com.abdulmateen.pos_offline.domain.models.ItemUnit
 import com.abdulmateen.pos_offline.domain.models.Product
+import androidx.compose.foundation.layout.height
 import com.abdulmateen.pos_offline.feature.home.presentation.components.CartSummarySection
+import com.abdulmateen.pos_offline.feature.home.presentation.components.CategoryFilterSection
 import com.abdulmateen.pos_offline.feature.home.presentation.components.ProductListSection
 import com.abdulmateen.pos_offline.feature.home.presentation.components.ProductSearchSection
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
@@ -134,72 +135,16 @@ private fun OrderScreenContent(
 ) {
     Column(modifier = modifier) {
         when (deviceConfiguration) {
-            DeviceConfiguration.MOBILE_PORTRAIT -> {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    ProductSearchSection(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = searchField,
-                        onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    if (uiState.isLoading) {
-                        LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
-                    } else {
-                        ProductListSection(
-                            modifier = Modifier.fillMaxWidth(),
-                            list = productList,
-                            currencySymbol = uiState.currencySymbol,
-                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
-                        )
-                    }
-                }
-            }
-
-            DeviceConfiguration.MOBILE_LANDSCAPE -> {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Column(modifier = Modifier.weight(.1f)) {
-                        ProductSearchSection(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = searchField,
-                            onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
-                        )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        if (uiState.isLoading) {
-                            LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
-                        } else {
-                            ProductListSection(
-                                modifier = Modifier.fillMaxWidth(),
-                                list = productList,
-                                currencySymbol = uiState.currencySymbol,
-                                onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
-                            )
-                        }
-                    }
-                }
-            }
-
+            DeviceConfiguration.MOBILE_PORTRAIT,
+            DeviceConfiguration.MOBILE_LANDSCAPE,
             DeviceConfiguration.TABLET_PORTRAIT -> {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    ProductSearchSection(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = searchField,
-                        onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    if (uiState.isLoading) {
-                        LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
-                    } else {
-                        ProductListSection(
-                            modifier = Modifier.fillMaxWidth(),
-                            list = productList,
-                            currencySymbol = uiState.currencySymbol,
-                            onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
-                        )
-                    }
-                }
+                ProductCatalogSection(
+                    modifier = Modifier.fillMaxSize(),
+                    searchField = searchField,
+                    uiState = uiState,
+                    uiAction = uiAction,
+                    productList = productList
+                )
             }
 
             DeviceConfiguration.TABLET_LANDSCAPE -> {
@@ -207,26 +152,15 @@ private fun OrderScreenContent(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Column(modifier = Modifier.weight(.1f)) {
-                        ProductSearchSection(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = searchField,
-                            onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
-                        )
-                        Spacer(modifier = Modifier.size(16.dp))
-                        if (uiState.isLoading) {
-                            LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
-                        } else {
-                            ProductListSection(
-                                modifier = Modifier.fillMaxWidth(),
-                                list = productList,
-                                currencySymbol = uiState.currencySymbol,
-                                onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
-                            )
-                        }
-                    }
+                    ProductCatalogSection(
+                        modifier = Modifier.weight(1.2f),
+                        searchField = searchField,
+                        uiState = uiState,
+                        uiAction = uiAction,
+                        productList = productList
+                    )
                     CartSummarySection(
-                        modifier = Modifier.weight(.1f),
+                        modifier = Modifier.weight(0.8f),
                         uiState = uiState,
                         uiAction = uiAction
                     )
@@ -238,31 +172,59 @@ private fun OrderScreenContent(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    Column(modifier = Modifier.weight(.1f)) {
-                        ProductSearchSection(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = searchField,
-                            onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) }
-                        )
-                        Spacer(modifier = Modifier.size(24.dp))
-                        if (uiState.isLoading) {
-                            LoadingSection(modifier = Modifier.fillMaxWidth().weight(.1f))
-                        } else {
-                            ProductListSection(
-                                modifier = Modifier.fillMaxWidth(),
-                                list = productList,
-                                currencySymbol = uiState.currencySymbol,
-                                onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
-                            )
-                        }
-                    }
+                    ProductCatalogSection(
+                        modifier = Modifier.weight(1.3f),
+                        searchField = searchField,
+                        uiState = uiState,
+                        uiAction = uiAction,
+                        productList = productList
+                    )
                     CartSummarySection(
-                        modifier = Modifier.weight(.1f),
+                        modifier = Modifier.weight(0.7f),
                         uiState = uiState,
                         uiAction = uiAction
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ProductCatalogSection(
+    modifier: Modifier = Modifier,
+    searchField: String,
+    uiState: OrderUiState,
+    uiAction: (OrderUiAction) -> Unit,
+    productList: List<Product>
+) {
+    Column(modifier = modifier) {
+        ProductSearchSection(
+            modifier = Modifier.fillMaxWidth(),
+            value = searchField,
+            onValueChange = { uiAction(OrderUiAction.OnSearchProduct(it)) },
+            onBarcodeScanClick = { uiAction(OrderUiAction.OnBarcodeScanClick) },
+            onCustomAmountClick = { uiAction(OrderUiAction.OnCustomAmountClick) },
+            onHeldSalesClick = { uiAction(OrderUiAction.OnHeldSalesClick) },
+            heldSalesCount = uiState.heldSalesCount
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        CategoryFilterSection(
+            modifier = Modifier.fillMaxWidth(),
+            categoryList = uiState.categoryList,
+            selectedCategoryId = uiState.selectedCategoryId,
+            onCategorySelected = { uiAction(OrderUiAction.SelectCategory(it)) }
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        if (uiState.isLoading) {
+            LoadingSection(modifier = Modifier.fillMaxWidth().weight(1f))
+        } else {
+            ProductListSection(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                list = productList,
+                currencySymbol = uiState.currencySymbol,
+                onAddToCart = { uiAction(OrderUiAction.AddProductToCart(it)) }
+            )
         }
     }
 }

@@ -12,7 +12,8 @@ data class Product(
     val imagePath: String? = null,
     val photoBytes: ByteArray? = null,
     val unit: ItemUnit? = null,
-    )
+    val category: Category? = null
+)
 
 
 

@@ -326,7 +326,7 @@ fun SideNavBar(
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Home::class) } == true,
             icon = { Icon(imageVector = Icons.Default.Home, "home") },
             label = { Text(text = stringResource(Res.string.home)) },
-            onClick = { navController.navigate(MainScreenRoutes.Home) }
+            onClick = { navController.navigate(MainScreenRoutes.Home()) }
         )
 
         NavigationRailItem(

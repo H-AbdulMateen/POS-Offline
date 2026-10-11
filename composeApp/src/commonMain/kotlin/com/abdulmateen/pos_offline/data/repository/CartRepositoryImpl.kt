@@ -79,6 +79,11 @@ class CartRepositoryImpl(
         }
     }
 
+    override suspend fun updateQuantity(productId: Long, quantity: Double) {
+        if (quantity <= 0.0) return
+        cartDao.updateQuantity(productId = productId, quantity = quantity)
+    }
+
     override suspend fun updatePrice(productId: Long, newPrice: Double) {
         cartDao.updatePrice(productId = productId, newPrice = newPrice)
     }

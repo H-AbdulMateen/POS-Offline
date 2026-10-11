@@ -52,6 +52,9 @@ interface CartDao {
     @Query("UPDATE cart_items SET quantity = quantity - 1 WHERE productId = :productId")
     suspend fun decrementInQuantity(productId: Long)
 
+    @Query("UPDATE cart_items SET quantity = :quantity WHERE productId = :productId")
+    suspend fun updateQuantity(productId: Long, quantity: Double)
+
     @Query("UPDATE cart_items SET price = :newPrice WHERE productId = :productId")
     suspend fun updatePrice(productId: Long, newPrice: Double)
 

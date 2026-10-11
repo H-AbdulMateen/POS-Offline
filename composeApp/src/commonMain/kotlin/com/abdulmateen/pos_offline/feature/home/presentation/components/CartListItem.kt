@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -48,6 +49,7 @@ fun CartListItem(
     uiAction: (OrderUiAction) -> Unit
 ) {
     var showPriceEditDialog by remember { mutableStateOf(false) }
+    var showQuantityEditDialog by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -159,10 +161,26 @@ fun CartListItem(
                                 modifier = Modifier.size(16.dp)
                             )
                         }
-                        Text(
-                            text = item.quantity.toString().padStart(2, '0'),
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
+                        // Tap the count to type a quantity instead of pressing +/- repeatedly
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clickable { showQuantityEditDialog = true }
+                                .padding(horizontal = 8.dp)
+                        ) {
+                            Text(
+                                text = formatQuantity(item.quantity),
+                                maxLines = 1
+                            )
+                            if (item.quantity >= LARGE_QUANTITY_THRESHOLD) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit quantity",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(start = 4.dp).size(14.dp)
+                                )
+                            }
+                        }
                         IconButton(
                             onClick = { uiAction(OrderUiAction.IncrementInQuantity(item.productId)) },
                             modifier = Modifier
@@ -205,6 +223,35 @@ fun CartListItem(
             textFieldError = ""
         )
     }
+
+    if (showQuantityEditDialog) {
+        var quantityValue by remember { mutableStateOf(formatQuantity(item.quantity, pad = false)) }
+        val parsedQuantity = quantityValue.toDoubleOrNull()
+        val hasQuantityError = parsedQuantity == null || parsedQuantity <= 0.0
+        SingleTextFieldDialog(
+            title = "Edit Quantity",
+            onConfirm = {
+                if (!hasQuantityError) {
+                    uiAction(OrderUiAction.UpdateCartItemQuantity(item.productId, parsedQuantity!!))
+                    showQuantityEditDialog = false
+                }
+            },
+            onDismiss = { showQuantityEditDialog = false },
+            hint = "Enter quantity",
+            textFieldValue = quantityValue,
+            onValueChange = { quantityValue = it },
+            keyboardType = KeyboardType.Decimal,
+            hasError = hasQuantityError,
+            textFieldError = "Quantity must be greater than 0"
+        )
+    }
+}
+
+private const val LARGE_QUANTITY_THRESHOLD = 10.0
+
+private fun formatQuantity(quantity: Double, pad: Boolean = true): String {
+    val text = if (quantity % 1.0 == 0.0) quantity.toLong().toString() else quantity.toString()
+    return if (pad) text.padStart(2, '0') else text
 }
 
 @Preview()

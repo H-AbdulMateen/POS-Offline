@@ -62,7 +62,7 @@ fun DrawerContentSheet(
             icon = Icons.Default.Home,
             selected = hierarchy?.any { it.hasRoute(MainScreenRoutes.Home::class) } == true
         ) {
-            navController.navigate(MainScreenRoutes.Home) { launchSingleTop = true }
+            navController.navigate(MainScreenRoutes.Home()) { launchSingleTop = true }
             closeDrawer()
         }
         Spacer(modifier = Modifier.height(16.dp))

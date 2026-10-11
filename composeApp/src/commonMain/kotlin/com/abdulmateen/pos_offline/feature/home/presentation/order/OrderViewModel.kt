@@ -44,7 +44,8 @@ class OrderViewModel(
     private val dataStoreManager: DataStoreManager,
     private val creditRepository: CreditRepository,
     private val orderRepository: OrderRepository,
-    private val customerRepository: CustomerRepository
+    private val customerRepository: CustomerRepository,
+    private val inventoryRepository: InventoryRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OrderUiState())
     val uiState: StateFlow<OrderUiState> = _uiState
@@ -54,6 +55,7 @@ class OrderViewModel(
             calculateSubTotal()
             loadSettings()
             loadCustomers()
+            loadCategories()
             if (uiState.value.productList.isEmpty()) {
                 loadProducts()
             }
@@ -169,8 +171,27 @@ class OrderViewModel(
                     cartUseCases.updateCartItemPrice(action.productId, action.newPrice)
                 }
             }
+            is OrderUiAction.UpdateCartItemQuantity -> {
+                viewModelScope.launch {
+                    cartUseCases.updateCartItemQuantity(action.productId, action.quantity)
+                }
+            }
             is OrderUiAction.LoadOrderForUpdate -> {
                 loadOrderForUpdate(action.orderId)
+            }
+            is OrderUiAction.SelectCategory -> {
+                _uiState.update {
+                    it.copy(selectedCategoryId = action.categoryId)
+                }
+            }
+            is OrderUiAction.OnBarcodeScanClick -> {
+                // Handle barcode scan
+            }
+            is OrderUiAction.OnCustomAmountClick -> {
+                // Handle custom amount
+            }
+            is OrderUiAction.OnHeldSalesClick -> {
+                // Handle held sales
             }
         }
     }
@@ -496,17 +517,17 @@ class OrderViewModel(
         }
     }
 
-//    private fun loadCategories() {
-//        viewModelScope.launch {
-//            repository.getAllCategories().onEach { categories ->
-//                _uiState.update {
-//                    it.copy(
-//                        categoryList = categories
-//                    )
-//                }
-//            }.launchIn(viewModelScope)
-//        }
-//    }
+    private fun loadCategories() {
+        viewModelScope.launch {
+            inventoryRepository.getAllCategories().collect { categories ->
+                _uiState.update {
+                    it.copy(
+                        categoryList = categories
+                    )
+                }
+            }
+        }
+    }
 //
 //    private fun loadUnits(){
 //        viewModelScope.launch {

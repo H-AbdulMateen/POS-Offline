@@ -5,6 +5,10 @@ import com.abdulmateen.pos_offline.domain.models.Customer
 
 sealed class OrderUiAction {
     data class OnSearchProduct(val query: String) : OrderUiAction()
+    data class SelectCategory(val categoryId: Long?) : OrderUiAction()
+    data object OnBarcodeScanClick : OrderUiAction()
+    data object OnCustomAmountClick : OrderUiAction()
+    data object OnHeldSalesClick : OrderUiAction()
     data class AddProductToCart(val product: Product) : OrderUiAction()
     object ClearCart : OrderUiAction()
     data class IncrementInQuantity(val productId: Long): OrderUiAction()
@@ -21,5 +25,6 @@ sealed class OrderUiAction {
     data class CreateCredit(val customerName: String, val phoneNumber: String?, val paidAmount: Double): OrderUiAction()
     data class SelectCustomer(val customer: Customer?): OrderUiAction()
     data class UpdateCartItemPrice(val productId: Long, val newPrice: Double): OrderUiAction()
+    data class UpdateCartItemQuantity(val productId: Long, val quantity: Double): OrderUiAction()
     data class LoadOrderForUpdate(val orderId: Long): OrderUiAction()
 }

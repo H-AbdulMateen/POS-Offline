@@ -19,6 +19,8 @@ data class OrderUiState(
     val searchQuery: String = "",
     val subTotal: Double = 0.0,
     val categoryList: List<Category> = emptyList(),
+    val selectedCategoryId: Long? = null,
+    val heldSalesCount: Int = 2,
     val unitList: List<ItemUnit> = emptyList(),
     val isDeleteDialogVisible: Boolean = false,
     val discountField: String = "",
