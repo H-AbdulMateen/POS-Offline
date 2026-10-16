@@ -48,7 +48,6 @@ fun ProductListSection(
     currencySymbol: String = "$",
     onAddToCart: (Product) -> Unit
 ) {
-    val displayList = if (list.isEmpty()) sampleProducts else list
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 160.dp),
@@ -58,7 +57,7 @@ fun ProductListSection(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         items(
-            items = displayList.sortedBy { item -> item.name },
+            items = list.sortedBy { item -> item.name },
             key = { item -> item.productId }
         ) { item ->
             ProductCard(
@@ -159,8 +158,23 @@ fun ProductCard(
                 )
 
                 // Stock status badge or plain text
-                val isLowStock = product.quantity <= 10.0
-                if (isLowStock) {
+                val isOutOfStock = product.quantity <= 0.0
+                val isLowStock = product.quantity in 0.1..10.0
+
+                if (isOutOfStock) {
+                    Surface(
+                        color = Color(0xFFFFEBEE),
+                        shape = CircleShape
+                    ) {
+                        Text(
+                            text = "Out of stock",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFC62828),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                } else if (isLowStock) {
                     Surface(
                         color = Color(0xFFFDF0E6),
                         shape = CircleShape

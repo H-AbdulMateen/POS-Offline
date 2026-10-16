@@ -11,4 +11,5 @@ interface CreditRepository {
     suspend fun getCreditById(creditId: Long): CreditEntity?
     fun searchCredits(name: String): Flow<List<CreditEntity>>
     suspend fun getCreditByOrderId(orderId: Long): CreditEntity?
+    suspend fun deleteCreditByOrderId(orderId: Long)
 }

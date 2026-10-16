@@ -26,4 +26,10 @@ interface CreditDao {
 
     @Query("SELECT * FROM credits WHERE orderId = :orderId")
     suspend fun getCreditByOrderId(orderId: Long): CreditEntity?
+
+    @Query("DELETE FROM credits WHERE orderId = :orderId")
+    suspend fun deleteCreditByOrderId(orderId: Long)
+
+    @Query("DELETE FROM credits")
+    suspend fun clearCredits()
 }

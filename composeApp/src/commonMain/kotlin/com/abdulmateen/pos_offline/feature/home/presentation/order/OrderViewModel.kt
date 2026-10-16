@@ -2,6 +2,7 @@ package com.abdulmateen.pos_offline.feature.home.presentation.order
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.abdulmateen.pos_offline.core.designsystem.UiText
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.core.domain.PrefKeys
 import com.abdulmateen.pos_offline.data.database.entities.CreditEntity
@@ -100,6 +101,18 @@ class OrderViewModel(
             }
             is OrderUiAction.IncrementInQuantity -> {
                 viewModelScope.launch {
+                    val cartItem = uiState.value.cartItems.find { it.productId == action.productId }
+                    val product = uiState.value.productList.find { it.productId == action.productId }
+                    val maxStock = product?.quantity ?: Double.MAX_VALUE
+                    val currentQty = cartItem?.quantity ?: 0.0
+
+                    if (currentQty + 1.0 > maxStock) {
+                        val productName = product?.name ?: "this product"
+                        _uiState.update {
+                            it.copy(errorMessage = UiText.DynamicString("Stock limit reached. Only ${maxStock.toInt()} available for '$productName'."))
+                        }
+                        return@launch
+                    }
                     cartUseCases.incrementInQuantity(productId = action.productId)
                 }
             }
@@ -173,8 +186,24 @@ class OrderViewModel(
             }
             is OrderUiAction.UpdateCartItemQuantity -> {
                 viewModelScope.launch {
-                    cartUseCases.updateCartItemQuantity(action.productId, action.quantity)
+                    val product = uiState.value.productList.find { it.productId == action.productId }
+                    val maxStock = product?.quantity ?: Double.MAX_VALUE
+                    var requestedQty = action.quantity
+
+                    if (requestedQty > maxStock) {
+                        requestedQty = maxStock
+                        val productName = product?.name ?: "this product"
+                        _uiState.update {
+                            it.copy(errorMessage = UiText.DynamicString("Quantity restricted to max available stock (${maxStock.toInt()}) for '$productName'."))
+                        }
+                    }
+                    if (requestedQty > 0.0) {
+                        cartUseCases.updateCartItemQuantity(action.productId, requestedQty)
+                    }
                 }
+            }
+            OrderUiAction.ClearErrorMessage -> {
+                _uiState.update { it.copy(errorMessage = null) }
             }
             is OrderUiAction.LoadOrderForUpdate -> {
                 loadOrderForUpdate(action.orderId)
@@ -457,6 +486,24 @@ class OrderViewModel(
 
     private fun addToCart(item: Product) {
         viewModelScope.launch {
+            val existingCartItem = uiState.value.cartItems.find { it.productId == item.productId }
+            val currentQtyInCart = existingCartItem?.quantity ?: 0.0
+            val maxAvailableStock = item.quantity
+
+            if (maxAvailableStock <= 0.0) {
+                _uiState.update {
+                    it.copy(errorMessage = UiText.DynamicString("'${item.name}' is out of stock!"))
+                }
+                return@launch
+            }
+
+            if (currentQtyInCart + 1.0 > maxAvailableStock) {
+                _uiState.update {
+                    it.copy(errorMessage = UiText.DynamicString("Cannot add more. Only ${maxAvailableStock.toInt()} available in stock for '${item.name}'."))
+                }
+                return@launch
+            }
+
             cartUseCases.addItemToCart(
                 item = CartItem(
                     productId = item.productId,

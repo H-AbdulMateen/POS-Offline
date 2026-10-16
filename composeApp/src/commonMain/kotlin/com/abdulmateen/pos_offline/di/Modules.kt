@@ -168,7 +168,7 @@ val sharedModule = module {
     viewModelOf(::ExpenseViewModel)
     single { ReturnViewModel(get(), get(), get()) }
     single { CreditViewModel(get(), get()) }
-    single { OrderHistoryViewModel(get(), get()) }
+    viewModelOf(::OrderHistoryViewModel)
     viewModelOf(::ReportsViewModel)
     viewModelOf(::SetupViewModel)
     viewModelOf(::CustomerViewModel)

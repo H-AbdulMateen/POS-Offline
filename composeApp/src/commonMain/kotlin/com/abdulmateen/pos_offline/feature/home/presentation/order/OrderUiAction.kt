@@ -27,4 +27,5 @@ sealed class OrderUiAction {
     data class UpdateCartItemPrice(val productId: Long, val newPrice: Double): OrderUiAction()
     data class UpdateCartItemQuantity(val productId: Long, val quantity: Double): OrderUiAction()
     data class LoadOrderForUpdate(val orderId: Long): OrderUiAction()
+    object ClearErrorMessage : OrderUiAction()
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -40,7 +41,10 @@ fun SettingsScreenRoot(
         onCustomizablePriceToggle = viewModel::onCustomizablePriceToggle,
         onSaveClick = viewModel::saveSettings,
         onLogoutClick = onLogoutClick,
-        doLogoutUser = viewModel::doLogoutUser
+        doLogoutUser = viewModel::doLogoutUser,
+        onToggleClearDialog = viewModel::toggleClearDialog,
+        onClearAllDatabase = viewModel::clearAllDatabaseRecords,
+        onResetClearedState = viewModel::resetClearedState
     )
 }
 
@@ -56,13 +60,30 @@ fun SettingsScreen(
     onCustomizablePriceToggle: (Boolean) -> Unit,
     onSaveClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    doLogoutUser: () -> Unit
+    doLogoutUser: () -> Unit,
+    onToggleClearDialog: (Boolean) -> Unit,
+    onClearAllDatabase: () -> Unit,
+    onResetClearedState: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
             snackbarHostState.showSnackbar("Settings saved successfully")
+        }
+    }
+
+    LaunchedEffect(uiState.isCleared) {
+        if (uiState.isCleared) {
+            snackbarHostState.showSnackbar("All database records have been deleted successfully")
+            onResetClearedState()
+        }
+    }
+
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { error ->
+            snackbarHostState.showSnackbar(error)
+            onResetClearedState()
         }
     }
 
@@ -177,20 +198,74 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text("Database & Data Management", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Permanently delete all stored records including products, inventory, orders, customers, expenses, and credits.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
 
-//            Button(
-//                onClick = {
-//                    doLogoutUser()
-//                    onLogoutClick()
-//                },
-//                modifier = Modifier.fillMaxWidth(),
-//                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-//                shape = MaterialTheme.shapes.medium
-//            ) {
-//                Text(text = stringResource(Res.string.logout), modifier = Modifier.padding(vertical = 8.dp))
-//            }
+                    Button(
+                        onClick = { onToggleClearDialog(true) },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                        shape = MaterialTheme.shapes.small
+                    ) {
+                        Icon(Icons.Default.DeleteForever, contentDescription = "Delete All")
+                        Spacer(Modifier.width(8.dp))
+                        Text("Delete All Database Records")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+
+    if (uiState.showClearDialog) {
+        AlertDialog(
+            onDismissRequest = { onToggleClearDialog(false) },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.DeleteForever,
+                    contentDescription = "Warning",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text(
+                    text = "Delete All Database Records?",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete all database records? This will permanently wipe all products, orders, inventory, customers, expenses, and credits. This action cannot be undone.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = onClearAllDatabase,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Yes, Delete All")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onToggleClearDialog(false) }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -209,7 +284,10 @@ fun SettingsScreenPreview() {
                 onCustomizablePriceToggle = {},
                 onSaveClick = {},
                 onLogoutClick = {},
-                doLogoutUser = {}
+                doLogoutUser = {},
+                onToggleClearDialog = {},
+                onClearAllDatabase = {},
+                onResetClearedState = {}
             )
         }
     )

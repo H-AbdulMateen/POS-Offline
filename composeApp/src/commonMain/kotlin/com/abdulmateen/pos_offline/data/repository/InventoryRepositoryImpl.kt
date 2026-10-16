@@ -67,12 +67,27 @@ class InventoryRepositoryImpl(
 
     }
 
-    override suspend fun updateProduct(product: ProductDetail) {
+    override suspend fun updateProduct(product: ProductDetail): Result<String, DataError.Local> {
         val oldProduct = productDao.getProductById(product.productId).firstOrNull()
-        if (oldProduct != null) {
-            val imagePath = product.photoBytes?.let { imageBytes ->
-                imageStorage.saveImage(imageBytes)
-            }
+        if (oldProduct == null) {
+            return Result.Error(DataError.Local.UNKNOWN)
+        }
+
+        val productBySku = productDao.getProductBySku(product.sku)
+        if (productBySku != null && productBySku.productId != product.productId) {
+            return Result.Error(DataError.Local.SKU_ALREADY_EXISTS)
+        }
+
+        val productByBarcode = productDao.getProductByBarcode(product.barcode)
+        if (productByBarcode != null && productByBarcode.productId != product.productId) {
+            return Result.Error(DataError.Local.BARCODE_ALREADY_EXISTS)
+        }
+
+        val imagePath = product.photoBytes?.let { imageBytes ->
+            imageStorage.saveImage(imageBytes)
+        }
+
+        try {
             productDao.insertOrUpdate(
                 ProductEntity(
                     productId = product.productId,
@@ -88,6 +103,9 @@ class InventoryRepositoryImpl(
                     unitId = product.unit?.unitId
                 )
             )
+            return Result.Success("Product updated successfully")
+        } catch (e: Exception) {
+            return Result.Error(DataError.Local.UNKNOWN)
         }
     }
 

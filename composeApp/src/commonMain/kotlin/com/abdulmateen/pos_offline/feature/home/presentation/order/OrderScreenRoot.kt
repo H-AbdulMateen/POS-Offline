@@ -82,6 +82,32 @@ fun OrderScreen(
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
     val productList = uiState.productList
+
+    if (uiState.errorMessage != null) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { uiAction(OrderUiAction.ClearErrorMessage) },
+            title = {
+                Text(
+                    text = "Stock Limit Reached",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = uiState.errorMessage.asString(),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.Button(
+                    onClick = { uiAction(OrderUiAction.ClearErrorMessage) }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
+    }
     
     val isSmallScreen = when(deviceConfiguration) {
         DeviceConfiguration.MOBILE_PORTRAIT,

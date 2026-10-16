@@ -35,6 +35,9 @@ interface CartDao {
     @Query("DELETE FROM cart_items WHERE cartId = :cartId")
     suspend fun clearItems(cartId: Long)
 
+    @Query("DELETE FROM cart_items")
+    suspend fun clearAllCartItems()
+
     // Relationships
     @Transaction
     @Query("SELECT * FROM cart WHERE cartId = :cartId")

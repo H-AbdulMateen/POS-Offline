@@ -85,5 +85,6 @@ data class InventoryUiState(
     val itemExpiryDate: String = "",
     val showDeleteDialog: Boolean = false,
     val selectedProduct: ProductDetail? = null,
-    val isEndReached: Boolean = false
+    val isEndReached: Boolean = false,
+    val currencySymbol: String = "$"
 )

@@ -33,10 +33,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.abdulmateen.pos_offline.core.domain.DataStoreManager
+import com.abdulmateen.pos_offline.core.domain.PrefKeys
 import pos_offline.composeapp.generated.resources.Res
 import pos_offline.composeapp.generated.resources.cant_delete_this_product
 import pos_offline.composeapp.generated.resources.category_added
 import pos_offline.composeapp.generated.resources.product_added
+import pos_offline.composeapp.generated.resources.product_updated
 import pos_offline.composeapp.generated.resources.unit_added
 import kotlin.collections.map
 import kotlin.time.Duration.Companion.milliseconds
@@ -44,17 +47,19 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class InventoryViewModel constructor(
     private val repository: InventoryRepository,
-    private val productUseCases: ProductUseCases
+    private val productUseCases: ProductUseCases,
+    private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(InventoryUiState())
     val uiState: StateFlow<InventoryUiState> = _uiState.onStart {
+        loadSettings()
         loadCategories()
         loadUnits()
         loadProducts()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
-        initialValue = _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiState()
+        initialValue = InventoryUiState()
     )
     private val _eventChannel = Channel<com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryEvents>()
     val eventChannel = _eventChannel.receiveAsFlow()
@@ -123,6 +128,14 @@ class InventoryViewModel constructor(
         when (action) {
             InventoryUiAction.ClearForm -> {
                 clearForm()
+            }
+
+            InventoryUiAction.ClearErrorResult -> {
+                _uiState.update {
+                    it.copy(
+                        errorResult = null
+                    )
+                }
             }
 
             is InventoryUiAction.OnAddItemClick -> {
@@ -505,6 +518,13 @@ class InventoryViewModel constructor(
         }
     }
 
+    private fun loadSettings() {
+        viewModelScope.launch {
+            val currencySymbol = dataStoreManager.getStringValue(PrefKeys.CURRENCY_SYMBOL).ifEmpty { "$" }
+            _uiState.update { it.copy(currencySymbol = currencySymbol) }
+        }
+    }
+
     private fun loadProducts() {
         currentPage = 0
         _uiState.update { it.copy(productList = emptyList(), isEndReached = false) }
@@ -688,12 +708,24 @@ class InventoryViewModel constructor(
 
     private suspend fun updateProduct(productDetail: ProductDetail) {
         repository.updateProduct(productDetail)
-        _uiState.update {
-            it.copy(
-                addEditProductDialog = false,
-                selectedProduct = null,
-            )
-        }
+            .onSuccess {
+                _uiState.update {
+                    it.copy(
+                        errorResult = null,
+                        addEditProductDialog = false,
+                        selectedProduct = null,
+                    )
+                }
+                _eventChannel.send(InventoryEvents.OnSuccess(Res.string.product_updated))
+                clearForm()
+            }
+            .onError { error ->
+                _uiState.update {
+                    it.copy(
+                        errorResult = error.toUiText()
+                    )
+                }
+            }
     }
 
     private fun getProductDetail(productId: Long) {

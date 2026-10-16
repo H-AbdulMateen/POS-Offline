@@ -111,4 +111,9 @@ interface OrderDao {
         insertOrderItems(orderItems)
     }
 
+    @Query("DELETE FROM orders")
+    suspend fun clearOrders()
+
+    @Query("DELETE FROM order_items")
+    suspend fun clearOrderItems()
 }

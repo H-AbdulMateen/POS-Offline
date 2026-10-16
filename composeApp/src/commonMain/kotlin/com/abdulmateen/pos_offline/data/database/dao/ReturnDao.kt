@@ -27,4 +27,10 @@ interface ReturnDao {
 
     @Query("SELECT SUM(totalReturnAmount) FROM returns WHERE createdAt >= :start AND createdAt <= :end")
     fun getTotalReturnsInRange(start: Long, end: Long): Flow<Double?>
+
+    @Query("DELETE FROM returns")
+    suspend fun clearReturns()
+
+    @Query("DELETE FROM return_items")
+    suspend fun clearReturnItems()
 }

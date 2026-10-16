@@ -37,6 +37,7 @@ sealed interface InventoryUiAction {
     
 
     object ClearForm: InventoryUiAction
+    object ClearErrorResult: InventoryUiAction
     data class ToggleOptionReveal(val productId: Long?, val isRevealed: Boolean) : InventoryUiAction
     data class ToggleDeleteDialog(val productId: Long?) : InventoryUiAction
 

@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,6 +43,10 @@ fun OrderHistoryScreenRoot(
     val viewModel = koinViewModel<OrderHistoryViewModel>()
     val uiState by viewModel.uiState.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.refreshOrders()
+    }
+
     OrderHistoryScreen(
         uiState = uiState,
         onSearchQueryChange = viewModel::updateSearchQuery,
@@ -49,7 +54,8 @@ fun OrderHistoryScreenRoot(
         onDismissDetails = { viewModel.selectOrder(null) },
         onLoadNextPage = viewModel::loadNextOrders,
         onBackClick = onBackClick,
-        onEditOrder = onEditOrder
+        onEditOrder = onEditOrder,
+        onDeleteOrder = viewModel::deleteOrder
     )
 }
 
@@ -62,7 +68,8 @@ fun OrderHistoryScreen(
     onDismissDetails: () -> Unit,
     onLoadNextPage: () -> Unit,
     onBackClick: () -> Unit,
-    onEditOrder: (Long) -> Unit
+    onEditOrder: (Long) -> Unit,
+    onDeleteOrder: (Long) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -177,7 +184,8 @@ fun OrderHistoryScreen(
             onEditClick = { orderId ->
                 onDismissDetails()
                 onEditOrder(orderId)
-            }
+            },
+            onDeleteClick = onDeleteOrder
         )
     }
 }
@@ -188,12 +196,50 @@ fun OrderDetailDialog(
     businessName: String,
     currencySymbol: String,
     onDismiss: () -> Unit,
-    onEditClick: (Long) -> Unit
+    onEditClick: (Long) -> Unit,
+    onDeleteClick: (Long) -> Unit
 ) {
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Delete Order #${orderDetails.order.orderId}") },
+            text = { Text("Are you sure you want to delete this order? The items will be returned to inventory stock and total revenue will be updated.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteConfirm = false
+                        onDeleteClick(orderDetails.order.orderId)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = { showDeleteConfirm = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Delete")
+                }
                 Button(onClick = {
                     onEditClick(orderDetails.order.orderId)
                 }) {
@@ -507,7 +553,8 @@ private fun OrderHistoryScreenPreview() {
                 onDismissDetails = {},
                 onLoadNextPage = {},
                 onBackClick = {},
-                onEditOrder = {}
+                onEditOrder = {},
+                onDeleteOrder = {}
             )
         }
     )

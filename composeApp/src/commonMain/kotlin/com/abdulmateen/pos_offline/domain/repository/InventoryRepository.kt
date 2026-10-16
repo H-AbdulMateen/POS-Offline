@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface InventoryRepository {
     suspend fun insertProduct(product: ProductDetail): Result<String, DataError.Local>
-    suspend fun updateProduct(product: ProductDetail)
+    suspend fun updateProduct(product: ProductDetail): Result<String, DataError.Local>
     suspend fun deleteProduct(productId: Long): Boolean
     fun getAllProducts(): Flow<List<Product>>
     fun getProductsPaged(limit: Int, offset: Int): Flow<List<Product>>

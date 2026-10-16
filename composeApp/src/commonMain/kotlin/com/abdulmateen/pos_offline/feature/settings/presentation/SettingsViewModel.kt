@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.core.domain.PrefKeys
+import com.abdulmateen.pos_offline.data.database.MyAppDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,11 +18,15 @@ data class SettingsUiState(
     val phone: String = "",
     val currencySymbol: String = "$",
     val isCustomizablePriceEnabled: Boolean = false,
-    val isSaved: Boolean = false
+    val isSaved: Boolean = false,
+    val showClearDialog: Boolean = false,
+    val isCleared: Boolean = false,
+    val errorMessage: String? = null
 )
 
 class SettingsViewModel(
-    private val dataStoreManager: DataStoreManager
+    private val dataStoreManager: DataStoreManager,
+    private val database: MyAppDatabase
 ): ViewModel() {
     
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -63,6 +68,50 @@ class SettingsViewModel(
             dataStoreManager.setBoolValue(PrefKeys.CUSTOMIZABLE_PRICE, _uiState.value.isCustomizablePriceEnabled)
             _uiState.update { it.copy(isSaved = true) }
         }
+    }
+
+    fun toggleClearDialog(show: Boolean) {
+        _uiState.update { it.copy(showClearDialog = show) }
+    }
+
+    fun clearAllDatabaseRecords() {
+        viewModelScope.launch {
+            try {
+                database.returnDao().clearReturnItems()
+                database.returnDao().clearReturns()
+                database.orderDao().clearOrderItems()
+                database.orderDao().clearOrders()
+                database.cartDao().clearAllCartItems()
+                database.cartDao().delete()
+                database.creditDao().clearCredits()
+                database.expenseDao().clearExpenses()
+                database.customerDao().clearCustomers()
+                database.employeeDao().clearEmployees()
+                database.productDao().clearProducts()
+                database.categoryDao().clearCategories()
+                database.unitDao().clearUnits()
+
+                _uiState.update {
+                    it.copy(
+                        showClearDialog = false,
+                        isCleared = true,
+                        errorMessage = null
+                    )
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _uiState.update {
+                    it.copy(
+                        showClearDialog = false,
+                        errorMessage = e.message ?: "Failed to clear database"
+                    )
+                }
+            }
+        }
+    }
+
+    fun resetClearedState() {
+        _uiState.update { it.copy(isCleared = false, errorMessage = null) }
     }
 
     fun doLogoutUser(){

@@ -92,41 +92,25 @@ fun ProductSearchSection(
             modifier = Modifier.weight(1f)
         )
 
-        // Custom amount button
-        OutlinedButton(
-            onClick = onCustomAmountClick,
-            shape = CircleShape,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            modifier = Modifier.height(50.dp)
-        ) {
-            Text(
-                text = "Custom amount",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+
 
         // Held sales button
-        OutlinedButton(
-            onClick = onHeldSalesClick,
-            shape = CircleShape,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            modifier = Modifier.height(50.dp)
-        ) {
-            Text(
-                text = if (heldSalesCount > 0) "Held sales ($heldSalesCount)" else "Held sales",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+//        OutlinedButton(
+//            onClick = onHeldSalesClick,
+//            shape = CircleShape,
+//            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)),
+//            colors = ButtonDefaults.outlinedButtonColors(
+//                containerColor = MaterialTheme.colorScheme.surface,
+//                contentColor = MaterialTheme.colorScheme.onSurface
+//            ),
+//            modifier = Modifier.height(50.dp)
+//        ) {
+//            Text(
+//                text = if (heldSalesCount > 0) "Held sales ($heldSalesCount)" else "Held sales",
+//                style = MaterialTheme.typography.bodyMedium,
+//                fontWeight = FontWeight.SemiBold
+//            )
+//        }
     }
 }
 

@@ -32,4 +32,7 @@ interface CustomerDao {
 
     @Query("SELECT * FROM credits WHERE customerId = :customerId ORDER BY date DESC")
     fun getCreditsByCustomer(customerId: Long): Flow<List<CreditEntity>>
+
+    @Query("DELETE FROM customers")
+    suspend fun clearCustomers()
 }

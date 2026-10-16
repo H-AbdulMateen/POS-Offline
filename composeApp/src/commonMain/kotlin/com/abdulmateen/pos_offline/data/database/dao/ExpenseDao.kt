@@ -35,6 +35,9 @@ interface ExpenseDao {
 
     @Query("SELECT category, SUM(amount) as total FROM expenses WHERE date >= :start AND date <= :end GROUP BY category")
     fun getExpenseBreakdownInRange(start: Long, end: Long): Flow<List<ExpenseBreakdown>>
+
+    @Query("DELETE FROM expenses")
+    suspend fun clearExpenses()
 }
 
 data class ExpenseBreakdown(

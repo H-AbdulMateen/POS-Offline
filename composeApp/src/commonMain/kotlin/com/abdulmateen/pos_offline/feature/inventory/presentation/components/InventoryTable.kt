@@ -1,62 +1,53 @@
 package com.abdulmateen.pos_offline.feature.inventory.presentation.components
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.abdulmateen.pos_offline.core.designsystem.components.dialogs.DestructiveConfirmationDialog
-import com.abdulmateen.pos_offline.domain.models.Product
-import com.abdulmateen.pos_offline.domain.models.dummyProducts
 import com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction
 import com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiState
-import com.abdulmateen.pos_offline.feature.inventory.presentation.components.IconTableCell
-import com.abdulmateen.pos_offline.feature.inventory.presentation.components.TableCell
-import com.abdulmateen.pos_offline.feature.inventory.presentation.components.TableHeader
-import com.abdulmateen.pos_offline.feature.inventory.presentation.models.ProductUi
 import com.abdulmateen.pos_offline.ui.theme.POSOfflineTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import pos_offline.composeapp.generated.resources.Res
-import pos_offline.composeapp.generated.resources.actions
 import pos_offline.composeapp.generated.resources.are_you_sure
 import pos_offline.composeapp.generated.resources.cancel
 import pos_offline.composeapp.generated.resources.delete
 import pos_offline.composeapp.generated.resources.do_you_want_to_delete_this_item
 import pos_offline.composeapp.generated.resources.name
-import pos_offline.composeapp.generated.resources.quantity
 import pos_offline.composeapp.generated.resources.sales_price
 import pos_offline.composeapp.generated.resources.sku
 import pos_offline.composeapp.generated.resources.stock
@@ -64,8 +55,9 @@ import pos_offline.composeapp.generated.resources.stock
 @Composable
 fun InventoryTable(
     modifier: Modifier = Modifier,
-    uiAction: (com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction) -> Unit,
-    uiState: com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiState,
+    uiAction: (InventoryUiAction) -> Unit,
+    uiState: InventoryUiState,
+    currencySymbol: String = "$",
     onLoadNextPage: () -> Unit = {}
 ) {
     val listState = rememberLazyListState()
@@ -87,132 +79,177 @@ fun InventoryTable(
 
     Card(
         modifier = modifier,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        shape = MaterialTheme.shapes.small
     ) {
         Column {
+            // Table Header
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(vertical = 12.dp, horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                TableHeader(stringResource(Res.string.name), 0.35f)
-                TableHeader(stringResource(Res.string.stock), 0.15f)
-                TableHeader(stringResource(Res.string.sales_price), 0.15f)
-                TableHeader("", 0.05f)
+                TableHeader(stringResource(Res.string.name), 3.0f, TextAlign.Start)
+                TableHeader(stringResource(Res.string.sku), 2.0f, TextAlign.Start)
+                TableHeader(stringResource(Res.string.stock), 2.0f, TextAlign.End)
+                TableHeader(stringResource(Res.string.sales_price), 2.0f, TextAlign.End)
+                TableHeader("Actions", 1.0f, TextAlign.Center)
             }
 
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(4.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                state = listState,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                state = listState
             ) {
-                items(items = uiState.productList.sortedBy { product -> product.name }, key = { it.productId }) { item ->
-                    _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.SwipeableItemWithActions(
-                        isRevealed = item.isOptionRevealed,
-                        onExpanded = {
-                            uiAction(
-                                _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleOptionReveal(
-                                    item.productId,
-                                    true
-                                )
-                            )
-                        },
-                        onCollapsed = {
-                            uiAction(
-                                _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleOptionReveal(
-                                    item.productId,
-                                    false
-                                )
-                            )
-                        },
-                        actions = {
-                            _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.ActionIcon(
-                                onClick = {
-                                    uiAction(
-                                        _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleOptionReveal(
-                                            item.productId,
-                                            false
-                                        )
-                                    )
-                                    uiAction(
-                                        _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleDeleteDialog(
-                                            productId = item.productId
-                                        )
-                                    )
-                                },
-                                backgroundColor = MaterialTheme.colorScheme.error,
-                                icon = Icons.Default.DeleteOutline,
-                                modifier = Modifier.fillMaxHeight()
-                            )
-                            _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.ActionIcon(
-                                onClick = {
-                                    uiAction(
-                                        _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleAddEditProductDialog(
-                                            productId = item.productId
-                                        )
-                                    )
-                                },
-                                backgroundColor = MaterialTheme.colorScheme.primary,
-                                icon = Icons.Default.Edit,
-                                modifier = Modifier.fillMaxHeight()
-                            )
-                            _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.ActionIcon(
-                                onClick = {
-                                    uiAction(
-                                        _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleDetailDialog(
-                                            productId = item.productId
-                                        )
-                                    )
-                                },
-                                backgroundColor = MaterialTheme.colorScheme.primaryFixed,
-                                icon = Icons.Default.Preview,
-                                modifier = Modifier.fillMaxHeight()
-                            )
-                        },
+                items(
+                    items = uiState.productList.sortedBy { product -> product.name },
+                    key = { it.productId }
+                ) { item ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        shape = androidx.compose.ui.graphics.RectangleShape
                     ) {
-                        Card {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 12.dp, horizontal = 4.dp)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp, horizontal = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Product Name (3.0f)
+                            Box(
+                                modifier = Modifier.weight(3.0f).padding(horizontal = 4.dp),
+                                contentAlignment = Alignment.CenterStart
                             ) {
-                                TableCell(item.name, 0.35f)
-                                TableCell(item.quantity.toString(), 0.15f)
-                                TableCell(item.price.toString(), 0.15f)
-                                IconTableCell(
-                                    onClick = {
-                                        if (!item.isOptionRevealed) {
-                                            uiAction(
-                                                _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleOptionReveal(
-                                                    productId = item.productId,
-                                                    isRevealed = true
-                                                )
-                                            )
-                                        } else {
-                                            uiAction(
-                                                _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleOptionReveal(
-                                                    productId = item.productId,
-                                                    isRevealed = false
-                                                )
-                                            )
-                                        }
-                                    },
-                                    0.05f
+                                Text(
+                                    text = item.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
+                            }
+
+                            // SKU (2.0f)
+                            Box(
+                                modifier = Modifier.weight(2.0f).padding(horizontal = 4.dp),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                Text(
+                                    text = item.sku.ifEmpty { "-" },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+
+                            // Stock (2.0f)
+                            Box(
+                                modifier = Modifier.weight(2.0f).padding(horizontal = 4.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                val unitSymbol = item.unit?.symbol ?: "pcs"
+                                val isOutOfStock = item.quantity <= 0.0
+                                val isLowStock = item.quantity in 0.1..10.0
+
+                                Column(horizontalAlignment = Alignment.End) {
+                                    Text(
+                                        text = formatQuantity(item.quantity),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = when {
+                                            isOutOfStock -> MaterialTheme.colorScheme.error
+                                            isLowStock -> Color(0xFFC05621)
+                                            else -> MaterialTheme.colorScheme.onSurface
+                                        }
+                                    )
+                                    if (isOutOfStock) {
+                                        Text(
+                                            text = "Out of stock",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                    } else if (isLowStock) {
+                                        Text(
+                                            text = "Low stock",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Color(0xFFC05621)
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Sales Price (2.0f)
+                            Box(
+                                modifier = Modifier.weight(2.0f).padding(horizontal = 4.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Text(
+                                    text = "$currencySymbol${formatPrice(item.price)}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+
+                            // Actions (1.0f)
+                            Box(
+                                modifier = Modifier.weight(1.0f).padding(horizontal = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    IconButton(
+                                        onClick = {
+                                            uiAction(InventoryUiAction.ToggleAddEditProductDialog(item.productId))
+                                        },
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = "Edit",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    IconButton(
+                                        onClick = {
+                                            uiAction(InventoryUiAction.ToggleDeleteDialog(item.productId))
+                                        },
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.DeleteOutline,
+                                            contentDescription = "Delete",
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
+                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                 }
+
                 item {
                     if (uiState.isLoading) {
-                        androidx.compose.foundation.layout.Box(
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
-                            contentAlignment = androidx.compose.ui.Alignment.Center
+                            contentAlignment = Alignment.Center
                         ) {
                             androidx.compose.material3.CircularProgressIndicator()
                         }
@@ -221,54 +258,62 @@ fun InventoryTable(
             }
         }
     }
-    if (uiState.showDeleteDialog){
+
+    if (uiState.showDeleteDialog) {
         DestructiveConfirmationDialog(
             title = stringResource(Res.string.are_you_sure),
             description = stringResource(Res.string.do_you_want_to_delete_this_item),
             confirmButtonText = stringResource(Res.string.delete),
             cancelButtonText = stringResource(Res.string.cancel),
             onDismiss = {
-                uiAction(_root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleDeleteDialog(productId = null))
+                uiAction(InventoryUiAction.ToggleDeleteDialog(productId = null))
             },
             onCancelClick = {
-                uiAction(_root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ToggleDeleteDialog(productId = null))
+                uiAction(InventoryUiAction.ToggleDeleteDialog(productId = null))
             },
             onConfirmClick = {
-                uiAction(_root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.OnDeleteItemClick)
+                uiAction(InventoryUiAction.OnDeleteItemClick)
             },
         )
     }
 }
 
 @Composable
-fun RowScope.TableHeader(text: String, weight: Float) {
+fun RowScope.TableHeader(
+    text: String,
+    weight: Float,
+    textAlign: TextAlign = TextAlign.Start
+) {
     Text(
-        text,
-        modifier = Modifier.weight(weight),
-        style = MaterialTheme.typography.titleSmall
+        text = text,
+        modifier = Modifier.weight(weight).padding(horizontal = 4.dp),
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.Bold,
+        textAlign = textAlign,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
 
-@Composable
-fun RowScope.TableCell(text: String, weight: Float) {
-    Text(
-        text,
-        modifier = Modifier.weight(weight),
-        style = MaterialTheme.typography.bodyMedium,
-        textAlign = TextAlign.Start
-    )
+private fun formatPrice(price: Double): String {
+    return if (price % 1.0 == 0.0) {
+        "${price.toInt()}.00"
+    } else {
+        val stringVal = ((price * 100).toInt() / 100.0).toString()
+        val parts = stringVal.split(".")
+        if (parts.size == 2 && parts[1].length == 1) {
+            "${stringVal}0"
+        } else {
+            stringVal
+        }
+    }
 }
 
-@Composable
-fun RowScope.IconTableCell(onClick: () -> Unit, weight: Float) {
-    Icon(
-        imageVector = Icons.Default.MoreVert,
-        contentDescription = stringResource(Res.string.actions),
-        modifier = Modifier.clickable(
-            onClick = onClick
-        )
-
-    )
+private fun formatQuantity(qty: Double): String {
+    return if (qty % 1.0 == 0.0) {
+        qty.toInt().toString()
+    } else {
+        qty.toString()
+    }
 }
 
 @Preview(name = "Light Mode")
@@ -277,9 +322,9 @@ fun InventoryTablePreview() {
     POSOfflineTheme(
         darkTheme = false,
         content = {
-            _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.InventoryTable(
+            InventoryTable(
                 uiAction = {},
-                uiState = _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiState()
+                uiState = InventoryUiState()
             )
         }
     )
@@ -291,9 +336,9 @@ fun InventoryTablePreviewDark() {
     POSOfflineTheme(
         darkTheme = true,
         content = {
-            _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.components.InventoryTable(
+            InventoryTable(
                 uiAction = {},
-                uiState = _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiState()
+                uiState = InventoryUiState()
             )
         }
     )

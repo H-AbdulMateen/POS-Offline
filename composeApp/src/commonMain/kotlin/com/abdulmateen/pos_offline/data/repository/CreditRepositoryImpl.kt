@@ -15,4 +15,5 @@ class CreditRepositoryImpl(
     override suspend fun getCreditById(creditId: Long): CreditEntity? = creditDao.getCreditById(creditId)
     override fun searchCredits(name: String): Flow<List<CreditEntity>> = creditDao.searchCreditsByCustomer(name)
     override suspend fun getCreditByOrderId(orderId: Long): CreditEntity? = creditDao.getCreditByOrderId(orderId)
+    override suspend fun deleteCreditByOrderId(orderId: Long) = creditDao.deleteCreditByOrderId(orderId)
 }

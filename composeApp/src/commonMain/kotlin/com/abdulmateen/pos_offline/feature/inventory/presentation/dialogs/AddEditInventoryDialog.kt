@@ -292,6 +292,39 @@ fun AddEditInventoryDialog(
                     }
                 }
             }
+
+            if (uiState.errorResult != null) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = {
+                        uiAction(com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ClearErrorResult)
+                    },
+                    title = {
+                        Text(
+                            text = if (isEditing) "Error Updating Inventory" else "Error Adding Inventory",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = uiState.errorResult.asString(),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                uiAction(com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ClearErrorResult)
+                            },
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text("OK")
+                        }
+                    }
+                )
+            }
             if (uiState.unitDialogVisible){
                 _root_ide_package_.com.abdulmateen.pos_offline.feature.inventory.presentation.dialogs.AddEditItemUnitDialog(
                     itemUnit = null,

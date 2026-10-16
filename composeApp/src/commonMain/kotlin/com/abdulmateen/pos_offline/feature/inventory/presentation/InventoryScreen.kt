@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -115,6 +116,7 @@ fun InventoryScreen(
                         InventoryTable(
                             uiAction = uiAction,
                             uiState = uiState,
+                            currencySymbol = uiState.currencySymbol,
                             onLoadNextPage = onLoadNextPage
                         )
                     }
@@ -146,6 +148,7 @@ fun InventoryScreen(
                         InventoryTable(
                             uiAction = uiAction,
                             uiState = uiState,
+                            currencySymbol = uiState.currencySymbol,
                             onLoadNextPage = onLoadNextPage
                         )
                     }
@@ -180,6 +183,39 @@ fun InventoryScreen(
                     },
                 )
             }
+        }
+
+        if (uiState.errorResult != null && !uiState.addEditProductDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    uiAction(com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ClearErrorResult)
+                },
+                title = {
+                    Text(
+                        text = "Inventory Error",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
+                },
+                text = {
+                    Text(
+                        text = uiState.errorResult.asString(),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            uiAction(com.abdulmateen.pos_offline.feature.inventory.presentation.InventoryUiAction.ClearErrorResult)
+                        },
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text("OK")
+                    }
+                }
+            )
         }
     }
 }

@@ -3,9 +3,11 @@ package com.abdulmateen.pos_offline.feature.home.presentation.order
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.domain.models.Order
+import com.abdulmateen.pos_offline.domain.repository.CreditRepository
 import com.abdulmateen.pos_offline.domain.repository.OrderRepository
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.core.domain.PrefKeys
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -21,7 +23,8 @@ data class OrderHistoryUiState(
 
 class OrderHistoryViewModel(
     private val orderRepository: OrderRepository,
-    private val dataStoreManager: DataStoreManager
+    private val dataStoreManager: DataStoreManager,
+    private val creditRepository: CreditRepository
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     private val _selectedOrderId = MutableStateFlow<Long?>(null)
@@ -29,6 +32,7 @@ class OrderHistoryViewModel(
     
     private var currentPage = 0
     private val pageSize = 20
+    private var selectJob: Job? = null
 
     val uiState: StateFlow<OrderHistoryUiState> = _uiState.asStateFlow()
 
@@ -105,21 +109,36 @@ class OrderHistoryViewModel(
     }
 
     fun selectOrder(orderId: Long?) {
+        selectJob?.cancel()
         _selectedOrderId.value = orderId
         if (orderId != null) {
-            viewModelScope.launch {
+            selectJob = viewModelScope.launch {
                 orderRepository.getOrderWithItems(orderId).collect { details ->
                     _uiState.update { it.copy(selectedOrderDetails = details) }
                 }
             }
         } else {
+            selectJob = null
             _uiState.update { it.copy(selectedOrderDetails = null) }
         }
     }
 
-    fun deleteOrder(order: Order) {
+    fun refreshOrders() {
+        selectOrder(null)
+        currentPage = 0
+        _uiState.update { it.copy(orders = emptyList(), isEndReached = false, isLoading = false) }
+        loadNextOrders()
+    }
+
+    fun deleteOrder(orderId: Long) {
         viewModelScope.launch {
-            orderRepository.deleteOrder(order.orderId)
+            orderRepository.deleteOrder(orderId)
+            creditRepository.deleteCreditByOrderId(orderId)
+            refreshOrders()
         }
+    }
+
+    fun deleteOrder(order: Order) {
+        deleteOrder(order.orderId)
     }
 }
