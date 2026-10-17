@@ -88,7 +88,8 @@ val sharedModule = module {
                 MyAppDatabase.MIGRATION_6_7,
                 MyAppDatabase.MIGRATION_7_8,
                 MyAppDatabase.MIGRATION_8_9,
-                MyAppDatabase.MIGRATION_9_10
+                MyAppDatabase.MIGRATION_9_10,
+                MyAppDatabase.MIGRATION_10_11
             )
             .fallbackToDestructiveMigration(dropAllTables = true)
             
@@ -172,7 +173,7 @@ val sharedModule = module {
     viewModelOf(::ReportsViewModel)
     viewModelOf(::SetupViewModel)
     viewModelOf(::CustomerViewModel)
-    factory { (customerId: Long) -> CustomerLedgerViewModel(customerId, get(), get(), get()) }
+    factory { (customerId: Long) -> CustomerLedgerViewModel(customerId, get(), get(), get(), get()) }
     factory { (customerName: String) -> CreditDetailViewModel(customerName, get(), get(), get()) }
 }
 

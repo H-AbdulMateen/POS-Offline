@@ -58,6 +58,7 @@ fun PaymentDialog(
     currencySymbol: String,
     customerList: List<Customer> = emptyList(),
     selectedCustomer: Customer? = null,
+    customerCreditBalance: Double = 0.0,
     onSelectCustomer: (Customer?) -> Unit = {},
     onDismiss: () -> Unit,
     onConfirm: (String?, String?) -> Unit,
@@ -90,6 +91,10 @@ fun PaymentDialog(
         )
     }
 
+    val paid = paidAmount.toDoubleOrNull() ?: 0.0
+    val additionalCredit = if (paymentType == "Credit") (totalAmount - paid).coerceAtLeast(0.0) else 0.0
+    val effectiveCreditBalance = customerCreditBalance + additionalCredit
+
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -97,7 +102,6 @@ fun PaymentDialog(
                 if (paymentType == "Credit") {
                     Button(
                         onClick = {
-                            val paid = paidAmount.toDoubleOrNull() ?: 0.0
                             onConfirmCredit(customerName, phoneNumber.takeIf { it.isNotBlank() }, paid)
                         },
                         enabled = customerName.isNotEmpty(),
@@ -107,8 +111,6 @@ fun PaymentDialog(
                     }
                     Button(
                         onClick = {
-                            val paid = paidAmount.toDoubleOrNull() ?: 0.0
-                            val change = (paid - totalAmount).coerceAtLeast(0.0)
                             val fileName = "invoice_${Clock.System.now().toEpochMilliseconds()}.pdf"
                             val invoiceData = generateInvoiceInPdf(
                                 customerName = customerName,
@@ -120,7 +122,8 @@ fun PaymentDialog(
                                 paidAmount = paid,
                                 paymentType = paymentType,
                                 businessName = businessName,
-                                currencySymbol = currencySymbol
+                                currencySymbol = currencySymbol,
+                                customerCreditBalance = effectiveCreditBalance
                             )
                             shareInvoiceFile(invoiceData, fileName)
                             onConfirmCredit(customerName, phoneNumber.takeIf { it.isNotBlank() }, paid)
@@ -133,8 +136,6 @@ fun PaymentDialog(
                 } else {
                     Button(
                         onClick = {
-                            val paid = paidAmount.toDoubleOrNull() ?: 0.0
-                            val change = (paid - totalAmount).coerceAtLeast(0.0)
                             val fileName = "invoice_${Clock.System.now().toEpochMilliseconds()}.pdf"
                             val invoiceData = generateInvoiceInPdf(
                                 customerName = customerName,
@@ -146,7 +147,8 @@ fun PaymentDialog(
                                 paidAmount = paid,
                                 paymentType = paymentType,
                                 businessName = businessName,
-                                currencySymbol = currencySymbol
+                                currencySymbol = currencySymbol,
+                                customerCreditBalance = effectiveCreditBalance
                             )
                             saveInvoiceFile(invoiceData, fileName)
 //                            onConfirm(customerName.takeIf { it.isNotBlank() }, phoneNumber.takeIf { it.isNotBlank() })
@@ -158,8 +160,6 @@ fun PaymentDialog(
                     }
                     Button(
                         onClick = {
-                            val paid = paidAmount.toDoubleOrNull() ?: 0.0
-                            val change = (paid - totalAmount).coerceAtLeast(0.0)
                             val fileName = "invoice_${Clock.System.now().toEpochMilliseconds()}.pdf"
                             val invoiceData = generateInvoiceInPdf(
                                 customerName = customerName,
@@ -171,7 +171,8 @@ fun PaymentDialog(
                                 paidAmount = paid,
                                 paymentType = paymentType,
                                 businessName = businessName,
-                                currencySymbol = currencySymbol
+                                currencySymbol = currencySymbol,
+                                customerCreditBalance = effectiveCreditBalance
                             )
                             shareInvoiceFile(invoiceData, fileName)
                             onConfirm(customerName.takeIf { it.isNotBlank() }, phoneNumber.takeIf { it.isNotBlank() })
@@ -184,8 +185,6 @@ fun PaymentDialog(
                     Button(
                         onClick = {
                             if (isPrinterAvailable()) {
-                                val paid = paidAmount.toDoubleOrNull() ?: 0.0
-                                val change = (paid - totalAmount).coerceAtLeast(0.0)
                                 val fileName = "invoice_${Clock.System.now().toEpochMilliseconds()}.pdf"
                                 val invoiceData = generateInvoiceInPdf(
                                     customerName = customerName,
@@ -197,7 +196,8 @@ fun PaymentDialog(
                                     paidAmount = paid,
                                     paymentType = paymentType,
                                     businessName = businessName,
-                                    currencySymbol = currencySymbol
+                                    currencySymbol = currencySymbol,
+                                    customerCreditBalance = effectiveCreditBalance
                                 )
                                 printPdf(invoiceData, fileName)
                                 onConfirm(customerName.takeIf { it.isNotBlank() }, phoneNumber.takeIf { it.isNotBlank() })
@@ -246,7 +246,7 @@ fun PaymentDialog(
                 OutlinedTextField(
                     value = customerName,
                     onValueChange = { customerName = it },
-                    label = { Text("Customer Name ${if (paymentType == "Credit") "(Required)" else ")(Optional)"}") },
+                    label = { Text("Customer Name ${if (paymentType == "Credit") "(Required)" else "(Optional)"}") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -258,7 +258,7 @@ fun PaymentDialog(
                             phoneNumber = input
                         }
                     },
-                    label = { Text("Phone Number ${if (paymentType == "Credit") "(Required)" else ")(Optional)"}") },
+                    label = { Text("Phone Number ${if (paymentType == "Credit") "(Required)" else "(Optional)"}") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)

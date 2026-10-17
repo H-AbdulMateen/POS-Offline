@@ -35,11 +35,11 @@ import kotlin.time.Instant
 @Composable
 fun CreditDetailScreenRoot(
     customerName: String,
-    onEditOrder: (Long) -> Unit,
     onBackClick: () -> Unit
 ) {
     val viewModel = koinViewModel<CreditDetailViewModel> { parametersOf(customerName) }
     val uiState by viewModel.uiState.collectAsState()
+    var showCustomerPaymentDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -51,6 +51,13 @@ fun CreditDetailScreenRoot(
                     }
                 },
                 actions = {
+                    if (uiState.totalOutstanding > 0.0) {
+                        TextButton(onClick = { showCustomerPaymentDialog = true }) {
+                            Icon(Icons.Default.Payment, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Receive Payment")
+                        }
+                    }
                     IconButton(onClick = { viewModel.exportToCsv() }) {
                         Icon(Icons.Default.FileDownload, contentDescription = "Export CSV")
                     }
@@ -69,12 +76,22 @@ fun CreditDetailScreenRoot(
     if (uiState.showOrderDetails && uiState.selectedOrder != null) {
         OrderDetailDialog(
             orderWithItems = uiState.selectedOrder!!,
+            customerCreditBalance = uiState.totalOutstanding,
             onDismiss = { viewModel.dismissOrderDetails() },
             businessName = uiState.businessName,
+            currencySymbol = uiState.currencySymbol
+        )
+    }
+
+    if (showCustomerPaymentDialog) {
+        ReceivePaymentDialog(
+            customerName = customerName,
+            outstandingAmount = uiState.totalOutstanding,
             currencySymbol = uiState.currencySymbol,
-            onEditClick = { orderId ->
-                viewModel.dismissOrderDetails()
-                onEditOrder(orderId)
+            onDismiss = { showCustomerPaymentDialog = false },
+            onConfirm = { amount ->
+                viewModel.receiveCustomerPayment(amount)
+                showCustomerPaymentDialog = false
             }
         )
     }
@@ -134,6 +151,50 @@ fun CreditDetailScreen(
                 }
             }
         }
+
+        if (uiState.payments.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Payment History", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth().weight(0.5f),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                shape = MaterialTheme.shapes.small
+            ) {
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .height(IntrinsicSize.Min),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TableCell("Date", 1f, isHeader = true)
+                        TableCell("Amount Received", 1f, isHeader = true, textAlign = TextAlign.End, isLast = true)
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                        items(uiState.payments, key = { it.paymentId }) { payment ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TableCell(formatShortDate(payment.date), 1f)
+                                TableCell(
+                                    "${uiState.currencySymbol}${round(payment.amount * 100) / 100.0}",
+                                    1f,
+                                    textAlign = TextAlign.End,
+                                    isLast = true,
+                                    color = Color(0xFF2E7D32)
+                                )
+                            }
+                            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     if (showReceivePaymentDialog != null) {
@@ -156,14 +217,7 @@ fun CreditDetailTableRow(
     onClick: () -> Unit,
     onPaymentClick: () -> Unit
 ) {
-    val date = remember(credit.date) {
-        val localDateTime = Instant.fromEpochMilliseconds(credit.date)
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-        val day = localDateTime.day.toString().padStart(2, '0')
-        val month = localDateTime.month.number.toString().padStart(2, '0')
-        val year = (localDateTime.year % 100).toString().padStart(2, '0')
-        "$day-$month-$year"
-    }
+    val date = remember(credit.date) { formatShortDate(credit.date) }
     val days = remember(credit.date) {
         val now = Clock.System.now().toEpochMilliseconds()
         val diff = now - credit.date
@@ -211,4 +265,13 @@ fun CreditDetailTableRow(
             Spacer(modifier = Modifier.width(8.dp))
         }
     }
+}
+
+private fun formatShortDate(epochMillis: Long): String {
+    val localDateTime = Instant.fromEpochMilliseconds(epochMillis)
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+    val day = localDateTime.day.toString().padStart(2, '0')
+    val month = localDateTime.month.number.toString().padStart(2, '0')
+    val year = (localDateTime.year % 100).toString().padStart(2, '0')
+    return "$day-$month-$year"
 }

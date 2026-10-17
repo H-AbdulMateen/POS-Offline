@@ -19,4 +19,8 @@ data class LedgerTransaction(
     val type: String,
     val amount: Double,
     val details: String
-)
+) {
+    companion object {
+        const val TYPE_PAYMENT = "Payment"
+    }
+}

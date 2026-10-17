@@ -64,8 +64,7 @@ fun CartSummarySection(
     ) {
         val cartItemList = uiState.cartItems
         when(deviceConfiguration){
-            DeviceConfiguration.MOBILE_LANDSCAPE,
-            DeviceConfiguration.TABLET_LANDSCAPE-> {
+            DeviceConfiguration.MOBILE_LANDSCAPE-> {
                 Row(
                     modifier = Modifier.fillMaxSize().padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -162,6 +161,7 @@ fun CartSummarySection(
             currencySymbol = uiState.currencySymbol,
             customerList = uiState.customerList,
             selectedCustomer = uiState.selectedCustomer,
+            customerCreditBalance = uiState.customerCreditBalance,
             onSelectCustomer = { uiAction(OrderUiAction.SelectCustomer(it)) },
             onDismiss = { showCheckoutDialog = false },
             onConfirm = { name, phone ->

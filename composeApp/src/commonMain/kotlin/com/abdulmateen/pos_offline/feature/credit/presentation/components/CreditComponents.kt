@@ -36,14 +36,33 @@ fun ReceivePaymentDialog(
     onDismiss: () -> Unit,
     onConfirm: (Double) -> Unit
 ) {
+    ReceivePaymentDialog(
+        customerName = credit.customerName,
+        outstandingAmount = credit.remainingAmount,
+        currencySymbol = currencySymbol,
+        onDismiss = onDismiss,
+        onConfirm = onConfirm
+    )
+}
+
+@Composable
+fun ReceivePaymentDialog(
+    customerName: String,
+    outstandingAmount: Double,
+    currencySymbol: String,
+    onDismiss: () -> Unit,
+    onConfirm: (Double) -> Unit
+) {
     var amount by remember { mutableStateOf("") }
+    val amountDouble = amount.toDoubleOrNull() ?: 0.0
+    val isValid = amountDouble > 0.0 && amountDouble <= outstandingAmount
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(onClick = {
-                val amountDouble = amount.toDoubleOrNull() ?: 0.0
-                onConfirm(amountDouble)
-            }) {
+            Button(
+                onClick = { onConfirm(amountDouble) },
+                enabled = isValid
+            ) {
                 Text("Receive")
             }
         },
@@ -53,8 +72,8 @@ fun ReceivePaymentDialog(
         title = { Text("Receive Payment") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Customer: ${credit.customerName}")
-                Text("Remaining: $currencySymbol ${credit.remainingAmount}", fontWeight = FontWeight.Bold)
+                Text("Customer: $customerName")
+                Text("Remaining: $currencySymbol $outstandingAmount", fontWeight = FontWeight.Bold)
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { input ->
@@ -63,6 +82,10 @@ fun ReceivePaymentDialog(
                         }
                     },
                     label = { Text("Payment Amount") },
+                    isError = amountDouble > outstandingAmount,
+                    supportingText = if (amountDouble > outstandingAmount) {
+                        { Text("Amount exceeds remaining balance") }
+                    } else null,
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )

@@ -39,7 +39,8 @@ actual fun generateInvoiceInPdf(
     paidAmount: Double,
     paymentType: String,
     businessName: String,
-    currencySymbol: String
+    currencySymbol: String,
+    customerCreditBalance: Double?
 ): ByteArray {
     val pdfData = NSMutableData()
     val pageSize = CGRectMake(0.0, 0.0, 612.0, 792.0)
@@ -50,6 +51,7 @@ actual fun generateInvoiceInPdf(
     val context = UIGraphicsGetCurrentContext()
 
     val productsText = cartItems.joinToString("\n") { "${it.productName} x ${it.quantity} = $currencySymbol ${it.price}" }
+    val creditText = if (customerCreditBalance != null && customerCreditBalance > 0.0) "\nCredit Balance: $currencySymbol $customerCreditBalance" else ""
     val text = """
         $businessName
         Customer: $customerName
@@ -59,10 +61,10 @@ actual fun generateInvoiceInPdf(
         $productsText
         
         Sub Total: $currencySymbol $subTotal
-        Discount: $currencySymbol $discount
-        Tax: $currencySymbol $tax
+//        Discount: $currencySymbol $discount
+//        Tax: $currencySymbol $tax
         Total: $currencySymbol $total
-        Paid: $currencySymbol $paidAmount
+        Paid: $currencySymbol $paidAmount$creditText
 
     """.trimIndent()
 

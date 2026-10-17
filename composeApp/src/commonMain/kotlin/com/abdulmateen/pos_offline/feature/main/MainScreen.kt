@@ -262,11 +262,6 @@ fun NavHostPane(
             val route = backStackEntry.toRoute<MainScreenRoutes.CreditDetails>()
             CreditDetailScreenRoot(
                 customerName = route.customerName,
-                onEditOrder = { orderId ->
-                    navController.navigate(MainScreenRoutes.Home(orderId)) {
-                        popUpTo(MainScreenRoutes.Home()) { inclusive = true }
-                    }
-                },
                 onBackClick = { navController.popBackStack() }
             )
         }

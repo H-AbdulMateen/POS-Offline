@@ -50,7 +50,7 @@ fun ProductListSection(
 ) {
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 160.dp),
+        columns = GridCells.Adaptive(minSize = 180.dp),
         modifier = modifier,
         contentPadding = PaddingValues(vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp),

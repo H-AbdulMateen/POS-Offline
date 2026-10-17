@@ -26,7 +26,8 @@ actual fun generateInvoiceInPdf(
     paidAmount: Double,
     paymentType: String,
     businessName: String,
-    currencySymbol: String
+    currencySymbol: String,
+    customerCreditBalance: Double?
 ): ByteArray {
     val pdfDocument = PdfDocument()
     val pageInfo =
@@ -44,7 +45,7 @@ actual fun generateInvoiceInPdf(
     
     paint.isFakeBoldText = false
     paint.textSize = 12f
-    canvas.drawText("Customer: $customerName", 100f, 75f, paint)
+    canvas.drawText("Client: $customerName", 100f, 75f, paint)
     canvas.drawText("Payment Type: $paymentType", 100f, 95f, paint)
 
     canvas.drawText("Order Date:", 100f, 120f, paint)
@@ -69,12 +70,12 @@ actual fun generateInvoiceInPdf(
     yPosition += 20f
     canvas.drawText("Sub Total:", 350f, yPosition, paint)
     canvas.drawText("$currencySymbol %.2f".format(subTotal), 450f, yPosition, paint)
-    yPosition += 20f
-    canvas.drawText("Discount:", 350f, yPosition, paint)
-    canvas.drawText("$currencySymbol %.2f".format(discount), 450f, yPosition, paint)
-    yPosition += 20f
-    canvas.drawText("Tax:", 350f, yPosition, paint)
-    canvas.drawText("$currencySymbol %.2f".format(tax), 450f, yPosition, paint)
+//    yPosition += 20f
+//    canvas.drawText("Discount:", 350f, yPosition, paint)
+//    canvas.drawText("$currencySymbol %.2f".format(discount), 450f, yPosition, paint)
+//    yPosition += 20f
+//    canvas.drawText("Tax:", 350f, yPosition, paint)
+//    canvas.drawText("$currencySymbol %.2f".format(tax), 450f, yPosition, paint)
     yPosition += 20f
     
     paint.isFakeBoldText = true
@@ -85,6 +86,12 @@ actual fun generateInvoiceInPdf(
     
     canvas.drawText("Paid Amount:", 350f, yPosition, paint)
     canvas.drawText("$currencySymbol %.2f".format(paidAmount), 450f, yPosition, paint)
+
+    if (customerCreditBalance != null && customerCreditBalance > 0.0) {
+        yPosition += 20f
+        canvas.drawText("Balance:", 350f, yPosition, paint)
+        canvas.drawText("$currencySymbol %.2f".format(customerCreditBalance), 450f, yPosition, paint)
+    }
 
 
     pdfDocument.finishPage(page)

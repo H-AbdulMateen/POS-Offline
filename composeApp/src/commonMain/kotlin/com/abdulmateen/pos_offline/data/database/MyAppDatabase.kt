@@ -22,6 +22,7 @@ import com.abdulmateen.pos_offline.data.database.entities.CartEntity
 import com.abdulmateen.pos_offline.data.database.entities.CartItemEntity
 import com.abdulmateen.pos_offline.data.database.entities.CategoryEntity
 import com.abdulmateen.pos_offline.data.database.entities.CreditEntity
+import com.abdulmateen.pos_offline.data.database.entities.CreditPaymentEntity
 import com.abdulmateen.pos_offline.data.database.entities.CustomerEntity
 import com.abdulmateen.pos_offline.data.database.entities.EmployeeEntity
 import com.abdulmateen.pos_offline.data.database.entities.ExpenseEntity
@@ -46,9 +47,10 @@ import com.abdulmateen.pos_offline.data.database.entities.UnitEntity
         CreditEntity::class,
         ReturnEntity::class,
         ReturnItemEntity::class,
-        CustomerEntity::class
+        CustomerEntity::class,
+        CreditPaymentEntity::class
     ],
-    version = 10
+    version = 11
 )
 @TypeConverters(ExpenseTypeConverter::class)
 @ConstructedBy(MyAppDatabaseConstructor::class)
@@ -112,6 +114,14 @@ abstract class MyAppDatabase : RoomDatabase() {
         val MIGRATION_9_10 = object : Migration(9, 10) {
             override fun migrate(connection: SQLiteConnection) {
                 connection.execSQL("ALTER TABLE credits ADD COLUMN orderId INTEGER")
+            }
+        }
+
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `credit_payments` (`paymentId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `customerId` INTEGER, `customerName` TEXT NOT NULL, `creditId` INTEGER, `amount` REAL NOT NULL, `date` INTEGER NOT NULL)")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_credit_payments_customerId` ON `credit_payments` (`customerId`)")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_credit_payments_customerName` ON `credit_payments` (`customerName`)")
             }
         }
     }

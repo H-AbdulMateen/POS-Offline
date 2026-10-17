@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.core.domain.DataStoreManager
 import com.abdulmateen.pos_offline.core.domain.PrefKeys
+import com.abdulmateen.pos_offline.domain.repository.CreditRepository
 import com.abdulmateen.pos_offline.domain.repository.CustomerRepository
 import com.abdulmateen.pos_offline.domain.repository.OrderRepository
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.shareFile
@@ -17,6 +18,7 @@ class CustomerLedgerViewModel(
     private val customerId: Long,
     private val repository: CustomerRepository,
     private val orderRepository: OrderRepository,
+    private val creditRepository: CreditRepository,
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
 
@@ -45,16 +47,18 @@ class CustomerLedgerViewModel(
             
             combine(
                 repository.getCustomerOrders(customerId),
-                repository.getCustomerCredits(customerId)
-            ) { orders, credits ->
+                repository.getCustomerCredits(customerId),
+                creditRepository.getCustomerPayments(customerId, null)
+            ) { orders, credits, payments ->
                 val transactions = mutableListOf<LedgerTransaction>()
+                val orderIdsWithCredits = orders.map { it.orderId }.toSet()
                 
                 orders.forEach { order ->
                     transactions.add(
                         LedgerTransaction(
                             id = order.orderId,
                             date = order.createdAt,
-                            type = "Order",
+                            type = if (order.paymentMethod.equals("CREDIT", ignoreCase = true)) "Credit Order" else "Order",
                             amount = order.total,
                             details = "Order #${order.orderId}"
                         )
@@ -62,17 +66,31 @@ class CustomerLedgerViewModel(
                 }
 
                 credits.forEach { credit ->
-                    if (credit.remainingAmount > 0) {
-                        transactions.add(
-                            LedgerTransaction(
-                                id = credit.creditId,
-                                date = credit.date,
-                                type = "Credit",
-                                amount = credit.remainingAmount,
-                                details = "Credit Transaction"
+                    if (credit.orderId == null || !orderIdsWithCredits.contains(credit.orderId)) {
+                        if (credit.remainingAmount > 0) {
+                            transactions.add(
+                                LedgerTransaction(
+                                    id = credit.creditId,
+                                    date = credit.date,
+                                    type = "Credit",
+                                    amount = credit.remainingAmount,
+                                    details = "Credit Transaction"
+                                )
                             )
-                        )
+                        }
                     }
+                }
+
+                payments.forEach { payment ->
+                    transactions.add(
+                        LedgerTransaction(
+                            id = payment.paymentId,
+                            date = payment.date,
+                            type = LedgerTransaction.TYPE_PAYMENT,
+                            amount = payment.amount,
+                            details = "Payment Received"
+                        )
+                    )
                 }
 
                 val sortedTransactions = transactions.sortedByDescending { it.date }
@@ -102,6 +120,16 @@ class CustomerLedgerViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun receivePayment(amount: Double) {
+        viewModelScope.launch {
+            creditRepository.receiveCustomerPayment(
+                customerId = customerId,
+                customerName = uiState.value.customerName,
+                amount = amount
+            )
         }
     }
 

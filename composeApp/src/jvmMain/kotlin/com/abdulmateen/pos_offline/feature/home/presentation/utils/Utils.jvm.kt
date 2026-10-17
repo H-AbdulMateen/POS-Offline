@@ -27,7 +27,8 @@ actual fun generateInvoiceInPdf(
     paidAmount: Double,
     paymentType: String,
     businessName: String,
-    currencySymbol: String
+    currencySymbol: String,
+    customerCreditBalance: Double?
 ): ByteArray {
     val document = PDDocument()
     val page = PDPage()
@@ -41,7 +42,7 @@ actual fun generateInvoiceInPdf(
     contentStream.newLineAtOffset(0f, -25f)
     
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12f)
-    contentStream.showText("Customer: $customerName")
+    contentStream.showText("Client: $customerName")
     contentStream.newLineAtOffset(0f, -20f)
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA), 12f)
     contentStream.showText("Payment Type: $paymentType")
@@ -74,16 +75,21 @@ actual fun generateInvoiceInPdf(
     contentStream.newLineAtOffset(250f, -20f)
     contentStream.showText("Sub Total: $currencySymbol %.2f".format(subTotal))
     contentStream.newLineAtOffset(0f, -20f)
-    contentStream.showText("Discount: $currencySymbol %.2f".format(discount))
-    contentStream.newLineAtOffset(0f, -20f)
-    contentStream.showText("Tax: $currencySymbol %.2f".format(tax))
-    contentStream.newLineAtOffset(0f, -20f)
+//    contentStream.showText("Discount: $currencySymbol %.2f".format(discount))
+//    contentStream.newLineAtOffset(0f, -20f)
+//    contentStream.showText("Tax: $currencySymbol %.2f".format(tax))
+//    contentStream.newLineAtOffset(0f, -20f)
     
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12f)
     contentStream.showText("Total: $currencySymbol %.2f".format(total))
     contentStream.newLineAtOffset(0f, -20f)
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA), 12f)
     contentStream.showText("Paid: $currencySymbol %.2f".format(paidAmount))
+    if (customerCreditBalance != null && customerCreditBalance > 0.0) {
+        contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12f)
+        contentStream.newLineAtOffset(0f, -20f)
+        contentStream.showText("Balance: $currencySymbol %.2f".format(customerCreditBalance))
+    }
     contentStream.newLineAtOffset(0f, -20f)
 
     contentStream.endText()

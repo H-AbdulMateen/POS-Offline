@@ -3,6 +3,7 @@ package com.abdulmateen.pos_offline.feature.credit.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abdulmateen.pos_offline.data.database.entities.CreditEntity
+import com.abdulmateen.pos_offline.data.database.entities.CreditPaymentEntity
 import com.abdulmateen.pos_offline.data.database.entities.OrderWithItems
 import com.abdulmateen.pos_offline.domain.repository.CreditRepository
 import com.abdulmateen.pos_offline.domain.repository.OrderRepository
@@ -19,12 +20,15 @@ import kotlin.time.Instant
 
 data class CreditDetailUiState(
     val credits: List<CreditEntity> = emptyList(),
+    val payments: List<CreditPaymentEntity> = emptyList(),
     val currencySymbol: String = "$",
     val businessName: String = "",
     val isLoading: Boolean = false,
     val selectedOrder: OrderWithItems? = null,
     val showOrderDetails: Boolean = false
-)
+) {
+    val totalOutstanding: Double get() = credits.sumOf { it.remainingAmount }
+}
 
 class CreditDetailViewModel(
     private val customerName: String,
@@ -37,6 +41,7 @@ class CreditDetailViewModel(
 
     init {
         loadCredits()
+        loadPayments()
         loadSettings()
     }
 
@@ -59,16 +64,26 @@ class CreditDetailViewModel(
         }
     }
 
+    private fun loadPayments() {
+        viewModelScope.launch {
+            creditRepository.getCustomerPayments(null, customerName).collect { payments ->
+                _uiState.update { it.copy(payments = payments) }
+            }
+        }
+    }
+
     fun receivePayment(credit: CreditEntity, amount: Double) {
         viewModelScope.launch {
-            val updatedPaidAmount = credit.paidAmount + amount
-            val updatedRemainingAmount = (credit.totalAmount - updatedPaidAmount).coerceAtLeast(0.0)
-            creditRepository.upsertCredit(
-                credit.copy(
-                    paidAmount = updatedPaidAmount,
-                    remainingAmount = updatedRemainingAmount,
-                    lastUpdated = Clock.System.now().toEpochMilliseconds()
-                )
+            creditRepository.receiveCreditPayment(credit, amount)
+        }
+    }
+
+    fun receiveCustomerPayment(amount: Double) {
+        viewModelScope.launch {
+            creditRepository.receiveCustomerPayment(
+                customerId = null,
+                customerName = customerName,
+                amount = amount
             )
         }
     }

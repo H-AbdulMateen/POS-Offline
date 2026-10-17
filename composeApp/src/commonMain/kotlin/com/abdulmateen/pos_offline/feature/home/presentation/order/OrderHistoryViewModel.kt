@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 data class OrderHistoryUiState(
     val orders: List<Order> = emptyList(),
     val selectedOrderDetails: com.abdulmateen.pos_offline.data.database.entities.OrderWithItems? = null,
+    val selectedOrderCreditBalance: Double = 0.0,
     val businessName: String = "",
     val currencySymbol: String = "$",
     val isLoading: Boolean = false,
@@ -114,12 +115,20 @@ class OrderHistoryViewModel(
         if (orderId != null) {
             selectJob = viewModelScope.launch {
                 orderRepository.getOrderWithItems(orderId).collect { details ->
-                    _uiState.update { it.copy(selectedOrderDetails = details) }
+                    val balance = if (details != null) {
+                        creditRepository.getCustomerCreditBalance(details.order.customerId, details.order.customerName)
+                    } else 0.0
+                    _uiState.update { 
+                        it.copy(
+                            selectedOrderDetails = details,
+                            selectedOrderCreditBalance = balance
+                        ) 
+                    }
                 }
             }
         } else {
             selectJob = null
-            _uiState.update { it.copy(selectedOrderDetails = null) }
+            _uiState.update { it.copy(selectedOrderDetails = null, selectedOrderCreditBalance = 0.0) }
         }
     }
 

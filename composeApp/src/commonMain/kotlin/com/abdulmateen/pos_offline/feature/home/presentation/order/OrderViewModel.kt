@@ -178,6 +178,7 @@ class OrderViewModel(
                         selectedCustomer = action.customer
                     )
                 }
+                fetchCustomerCreditBalance(action.customer?.customerId, action.customer?.name)
             }
             is OrderUiAction.UpdateCartItemPrice -> {
                 viewModelScope.launch {
@@ -263,9 +264,17 @@ class OrderViewModel(
                         tax = orderWithItems.order.tax ?: 0.0
                     ) 
                 }
+                fetchCustomerCreditBalance(customer?.customerId, customer?.name ?: orderWithItems.order.customerName)
             } else {
                 _uiState.update { it.copy(isLoading = false) }
             }
+        }
+    }
+
+    fun fetchCustomerCreditBalance(customerId: Long?, customerName: String?) {
+        viewModelScope.launch {
+            val balance = creditRepository.getCustomerCreditBalance(customerId, customerName)
+            _uiState.update { it.copy(customerCreditBalance = balance) }
         }
     }
 

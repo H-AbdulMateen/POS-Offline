@@ -178,6 +178,7 @@ fun OrderHistoryScreen(
     if (uiState.selectedOrderDetails != null) {
         OrderDetailDialog(
             orderDetails = uiState.selectedOrderDetails,
+            customerCreditBalance = uiState.selectedOrderCreditBalance,
             businessName = uiState.businessName,
             currencySymbol = uiState.currencySymbol,
             onDismiss = onDismissDetails,
@@ -193,6 +194,7 @@ fun OrderHistoryScreen(
 @Composable
 fun OrderDetailDialog(
     orderDetails: OrderWithItems,
+    customerCreditBalance: Double = 0.0,
     businessName: String,
     currencySymbol: String,
     onDismiss: () -> Unit,
@@ -268,7 +270,8 @@ fun OrderDetailDialog(
                         paidAmount = orderDetails.order.total,
                         paymentType = orderDetails.order.paymentMethod,
                         businessName = businessName,
-                        currencySymbol = currencySymbol
+                        currencySymbol = currencySymbol,
+                        customerCreditBalance = customerCreditBalance
                     )
                     printPdf(invoiceData, fileName)
                 }) {
@@ -297,7 +300,8 @@ fun OrderDetailDialog(
                         paidAmount = orderDetails.order.total,
                         paymentType = orderDetails.order.paymentMethod,
                         businessName = businessName,
-                        currencySymbol = currencySymbol
+                        currencySymbol = currencySymbol,
+                        customerCreditBalance = customerCreditBalance
                     )
                     shareInvoiceFile(invoiceData, fileName)
                 }) {
@@ -386,6 +390,9 @@ fun OrderDetailDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 DetailRow("Payment Method", orderDetails.order.paymentMethod, valueStyle = MaterialTheme.typography.labelLarge)
+                if (customerCreditBalance > 0.0) {
+                    DetailRow("Credit Balance", "$currencySymbol $customerCreditBalance", valueColor = MaterialTheme.colorScheme.error)
+                }
             }
         }
     )

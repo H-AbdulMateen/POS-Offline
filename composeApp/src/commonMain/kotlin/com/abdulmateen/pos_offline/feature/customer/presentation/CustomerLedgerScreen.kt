@@ -7,16 +7,23 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abdulmateen.pos_offline.core.designsystem.components.layouts.LoadingSection
 import com.abdulmateen.pos_offline.data.database.entities.OrderWithItems
 import com.abdulmateen.pos_offline.domain.models.CartItem
+import com.abdulmateen.pos_offline.feature.credit.presentation.components.ReceivePaymentDialog
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.generateInvoiceInPdf
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.printPdf
 import com.abdulmateen.pos_offline.feature.home.presentation.utils.shareInvoiceFile
@@ -61,6 +68,7 @@ fun CustomerLedgerScreenRoot(
             CustomerLedgerScreen(
                 uiState = uiState,
                 onTransactionClick = viewModel::onTransactionClick,
+                onReceivePayment = viewModel::receivePayment,
                 modifier = Modifier.padding(padding)
             )
         }
@@ -69,6 +77,7 @@ fun CustomerLedgerScreenRoot(
     if (uiState.showOrderDetails && uiState.selectedOrder != null) {
         OrderDetailDialog(
             orderWithItems = uiState.selectedOrder,
+            customerCreditBalance = uiState.totalOutstandingBalance,
             onDismiss = { viewModel.dismissOrderDetails() },
             businessName = uiState.businessName,
             currencySymbol = uiState.currencySymbol,
@@ -84,8 +93,24 @@ fun CustomerLedgerScreenRoot(
 fun CustomerLedgerScreen(
     uiState: CustomerLedgerUiState,
     onTransactionClick: (LedgerTransaction) -> Unit,
+    onReceivePayment: (Double) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showPaymentDialog by remember { mutableStateOf(false) }
+
+    if (showPaymentDialog) {
+        ReceivePaymentDialog(
+            customerName = uiState.customerName,
+            outstandingAmount = uiState.totalOutstandingBalance,
+            currencySymbol = uiState.currencySymbol,
+            onDismiss = { showPaymentDialog = false },
+            onConfirm = { amount ->
+                onReceivePayment(amount)
+                showPaymentDialog = false
+            }
+        )
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -95,16 +120,28 @@ fun CustomerLedgerScreen(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = stringResource(Res.string.outstanding_balance),
-                    style = MaterialTheme.typography.labelLarge
-                )
-                Text(
-                    text = "Rs. ${uiState.totalOutstandingBalance}",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(Res.string.outstanding_balance),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    Text(
+                        text = "Rs. ${uiState.totalOutstandingBalance}",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                if (uiState.totalOutstandingBalance > 0.0) {
+                    Button(onClick = { showPaymentDialog = true }) {
+                        Icon(Icons.Default.Payment, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Receive Payment")
+                    }
+                }
             }
         }
         
@@ -174,7 +211,11 @@ fun LedgerItem(
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
-                color = if (transaction.type == "Order") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                color = when (transaction.type) {
+                    LedgerTransaction.TYPE_PAYMENT -> Color(0xFF2E7D32)
+                    "Order" -> MaterialTheme.colorScheme.error
+                    else -> MaterialTheme.colorScheme.primary
+                }
             )
         }
     }
@@ -183,10 +224,11 @@ fun LedgerItem(
 @Composable
 fun OrderDetailDialog(
     orderWithItems: OrderWithItems,
+    customerCreditBalance: Double = 0.0,
     onDismiss: () -> Unit,
     businessName: String,
     currencySymbol: String,
-    onEditClick: (Long) -> Unit
+    onEditClick: ((Long) -> Unit)? = null
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -200,6 +242,12 @@ fun OrderDetailDialog(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Payment:", fontWeight = FontWeight.Bold)
                     Text(orderWithItems.order.paymentMethod)
+                }
+                if (customerCreditBalance > 0.0) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Credit Balance:", fontWeight = FontWeight.Bold)
+                        Text("Rs. $customerCreditBalance", color = MaterialTheme.colorScheme.error)
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Items:", fontWeight = FontWeight.Bold)
@@ -222,10 +270,12 @@ fun OrderDetailDialog(
         },
         confirmButton = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = {
-                    onEditClick(orderWithItems.order.orderId)
-                }, modifier = Modifier.weight(1f)) {
-                    Text("Edit")
+                if (onEditClick != null) {
+                    Button(onClick = {
+                        onEditClick(orderWithItems.order.orderId)
+                    }, modifier = Modifier.weight(1f)) {
+                        Text("Edit")
+                    }
                 }
                 Button(onClick = {
                     val fileName = "invoice_${orderWithItems.order.orderId}.pdf"
@@ -250,7 +300,8 @@ fun OrderDetailDialog(
                         paidAmount = orderWithItems.order.total,
                         paymentType = orderWithItems.order.paymentMethod,
                         businessName = businessName,
-                        currencySymbol = currencySymbol
+                        currencySymbol = currencySymbol,
+                        customerCreditBalance = customerCreditBalance
                     )
                     printPdf(invoiceData, fileName)
                 }, modifier = Modifier.weight(1f)) {
@@ -283,7 +334,8 @@ fun OrderDetailDialog(
                         paidAmount = orderWithItems.order.total,
                         paymentType = orderWithItems.order.paymentMethod,
                         businessName = businessName,
-                        currencySymbol = currencySymbol
+                        currencySymbol = currencySymbol,
+                        customerCreditBalance = customerCreditBalance
                     )
                     shareInvoiceFile(invoiceData, fileName)
                 }, modifier = Modifier.weight(1f)) {

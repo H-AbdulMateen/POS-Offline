@@ -83,6 +83,7 @@ class SettingsViewModel(
                 database.orderDao().clearOrders()
                 database.cartDao().clearAllCartItems()
                 database.cartDao().delete()
+                database.creditDao().clearPayments()
                 database.creditDao().clearCredits()
                 database.expenseDao().clearExpenses()
                 database.customerDao().clearCustomers()

@@ -37,6 +37,7 @@ data class OrderUiState(
     val currencySymbol: String = "$",
     val customerList: List<Customer> = emptyList(),
     val selectedCustomer: Customer? = null,
+    val customerCreditBalance: Double = 0.0,
     val isCustomizablePriceEnabled: Boolean = false,
     val updatingOrderId: Long? = null
 ) {
