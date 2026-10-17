@@ -18,13 +18,13 @@ import javax.print.attribute.HashPrintRequestAttributeSet
 import javax.print.attribute.standard.Sides
 
 actual fun generateInvoiceInPdf(
+    customerName: String,
     cartItems: List<CartItem>,
     subTotal: Double,
     discount: Double,
     tax: Double,
     total: Double,
     paidAmount: Double,
-    change: Double,
     paymentType: String,
     businessName: String,
     currencySymbol: String
@@ -41,7 +41,7 @@ actual fun generateInvoiceInPdf(
     contentStream.newLineAtOffset(0f, -25f)
     
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12f)
-    contentStream.showText("Invoice")
+    contentStream.showText("Customer: $customerName")
     contentStream.newLineAtOffset(0f, -20f)
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA), 12f)
     contentStream.showText("Payment Type: $paymentType")
@@ -85,8 +85,7 @@ actual fun generateInvoiceInPdf(
     contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA), 12f)
     contentStream.showText("Paid: $currencySymbol %.2f".format(paidAmount))
     contentStream.newLineAtOffset(0f, -20f)
-    contentStream.showText("Change: $currencySymbol %.2f".format(change))
-    
+
     contentStream.endText()
     contentStream.close()
 

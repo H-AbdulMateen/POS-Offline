@@ -309,7 +309,7 @@ fun ReturnOrderRow(order: Order, currencySymbol: String, onClick: () -> Unit) {
         ReturnTableCell(date, 1.2f)
         ReturnTableCell("#${order.orderId}", 1f)
         Column(modifier = Modifier.weight(2f).padding(12.dp)) {
-            Text(text = order.customerName ?: "Walk-in Customer", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+            Text(text = order.customerName ?: "Walk-in", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
             if (!order.customerPhone.isNullOrBlank()) {
                 Text(text = order.customerPhone, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
             }

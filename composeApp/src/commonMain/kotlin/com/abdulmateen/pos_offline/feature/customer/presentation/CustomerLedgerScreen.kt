@@ -230,6 +230,7 @@ fun OrderDetailDialog(
                 Button(onClick = {
                     val fileName = "invoice_${orderWithItems.order.orderId}.pdf"
                     val invoiceData = generateInvoiceInPdf(
+                        customerName = orderWithItems.order.customerName ?: "Walk-in",
                         cartItems = orderWithItems.items.map {
                             CartItem(
                                 productId = it.productId,
@@ -247,7 +248,6 @@ fun OrderDetailDialog(
                         tax = orderWithItems.order.tax ?: 0.0,
                         total = orderWithItems.order.total,
                         paidAmount = orderWithItems.order.total,
-                        change = 0.0,
                         paymentType = orderWithItems.order.paymentMethod,
                         businessName = businessName,
                         currencySymbol = currencySymbol
@@ -263,6 +263,7 @@ fun OrderDetailDialog(
                 Button(onClick = {
                     val fileName = "invoice_${orderWithItems.order.orderId}.pdf"
                     val invoiceData = generateInvoiceInPdf(
+                        customerName = orderWithItems.order.customerName ?: "Walk-in",
                         cartItems = orderWithItems.items.map {
                             CartItem(
                                 productId = it.productId,
@@ -280,7 +281,6 @@ fun OrderDetailDialog(
                         tax = orderWithItems.order.tax ?: 0.0,
                         total = orderWithItems.order.total,
                         paidAmount = orderWithItems.order.total,
-                        change = 0.0,
                         paymentType = orderWithItems.order.paymentMethod,
                         businessName = businessName,
                         currencySymbol = currencySymbol

@@ -65,8 +65,8 @@ fun CartListItem(
             // Product Image
             Box(
                 modifier = Modifier
-                    .width(100.dp)
-                    .height(80.dp)
+                    .width(40.dp)
+                    .height(40.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center

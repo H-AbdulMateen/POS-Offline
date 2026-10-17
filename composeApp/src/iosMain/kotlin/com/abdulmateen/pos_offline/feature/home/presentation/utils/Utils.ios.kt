@@ -30,13 +30,13 @@ import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun generateInvoiceInPdf(
+    customerName: String,
     cartItems: List<CartItem>,
     subTotal: Double,
     discount: Double,
     tax: Double,
     total: Double,
     paidAmount: Double,
-    change: Double,
     paymentType: String,
     businessName: String,
     currencySymbol: String
@@ -52,7 +52,7 @@ actual fun generateInvoiceInPdf(
     val productsText = cartItems.joinToString("\n") { "${it.productName} x ${it.quantity} = $currencySymbol ${it.price}" }
     val text = """
         $businessName
-        Invoice
+        Customer: $customerName
         Payment Type: $paymentType
         Order Date: ${platform.Foundation.NSDate()}
         
@@ -63,7 +63,7 @@ actual fun generateInvoiceInPdf(
         Tax: $currencySymbol $tax
         Total: $currencySymbol $total
         Paid: $currencySymbol $paidAmount
-        Change: $currencySymbol $change
+
     """.trimIndent()
 
     val paragraphStyle = NSMutableParagraphStyle().apply { NSTextAlignmentLeft }

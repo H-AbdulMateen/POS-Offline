@@ -248,6 +248,7 @@ fun OrderDetailDialog(
                 Button(onClick = {
                     val fileName = "invoice_${orderDetails.order.orderId}.pdf"
                     val invoiceData = generateInvoiceInPdf(
+                        customerName = orderDetails.order.customerName ?: "Walk-in",
                         cartItems = orderDetails.items.map { 
                             CartItem(
                                 productId = it.productId,
@@ -265,7 +266,6 @@ fun OrderDetailDialog(
                         tax = orderDetails.order.tax ?: 0.0,
                         total = orderDetails.order.total,
                         paidAmount = orderDetails.order.total,
-                        change = 0.0,
                         paymentType = orderDetails.order.paymentMethod,
                         businessName = businessName,
                         currencySymbol = currencySymbol
@@ -277,6 +277,7 @@ fun OrderDetailDialog(
                 Button(onClick = {
                     val fileName = "invoice_${orderDetails.order.orderId}.pdf"
                     val invoiceData = generateInvoiceInPdf(
+                        customerName = orderDetails.order.customerName ?: "Walk-in",
                         cartItems = orderDetails.items.map {
                             CartItem(
                                 productId = it.productId,
@@ -294,7 +295,6 @@ fun OrderDetailDialog(
                         tax = orderDetails.order.tax ?: 0.0,
                         total = orderDetails.order.total,
                         paidAmount = orderDetails.order.total,
-                        change = 0.0,
                         paymentType = orderDetails.order.paymentMethod,
                         businessName = businessName,
                         currencySymbol = currencySymbol
@@ -467,7 +467,7 @@ fun OrderHistoryRow(order: Order, currencySymbol: String, onClick: () -> Unit) {
         OrderTableCell(date, 1.2f)
         Column(modifier = Modifier.weight(2f).padding(12.dp)) {
             Text(
-                text = order.customerName ?: "Walk-in Customer", 
+                text = order.customerName ?: "Walk-in", 
                 style = MaterialTheme.typography.bodyLarge, 
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface

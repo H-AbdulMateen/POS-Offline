@@ -17,13 +17,13 @@ import java.io.File
 import java.util.Date
 
 actual fun generateInvoiceInPdf(
+    customerName: String,
     cartItems: List<CartItem>,
     subTotal: Double,
     discount: Double,
     tax: Double,
     total: Double,
     paidAmount: Double,
-    change: Double,
     paymentType: String,
     businessName: String,
     currencySymbol: String
@@ -44,7 +44,7 @@ actual fun generateInvoiceInPdf(
     
     paint.isFakeBoldText = false
     paint.textSize = 12f
-    canvas.drawText("Invoice", 100f, 75f, paint)
+    canvas.drawText("Customer: $customerName", 100f, 75f, paint)
     canvas.drawText("Payment Type: $paymentType", 100f, 95f, paint)
 
     canvas.drawText("Order Date:", 100f, 120f, paint)

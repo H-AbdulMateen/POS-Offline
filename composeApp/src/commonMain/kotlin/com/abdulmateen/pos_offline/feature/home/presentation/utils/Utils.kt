@@ -3,13 +3,13 @@ package com.abdulmateen.pos_offline.feature.home.presentation.utils
 import com.abdulmateen.pos_offline.domain.models.CartItem
 
 expect fun generateInvoiceInPdf(
+    customerName: String,
     cartItems: List<CartItem>,
     subTotal: Double,
     discount: Double,
     tax: Double,
     total: Double,
     paidAmount: Double,
-    change: Double,
     paymentType: String,
     businessName: String,
     currencySymbol: String
