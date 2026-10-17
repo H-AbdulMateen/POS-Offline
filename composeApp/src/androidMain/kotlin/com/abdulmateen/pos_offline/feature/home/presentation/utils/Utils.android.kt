@@ -85,9 +85,7 @@ actual fun generateInvoiceInPdf(
     
     canvas.drawText("Paid Amount:", 350f, yPosition, paint)
     canvas.drawText("$currencySymbol %.2f".format(paidAmount), 450f, yPosition, paint)
-    yPosition += 20f
-    canvas.drawText("Change:", 350f, yPosition, paint)
-    canvas.drawText("$currencySymbol %.2f".format(change), 450f, yPosition, paint)
+
 
     pdfDocument.finishPage(page)
 
